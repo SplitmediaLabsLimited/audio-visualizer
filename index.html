@@ -1,0 +1,51 @@
+<!--
+/**
+ * Copyright (c) 2017 Split Media Labs, All rights reserved.
+ * <licenseinfo@splitmedialabs.com>
+ * 
+ * You may only use this file subject to direct and explicit grant of rights by Split Media Labs,
+ * either by written license agreement or written permission.
+ * 
+ * You may use this file in its original or modified form solely for the purpose, and subject to the terms,
+ * stipulated by the license agreement or permission.
+ * 
+ * If you have not received this file in source code format directly from Split Media Labs,
+ * then you have no right to use this file or any part hereof.
+ * Please delete all traces of the file from your system and notify Split Media Labs immediately.
+ */
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="xsplit:config-url" content="config.html">
+    <title>XSplit Broadcaster Audio Visualizer</title>
+    
+    <link rel="stylesheet" href="./css/visualizer-1.css">
+    <script src="http://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <script src="./src/xjs-audio-visualizer.js" type="text/javascript" charset="utf-8"></script>
+</head>
+
+<body>   
+    <div id="log"></div>
+    <svg preserveAspectRatio="none" id="visualizer" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="500" height="500">
+        <defs>
+            <mask id="mask">
+                <g id="maskGroup">
+              </g>
+            </mask>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style="stop-color:#ff0a0a;stop-opacity:1" />
+                <stop offset="20%" style="stop-color:#f1ff0a;stop-opacity:1" />
+                <stop offset="90%" style="stop-color:#d923b9;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#050d61;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="100%" height="100%" fill="url(#gradient)" mask="url(#mask)"></rect>
+    </svg>
+    
+</body>
+
+</html>

@@ -1,0 +1,10 @@
+*.njsproj
+tasks.json
+**/node_modules/*
+**/obj/*
+**/.vs/*
+*.dll
+jshint.config
+**/.vs
+**/.vscode
+*.xml

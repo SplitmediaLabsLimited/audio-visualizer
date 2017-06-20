@@ -1,0 +1,19 @@
+{
+  "name": "audio-visualizer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xjsframework/audio-visualizer.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xjsframework/audio-visualizer/issues"
+  },
+  "homepage": "https://github.com/xjsframework/audio-visualizer#readme"
+}
