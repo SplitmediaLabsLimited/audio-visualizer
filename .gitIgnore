@@ -8,3 +8,5 @@ jshint.config
 **/.vs
 **/.vscode
 *.xml
+*.sublime-*
+yarn.lock
