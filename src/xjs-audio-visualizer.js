@@ -12,7 +12,7 @@
  * then you have no right to use this file or any part hereof.
  * Please delete all traces of the file from your system and notify Split Media Labs immediately.
  */
-//let xjs = require('xjs');
+let xjs = require('xjs');
 "use strict";
 if(typeof window.external.SetLocalProperty !== "undefined"){
 	window.external.SetLocalProperty("prop:Browser60fps","1");  
@@ -74,16 +74,24 @@ var XBCAudioVisualizer = function(config = {}){
 	 * [enableLog enables/disables internal logs]
 	 * @type {Boolean}
 	 */
-	this.enableLog = false;
+	this.enableLog = true;
+
+	/**
+	 * [canvas container]
+	 * @type {[type]}
+	 */
+	this.canvas = null;
+
+	this.wave = 0;
 
 	/**
 	 * [log prints into the console the given arguments]
 	 * @return {[type]} [description]
 	 */
-	this.log = () =>{
+	this.log = (args) =>{
 		var self = this;
 		if(self.enableLog){
-			console.log(arguments);
+			$("#log").text(args);
 		}
 	}
 	/**
@@ -148,6 +156,17 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.soundAllowed = (stream) => {
 		var self = this;
+		let resizeHandler = () => {
+			let w = window.innerWidth;
+			let h = window.innerHeight;
+			console.log(w+','+h);
+			let cx = w / 2;
+			let cy = h / 2;
+			self.visualizer.canvas.width = w;
+			self.visualizer.canvas.height = h;
+			self.canvas.width = w;
+			self.canvas.height = h
+		};
 
 		/**
 		 * [we prepare the stream by connecting the audio stream to the needed analyzer]
@@ -156,51 +175,62 @@ var XBCAudioVisualizer = function(config = {}){
 		self.audioStream = self.audioContent.createMediaStreamSource( stream );
 		self.analyser = self.audioContent.createAnalyser();
 		self.analyser.fftSize = 1024;
-		var canvasCtx = self.visualizer.getContext("2d");
+		resizeHandler();
 
 		/**
-		 * first we prepare the canvas
+		 * we clear the frame
 		 */
-		self.visualizer.clearRect(0, 0, self.visualizer.width, self.visualizer.height);
-
-		/*self.paths = document.getElementsByTagName('path');
-		self.visualizer = document.getElementById(self._defaults.visualizer);
-		//self.mask = visualizer.getElementById(maskId); 
-		self.mask = document.createElement('mask')
-		self.mask.setAttribute('id','mask');
-		var g = document.createElement('g');
-		g.setAttribute('id','maskgroup');
-		self.mask.appendChild(g);
-		self.visualizer.appendChild(self.mask);
-
-		self.visualizer.setAttribute('viewBox', '0 0 500 500');*/
-		
-		/**
-		 * then we draw the waveform
-		 */
-		/*for (let i = 0 ; i < 255; i++) {
-			self.path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-			self.path.setAttribute('stroke-dasharray', '1,1');
-			self.path.setAttribute('stroke-width','0.5px');
-			self.mask.appendChild(self.path);
-		}*/
+		self.visualizer.clearRect(0,0,self.canvas.width,self.canvas.height)
 
 		/**
 		 * [then we prepare a audioprocessor to fetch the frequencyArray to be drawn]
 		 */
+		let bufferLength = self.analyser.frequencyBinCount;
 		let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
 		let javascriptNode = self.audioContent.createScriptProcessor(1024,1,1);
-
+		
+		console.log(frequencyArray);
+		
+		window.addEventListener('resize',resizeHandler,false)
 
 		/**
 		 * [and we draw what comes in the audio process]
 		 */
 		javascriptNode.onaudioprocess = (e) => {
+			self.visualizer.clearRect(0, 0, 500, 500);
 			self.analyser.getByteFrequencyData(frequencyArray);
-			let adjustedLength;
-			for (let i = 0 ; i < 255; i++) {
-				adjustedLength = Math.floor(frequencyArray[i]) - (Math.floor(frequencyArray[i]) % 5);
-				self.paths[i].setAttribute('d', 'M '+ (i) +',255 l 0,-' + adjustedLength);
+			var spaceh = window.innerWidth/bufferLength;
+			self.visualizer.fillRect(0, 0, self.canvas.width, self.canvas.height);
+			self.visualizer.setLineDash([4,4])
+			self.visualizer.lineWidth = 4
+			
+			var tmpPath = null;
+			let adjustedLength = 0;
+			let pos = 0;
+			let calc1 = 0;
+			let calc2  = 0;
+			for(var i = 0; i < bufferLength/2; i++) {
+				
+				calc1 = (frequencyArray[i]/bufferLength);
+				calc2 = (window.innerHeight * calc1)*2;           	
+				if(i==0){
+					pos = 0
+					if(adjustedLength > self.wave){
+						self.wave = adjustedLength;
+						console.log('new max:',self.wave);
+					}
+				} else {
+					pos = (i)*spaceh*2;
+				}
+
+				var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
+				gradientObject.addColorStop('0' ,'#ff0a0a')
+				gradientObject.addColorStop('0.2' ,'#f1ff0a')
+				gradientObject.addColorStop('0.9' ,'#d923b9')
+				gradientObject.addColorStop('1' ,'#050d61')
+				tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
+				self.visualizer.strokeStyle = gradientObject;
+				self.visualizer.stroke(tmpPath);
 			}
 		}
 
@@ -240,7 +270,8 @@ var XBCAudioVisualizer = function(config = {}){
 			hasCustomSoundAllowed : false,
 			customSoundAllowed : function() {},
 			customSoundNotAllowed : function() {},
-			is3d : false
+			is3d : false,
+			enableLog:false
 		}
 
 		/**
@@ -254,14 +285,25 @@ var XBCAudioVisualizer = function(config = {}){
 		if(typeof self.config.canvas_width === 'undefined') throw 'The visualizer width was not found on the settings';
 		if(typeof self.config.canvas_height === 'undefined') throw 'The visualizer height was not found on the settings';
 
+		if(self._defaults.enableLog){
+			self.enableLog = true;
+		}
 
-		self.visualizer = document.getElementById(self._defaults.visualizer);
+		/**
+		 * starting up instances...
+		 */
+		self.canvas = document.getElementById(self._defaults.visualizer);
+		self.visualizer = self.canvas.getContext("2d")
 		self.mask = document.getElementById(self._defaults.mask); 
+		
+		/** 
+		 * ready to go!
+		 */
 		self.setXBCAudioDeviceAsSource()
 	}
 
 	/**
-	 * finally we execute the class (call it a rudimentary )
+	 * finally we execute the class (call it a rudimentary constructor)
 	 */
 	this.init();
 }
@@ -274,7 +316,8 @@ $(function(){
 		isMaskMarkup : false,
 		mask : 'mask',
 		canvas_width : '100%',
-		canvas_height : '100%'
+		canvas_height : '100%',
+		enableLog : true
 	}
 	new XBCAudioVisualizer(config);	
 })

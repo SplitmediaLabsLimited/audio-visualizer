@@ -32,7 +32,7 @@
 	var propsWindow = xjs.SourcePropsWindow.getInstance();
 
 	// Option 1: Use XSplit's existing tab system
-	/**
+	
 	xjs.ready()
 	.then(function() {
 		propsWindow.useTabbedWindow({
@@ -40,13 +40,14 @@
 			tabOrder: ['Custom', 'Layout', 'Color', 'Transition'] // Layout/Color/Transition are optional reusable XSplit tabs
 			});
 	});
-	**/
+	
 
 	// Option 2: Use the full window
-	xjs.ready()
+	/*xjs.ready()
 	.then(function() {
 		propsWindow.useFullWindow();
 	});
+	*/
 })();
 
 </script>
