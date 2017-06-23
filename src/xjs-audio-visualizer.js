@@ -197,10 +197,10 @@ var XBCAudioVisualizer = function(config = {}){
 		 * [and we draw what comes in the audio process]
 		 */
 		javascriptNode.onaudioprocess = (e) => {
-			self.visualizer.clearRect(0, 0, 500, 500);
+			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
 			self.analyser.getByteFrequencyData(frequencyArray);
 			var spaceh = window.innerWidth/bufferLength;
-			self.visualizer.fillRect(0, 0, self.canvas.width, self.canvas.height);
+			//self.visualizer.fillRect(0, 0, self.canvas.width, self.canvas.height);
 			self.visualizer.setLineDash([4,4])
 			self.visualizer.lineWidth = 4
 			

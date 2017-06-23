@@ -29,10 +29,21 @@
 (function(){
 	'use strict'
 	var xjs = require('xjs');
+	var source = xjs.Source;
 	var propsWindow = xjs.SourcePropsWindow.getInstance();
+	xjs.ready()
+	.then(function() {
+		propsWindow.useTabbedWindow({
+			customTabs: ['Custom'],
+			tabOrder: ['Custom', 'Layout', 'Color', 'Transition'] // Layout/Color/Transition are optional reusable XSplit tabs
+			});
+	})
+	
+
+	//var propsWindow = xjs.SourcePropsWindow.getInstance();
 
 	// Option 1: Use XSplit's existing tab system
-	
+	/*
 	xjs.ready()
 	.then(function() {
 		propsWindow.useTabbedWindow({
@@ -40,6 +51,7 @@
 			tabOrder: ['Custom', 'Layout', 'Color', 'Transition'] // Layout/Color/Transition are optional reusable XSplit tabs
 			});
 	});
+	*/
 	
 
 	// Option 2: Use the full window
