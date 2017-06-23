@@ -230,6 +230,8 @@ var XBCAudioVisualizer = function(config = {}){
 				gradientObject.addColorStop('1' ,'#050d61')
 				tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
 				self.visualizer.strokeStyle = gradientObject;
+				self.visualizer.shadowBlur = 40;
+				self.visualizer.shadowColor = "white";
 				self.visualizer.stroke(tmpPath);
 			}
 		}
@@ -264,8 +266,6 @@ var XBCAudioVisualizer = function(config = {}){
 			haveMask : true,
 			isMaskMarkup : false,
 			mask : 'mask',
-			canvas_width : '100%',
-			canvas_height : '100%',
 			audioDeviceId : '',
 			hasCustomSoundAllowed : false,
 			customSoundAllowed : function() {},
@@ -313,8 +313,6 @@ $(function(){
 	var config = {
 		visualizer : 'visualizer',
 		haveMask : true,
-		isMaskMarkup : false,
-		mask : 'mask',
 		canvas_width : '100%',
 		canvas_height : '100%',
 		enableLog : true
