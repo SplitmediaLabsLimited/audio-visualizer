@@ -82,8 +82,6 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.canvas = null;
 
-	this.wave = 0;
-
 	/**
 	 * [log prints into the console the given arguments]
 	 * @return {[type]} [description]
@@ -174,7 +172,7 @@ var XBCAudioVisualizer = function(config = {}){
 		window.persistAudioStream = stream;
 		self.audioStream = self.audioContent.createMediaStreamSource( stream );
 		self.analyser = self.audioContent.createAnalyser();
-		self.analyser.fftSize = 1024;
+		self.analyser.fftSize = 512;
 		resizeHandler();
 
 		/**
@@ -187,7 +185,9 @@ var XBCAudioVisualizer = function(config = {}){
 		 */
 		let bufferLength = self.analyser.frequencyBinCount;
 		let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
-		let javascriptNode = self.audioContent.createScriptProcessor(1024,1,1);
+		let javascriptNode = self.audioContent.createScriptProcessor(512,1,1);
+		//self.visualizer.shadowBlur = 40;
+		//self.visualizer.shadowColor = "white";
 		
 		console.log(frequencyArray);
 		
@@ -196,52 +196,174 @@ var XBCAudioVisualizer = function(config = {}){
 		/**
 		 * [and we draw what comes in the audio process]
 		 */
-		javascriptNode.onaudioprocess = (e) => {
+		/** 
+		 * code performance issues... looking into using requestAnimationFrame
+		 * rather than javascriptNode
+		 */
+		
+		let draw = () =>{
+			requestAnimationFrame(draw);
 			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
-			self.analyser.getByteFrequencyData(frequencyArray);
-			var spaceh = window.innerWidth/bufferLength;
-			//self.visualizer.fillRect(0, 0, self.canvas.width, self.canvas.height);
-			self.visualizer.setLineDash([4,4])
-			self.visualizer.lineWidth = 4
-			
-			var tmpPath = null;
-			let adjustedLength = 0;
-			let pos = 0;
-			let calc1 = 0;
-			let calc2  = 0;
-			for(var i = 0; i < bufferLength/2; i++) {
-				
-				calc1 = (frequencyArray[i]/bufferLength);
-				calc2 = (window.innerHeight * calc1)*2;           	
-				if(i==0){
-					pos = 0
-					if(adjustedLength > self.wave){
-						self.wave = adjustedLength;
-						console.log('new max:',self.wave);
+			switch(self._defaults.skin){
+				case 'sinewave':
+					self.analyser.getByteTimeDomainData(frequencyArray);
+					var x = 0;
+					var y = 0;
+					var sliceWidth = self.canvas.width / bufferLength;
+					self.visualizer.lineWidth = 2;
+					self.visualizer.strokeStyle = '#fff';
+					self.visualizer.setLineDash([2,2]);
+					self.visualizer.shadowColor = 'white';
+					self.visualizer.shadowBlur = 5;
+					self.visualizer.beginPath();
+					var sliceWidth = self.canvas.width * 1.0 / bufferLength;
+		      		var x = 0;
+		      		for(var i = 0; i < bufferLength; i++) {
+						var v = frequencyArray[i] / 128.0;
+						var y = v * self.canvas.height/2;
+						if(i === 0) {
+						self.visualizer.moveTo(x, y);
+						} else {
+						self.visualizer.lineTo(x, y);
+						}
+						x += sliceWidth;
 					}
-				} else {
-					pos = (i)*spaceh*2;
-				}
+					
+					var gradientObject = self.visualizer.createLinearGradient(0,self.canvas.height,self.canvas.width,self.canvas.height);
+					gradientObject.addColorStop('0' ,'#ff0a0a')
+					gradientObject.addColorStop('0.2' ,'#f1ff0a')
+					gradientObject.addColorStop('0.9' ,'#d923b9')
+					gradientObject.addColorStop('1' ,'#050d61')
+					self.visualizer.strokeStyle = gradientObject;
+					
+					self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
+					self.visualizer.stroke();
+					self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+				break;
+				case 'bars':
+					var spaceh = window.innerWidth/bufferLength;
+					self.analyser.getByteFrequencyData(frequencyArray);
+					self.visualizer.setLineDash([4,4])
+					self.visualizer.lineWidth = 4;
+					
+					var tmpPath = null;
+					let adjustedLength = 0;
+					let pos = 0;
+					let calc1 = 0;
+					let calc2  = 0;
+					for(var i = 0; i < bufferLength; i++) {
+						
+						calc1 = (frequencyArray[i]/bufferLength);
+						calc2 = (window.innerHeight * calc1);           	
+						if(i==0){
+							pos = 1
+						} else {
+							pos = (i)*spaceh;
+						}
 
-				var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
-				gradientObject.addColorStop('0' ,'#ff0a0a')
-				gradientObject.addColorStop('0.2' ,'#f1ff0a')
-				gradientObject.addColorStop('0.9' ,'#d923b9')
-				gradientObject.addColorStop('1' ,'#050d61')
-				tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
-				self.visualizer.strokeStyle = gradientObject;
-				self.visualizer.shadowBlur = 40;
-				self.visualizer.shadowColor = "white";
-				self.visualizer.stroke(tmpPath);
+						var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
+						gradientObject.addColorStop('0' ,'#ff0a0a')
+						gradientObject.addColorStop('0.2' ,'#f1ff0a')
+						gradientObject.addColorStop('0.9' ,'#d923b9')
+						gradientObject.addColorStop('1' ,'#050d61')
+						tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
+						self.visualizer.strokeStyle = gradientObject;
+						self.visualizer.stroke(tmpPath);
+
+					}
+				break;
+				case 'custom':
+
+				break;
 			}
 		}
+
+		draw();
+		
+
+		/*
+		javascriptNode.onaudioprocess = (e) => {
+			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+			switch(self._defaults.skin){
+				case 'sinewave':
+					self.analyser.getByteTimeDomainData(frequencyArray);
+					var x = 0;
+					var y = 0;
+					var sliceWidth = self.canvas.width / bufferLength;
+					self.visualizer.lineWidth = 2;
+					self.visualizer.strokeStyle = '#fff';
+					self.visualizer.setLineDash([2,2]);
+					self.visualizer.shadowColor = 'white';
+					self.visualizer.shadowBlur = 5;
+					self.visualizer.beginPath();
+					var sliceWidth = self.canvas.width * 1.0 / bufferLength;
+		      		var x = 0;
+		      		for(var i = 0; i < bufferLength; i++) {
+						var v = frequencyArray[i] / 128.0;
+						var y = v * self.canvas.height/2;
+						if(i === 0) {
+						self.visualizer.moveTo(x, y);
+						} else {
+						self.visualizer.lineTo(x, y);
+						}
+						x += sliceWidth;
+					}
+					
+					var gradientObject = self.visualizer.createLinearGradient(0,self.canvas.height,self.canvas.width,self.canvas.height);
+					gradientObject.addColorStop('0' ,'#ff0a0a')
+					gradientObject.addColorStop('0.2' ,'#f1ff0a')
+					gradientObject.addColorStop('0.9' ,'#d923b9')
+					gradientObject.addColorStop('1' ,'#050d61')
+					self.visualizer.strokeStyle = gradientObject;
+					
+					self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
+					self.visualizer.stroke();
+				break;
+				case 'bars':
+					var spaceh = window.innerWidth/bufferLength;
+					self.analyser.getByteFrequencyData(frequencyArray);
+					self.visualizer.setLineDash([4,4])
+					self.visualizer.lineWidth = 4;
+					
+					var tmpPath = null;
+					let adjustedLength = 0;
+					let pos = 0;
+					let calc1 = 0;
+					let calc2  = 0;
+					for(var i = 0; i < bufferLength; i++) {
+						
+						calc1 = (frequencyArray[i]/bufferLength);
+						calc2 = (window.innerHeight * calc1);           	
+						if(i==0){
+							pos = 1
+						} else {
+							pos = (i)*spaceh;
+						}
+
+						var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
+						gradientObject.addColorStop('0' ,'#ff0a0a')
+						gradientObject.addColorStop('0.2' ,'#f1ff0a')
+						gradientObject.addColorStop('0.9' ,'#d923b9')
+						gradientObject.addColorStop('1' ,'#050d61')
+						tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
+						self.visualizer.strokeStyle = gradientObject;
+						self.visualizer.stroke(tmpPath);
+					}
+				break;
+				case 'custom':
+
+				break;
+			}
+		}
+		*/
+		
 
 		/**
 		 * finally we connect all the pieces and run the visualization.
 		 */
 		self.audioStream.connect(self.analyser); 
-		self.analyser.connect(javascriptNode); 
-		javascriptNode.connect(self.audioContent.destination); 
+		//self.analyser.connect(javascriptNode); 
+		//javascriptNode.connect(self.audioContent.destination); 
 	}
 	/**
 	 * [soundNotAllowed throws an exception when the audio is not being handled properly (wrong device, system error, etc)]
@@ -271,7 +393,8 @@ var XBCAudioVisualizer = function(config = {}){
 			customSoundAllowed : function() {},
 			customSoundNotAllowed : function() {},
 			is3d : false,
-			enableLog:false
+			enableLog:false,
+			skin : 'bars'
 		}
 
 		/**
@@ -310,12 +433,17 @@ var XBCAudioVisualizer = function(config = {}){
 
 
 $(function(){
-	var config = {
-		visualizer : 'visualizer',
-		haveMask : true,
-		canvas_width : '100%',
-		canvas_height : '100%',
-		enableLog : true
-	}
-	new XBCAudioVisualizer(config);	
+	var xjs = require('xjs');
+	xjs.ready()
+	.then(()=>{
+		var config = {
+			visualizer : 'visualizer',
+			haveMask : true,
+			canvas_width : '100%',
+			canvas_height : '100%',
+			enableLog : true
+		}
+		new XBCAudioVisualizer(config);	
+	})
+	
 })

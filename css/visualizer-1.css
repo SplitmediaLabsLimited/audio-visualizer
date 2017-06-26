@@ -19,22 +19,9 @@ html, body{
     padding: 0;
     margin: 0;
     overflow: hidden;
+    
 }
 
 canvas{
     display: block;
-}
-
-#log{
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    color:green;
-}
-
-path{
-    stroke-linecap: square;
-    stroke: white;
-    /*stroke-width: 0.5px;*/
 }
