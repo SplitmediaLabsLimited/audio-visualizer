@@ -20,50 +20,34 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<title></title>
-	<link rel="stylesheet" href="">	
+	<link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./css/flexbox-grid.css">
+	<style>
+		body, html{
+			padding:0;
+			margin:0;
+			overflow: hidden;
+		}
+	</style>
 </head>
 <body>
-<h1>Custom Tab content</h1>
-<p>This content should be visible when you are in Custom tab.</p>
-<script src="bower_components/xjs-framework/dist/xjs.js"></script>
-<script src="bower_components/jquery/dist/jquery.min.js"></script>
-<script>
-(function(){
-	'use strict'
-	var xjs = require('xjs');
-	var source = xjs.Source;
-	var propsWindow = xjs.SourcePropsWindow.getInstance();
-	xjs.ready()
-	.then(function() {
-		propsWindow.useTabbedWindow({
-			customTabs: ['Custom'],
-			tabOrder: ['Custom', 'Layout', 'Color', 'Transition'] // Layout/Color/Transition are optional reusable XSplit tabs
-			});
-	})
-	
+<div style="margin:25px 0px; display:block"></div>
+<div class="toolbox">
+	<div class="rows">
+		<div class="row">
+			<div class="row__item text-right"><div class="content text-right">Select Skin:</div></div>
+			<div class="row__item row__item--double text-left"><div class="btn-group" role="group" aria-label="...">
+			<button type="button" class="btn btn-xs btn-primary">Bars</button>
+			<button type="button" class="btn btn-xs btn-primary">Sinewave</button>
+			<button type="button" class="btn btn-xs btn-primary">Custom</button>
+		</div>
+		<div class="row"></div>
+	</div>
+</div>
 
-	//var propsWindow = xjs.SourcePropsWindow.getInstance();
-
-	// Option 1: Use XSplit's existing tab system
-	/*
-	xjs.ready()
-	.then(function() {
-		propsWindow.useTabbedWindow({
-			customTabs: ['Custom'],
-			tabOrder: ['Custom', 'Layout', 'Color', 'Transition'] // Layout/Color/Transition are optional reusable XSplit tabs
-			});
-	});
-	*/
-	
-
-	// Option 2: Use the full window
-	/*xjs.ready()
-	.then(function() {
-		propsWindow.useFullWindow();
-	});
-	*/
-})();
-
-</script>
+<script src="./bower_components/xjs-framework/dist/xjs.js"></script>
+<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+<script src="./bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="./js/config.js"></script>
 </body>
 </html>

@@ -185,24 +185,22 @@ var XBCAudioVisualizer = function(config = {}){
 		 */
 		let bufferLength = self.analyser.frequencyBinCount;
 		let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
-		let javascriptNode = self.audioContent.createScriptProcessor(512,1,1);
-		//self.visualizer.shadowBlur = 40;
-		//self.visualizer.shadowColor = "white";
+
 		
 		console.log(frequencyArray);
-		
 		window.addEventListener('resize',resizeHandler,false)
 
 		/**
 		 * [and we draw what comes in the audio process]
 		 */
+		
 		/** 
 		 * code performance issues... looking into using requestAnimationFrame
 		 * rather than javascriptNode
 		 */
 		
 		let draw = () =>{
-			requestAnimationFrame(draw);
+			window._requestAnimationFrame = requestAnimationFrame(draw);
 			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
 			switch(self._defaults.skin){
 				case 'sinewave':
@@ -212,7 +210,7 @@ var XBCAudioVisualizer = function(config = {}){
 					var sliceWidth = self.canvas.width / bufferLength;
 					self.visualizer.lineWidth = 2;
 					self.visualizer.strokeStyle = '#fff';
-					self.visualizer.setLineDash([2,2]);
+					self.visualizer.setLineDash([1,1]);
 					self.visualizer.shadowColor = 'white';
 					self.visualizer.shadowBlur = 5;
 					self.visualizer.beginPath();
@@ -238,7 +236,7 @@ var XBCAudioVisualizer = function(config = {}){
 					
 					self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
 					self.visualizer.stroke();
-					self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+					
 				break;
 				case 'bars':
 					var spaceh = window.innerWidth/bufferLength;
@@ -256,7 +254,7 @@ var XBCAudioVisualizer = function(config = {}){
 						calc1 = (frequencyArray[i]/bufferLength);
 						calc2 = (window.innerHeight * calc1);           	
 						if(i==0){
-							pos = 1
+							pos = 0
 						} else {
 							pos = (i)*spaceh;
 						}
@@ -273,13 +271,18 @@ var XBCAudioVisualizer = function(config = {}){
 					}
 				break;
 				case 'custom':
-
+					self.customVisualization();
 				break;
 			}
 		}
 
 		draw();
 		
+		/**
+		 * this code is commented to check how the visualization affects the performace
+		 * of the cpu... wondering if we really need a 64 bit xsplit core since memory is getting 
+		 * blown by any kind of visualization
+		 */
 
 		/*
 		javascriptNode.onaudioprocess = (e) => {
@@ -394,7 +397,13 @@ var XBCAudioVisualizer = function(config = {}){
 			customSoundNotAllowed : function() {},
 			is3d : false,
 			enableLog:false,
-			skin : 'bars'
+			skin : 'custom',
+			customVisualization : () => {
+				if(typeof window._requestAnimationFrame !== 'undefined'){
+					cancelAnimationFrame(window._requestAnimationFrame);
+					alert('The customVisualization parameter is not a function, not defined or it\'s content is empty');
+				}				
+			}
 		}
 
 		/**
@@ -417,7 +426,10 @@ var XBCAudioVisualizer = function(config = {}){
 		 */
 		self.canvas = document.getElementById(self._defaults.visualizer);
 		self.visualizer = self.canvas.getContext("2d")
-		self.mask = document.getElementById(self._defaults.mask); 
+		self.mask = document.getElementById(self._defaults.mask);
+		if(self._defaults.skin === 'custom'){
+			self.customVisualization = self._defaults.customVisualization;
+		} 
 		
 		/** 
 		 * ready to go!
@@ -434,16 +446,38 @@ var XBCAudioVisualizer = function(config = {}){
 
 $(function(){
 	var xjs = require('xjs');
+	var Item = xjs.Source;
+	var SourcePropsWindow = xjs.SourcePropsWindow;
+	var myItem;
+	var sourceWindow = xjs.SourcePluginWindow.getInstance();
+
+	sourceWindow.on('save-config',(cfg)=>{
+
+	})
+	xjs.ready().then(()=>{
+		var configWindow =  SourcePropsWindow.getInstance();
+	})
+	/*
 	xjs.ready()
-	.then(()=>{
-		var config = {
+	.then(Item.getCurrentSource)
+	.then((item)=>{
+		myItem = item;
+	})
+	.then((item)=>{
+		return item.loadConfig();
+	})
+
+	.then((cfg)=>{
+		alert(Object.keys(cfg).length);*/
+		/*var config = {
 			visualizer : 'visualizer',
 			haveMask : true,
 			canvas_width : '100%',
 			canvas_height : '100%',
-			enableLog : true
+			enableLog : true,
+			skin : 'custom',
 		}
-		new XBCAudioVisualizer(config);	
-	})
+		new XBCAudioVisualizer(config);*/	
+	//})
 	
 })

@@ -1,0 +1,68 @@
+/*
+flexbox improved grid
+https://codepen.io/tbogard/pen/gmrLvP
+ */
+.toolbox {
+  position: relative;
+  top: 0;
+  width: 98%;
+  height: 100vh;
+  margin: 0 auto;
+  font-size:11px;
+}
+.toolbox .layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+.toolbox .grid {
+  display: flex;
+}
+.toolbox .grid__column {
+  flex-grow: 1;
+  flex-shrink: 1;
+  margin: 0 2px;
+  border-left: 1px dashed #c0c0c0;
+  border-right: 1px dashed #c0c0c0;
+}
+.toolbox .row {
+  display: flex;
+}
+.toolbox .row__item {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+  border: none;
+  display: inline-flex;
+  padding: 2px;
+  margin: 2px;
+}
+.toolbox .row__item--double {
+  flex-grow: 2;
+  flex-shrink: 2;
+  flex-basis: 6px;
+}
+.toolbox .row__item--triple {
+  flex-grow: 3;
+  flex-shrink: 3;
+  flex-basis: 13px;
+}
+.toolbox .row__item--quad {
+  flex-grow: 5;
+  flex-shrink: 5;
+  flex-basis: 25px;
+}
+
+.toolbox .content{
+  display: block;
+  margin: auto 0;
+  width: 100%;
+}
+.btn:active, .btn:focus:{
+  background-image: none !important;
+  outline: 0 !important;
+  -webkit-box-shadow: none !important;
+          box-shadow: none !important;
+}
