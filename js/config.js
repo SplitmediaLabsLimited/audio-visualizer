@@ -7,32 +7,30 @@
 	 */
 	let updateConfigGUI = (config)=>{
 
-	};
-
+	},
 	/**
 	 * [updateConfig saves the configuration passed by the argument.]
 	 * @type {[type]}
 	 */
-	let updateConfig = (item)=>{
+	updateConfig = (item)=>{
 		let config = {
 			skin : 'bars'
 		}
 		item.requestSaveConfig(config)
-	};
+	},
 
 	/**
 	 * [setGUILogic provide the GUI elements with actions to update the configuration of the view]
 	 * @return {[type]} [description]
 	 */
-	let setGUILogic = () =>{
+	setGUILogic = () =>{
 
-	}
-
+	},
 	/**
 	 * [xjs is the XJS Framework]
 	 * @type {object}
 	 */
-	let xjs = require('xjs');
+	xjs = require('xjs');
 	/**
 	 * [Item holds the current source]
 	 * @type {Object}
@@ -45,7 +43,6 @@
 	, SourcePropsWindow = xjs.SourcePropsWindow;
 	, propsWindow = SourcePropsWindow.getInstance();
 	, currentSource;
-
 	/**
 	 * [then we run the concatenated sets of promises to get and apply the config.]
 	 * @param  {Function} ).then(() [description]
