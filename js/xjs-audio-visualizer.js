@@ -197,92 +197,108 @@ var XBCAudioVisualizer = function(config = {}){
 		 */
 		let fps = 0;
 		let lastRun;
+		let fpInterval,startTime,now,then,elapsed;
 
 		function showFPS(){
 	        self.visualizer.fillStyle = "red";
 	        self.visualizer.font      = "normal 16pt Arial";
 	        self.visualizer.fillText(Math.floor(fps) + " fps", 10, 26);
 	    }
+	    fpsInterval = 1000 / self._defaults.fps;
+	    then = Date.now();
+	    startTime = then;
 
 		let draw = () =>{
 			window._requestAnimationFrame = requestAnimationFrame(draw);
-			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
-        	var delta = (new Date().getTime() - lastRun)/1000;
-	        lastRun = new Date().getTime();
-	        fps = 1/delta;
-	        if(self._defaults.showfps){
-	        	showFPS()
-	        }
 			
-			switch(self._defaults.skin){
-				case 'sinewave':
-					self.analyser.getByteTimeDomainData(frequencyArray);
-					var x = 0;
-					var y = 0;
-					var sliceWidth = self.canvas.width / bufferLength;
-					self.visualizer.lineWidth = 2;
-					self.visualizer.strokeStyle = '#fff';
-					self.visualizer.setLineDash([1,1]);
-					self.visualizer.beginPath();
-					var sliceWidth = self.canvas.width * 1.0 / bufferLength;
-		      		var x = 0;
-		      		for(var i = 0; i < bufferLength; i++) {
-						var v = frequencyArray[i] / 128.0;
-						var y = v * self.canvas.height/2;
-						if(i === 0) {
-						self.visualizer.moveTo(x, y);
-						} else {
-						self.visualizer.lineTo(x, y);
-						}
-						x += sliceWidth;
-					}
-					
-					var gradientObject = self.visualizer.createLinearGradient(0,self.canvas.height,self.canvas.width,self.canvas.height);
-					gradientObject.addColorStop('0' ,'#ff0a0a')
-					gradientObject.addColorStop('0.2' ,'#f1ff0a')
-					gradientObject.addColorStop('0.9' ,'#d923b9')
-					gradientObject.addColorStop('1' ,'#050d61')
-					self.visualizer.strokeStyle = gradientObject;
-					
-					self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
-					self.visualizer.stroke();
-					
-				break;
-				case 'bars':
-					var spaceh = window.innerWidth/bufferLength;
-					self.analyser.getByteFrequencyData(frequencyArray);
-					self.visualizer.setLineDash([4,4])
-					self.visualizer.lineWidth = 4;
-					
-					var tmpPath = null;
-					let adjustedLength = 0;
-					let pos = 0;
-					let calc1 = 0;
-					let calc2  = 0;
-					for(var i = 0; i < bufferLength; i++) {
-						
-						calc1 = (frequencyArray[i]/bufferLength);
-						calc2 = (window.innerHeight * calc1);           	
-						if(i==0){
-							pos = 0
-						} else {
-							pos = (i)*spaceh;
-						}
+	        
+	        now = Date.now();
+	        elapsed = now - then;
 
-						var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
+
+			if(elapsed > fpsInterval){
+				self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+				var delta = (new Date().getTime() - lastRun)/1000;
+		        lastRun = new Date().getTime();
+		        fps = 1/delta;
+		        if(self._defaults.showfps){
+		        	showFPS()
+		        }
+
+
+				then = now - (elapsed % fpsInterval);
+
+				switch(self._defaults.skin){
+					case 'sinewave':
+						self.analyser.getByteTimeDomainData(frequencyArray);
+						var x = 0;
+						var y = 0;
+						var sliceWidth = self.canvas.width / bufferLength;
+						self.visualizer.lineWidth = 2;
+						self.visualizer.strokeStyle = '#fff';
+						self.visualizer.setLineDash([1,1]);
+						self.visualizer.beginPath();
+						var sliceWidth = self.canvas.width * 1.0 / bufferLength;
+			      		var x = 0;
+			      		for(var i = 0; i < bufferLength; i++) {
+							var v = frequencyArray[i] / 128.0;
+							var y = v * self.canvas.height/2;
+							if(i === 0) {
+							self.visualizer.moveTo(x, y);
+							} else {
+							self.visualizer.lineTo(x, y);
+							}
+							x += sliceWidth;
+						}
+						
+						var gradientObject = self.visualizer.createLinearGradient(0,self.canvas.height,self.canvas.width,self.canvas.height);
 						gradientObject.addColorStop('0' ,'#ff0a0a')
 						gradientObject.addColorStop('0.2' ,'#f1ff0a')
 						gradientObject.addColorStop('0.9' ,'#d923b9')
 						gradientObject.addColorStop('1' ,'#050d61')
-						tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
 						self.visualizer.strokeStyle = gradientObject;
-						self.visualizer.stroke(tmpPath);
+						
+						self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
+						self.visualizer.stroke();
+						
+					break;
+					case 'bars':
+						var spaceh = window.innerWidth/bufferLength;
+						self.analyser.getByteFrequencyData(frequencyArray);
+						self.visualizer.setLineDash([4,4])
+						self.visualizer.lineWidth = 4;
+						
+						var tmpPath = null;
+						let adjustedLength = 0;
+						let pos = 0;
+						let calc1 = 0;
+						let calc2  = 0;
+						for(var i = 0; i < bufferLength; i++) {
+							
+							calc1 = (frequencyArray[i]/bufferLength);
+							calc2 = (window.innerHeight * calc1);           	
+							if(i==0){
+								pos = 0
+							} else {
+								pos = (i)*spaceh;
+							}
 
-					}
-				break;
-				case 'custom':
-					self.customVisualization();
-				break;
+							var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
+							gradientObject.addColorStop('0' ,'#ff0a0a')
+							gradientObject.addColorStop('0.2' ,'#f1ff0a')
+							gradientObject.addColorStop('0.9' ,'#d923b9')
+							gradientObject.addColorStop('1' ,'#050d61')
+							tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
+							self.visualizer.strokeStyle = gradientObject;
+							self.visualizer.stroke(tmpPath);
+
+						}
+					break;
+					case 'custom':
+						self.customVisualization();
+					break;
+				}
+
 			}
 		}
 
