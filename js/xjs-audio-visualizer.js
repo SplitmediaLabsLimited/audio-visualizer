@@ -14,7 +14,7 @@
  */
 let xjs = require('xjs');
 "use strict";
-
+let requestId = null;
 /**
  * [XBCAudioVisualizer is a class that allows the manipulation of audio visualizations]
  */
@@ -109,6 +109,10 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.setXBCAudioDeviceAsSource = (XBCAudioDeviceId = '') => {
 		var self = this;
+		if(window._requestAnimationFrame){
+			window.cancelAnimationFrame(window._requestAnimationFrame);
+			window._requestAnimationFrame = undefined;
+		}
 		/**
 		 * [if no device id is given, then we will use the default 'XSplitBroadcaster (DirectShow)' source]
 		 */
@@ -209,7 +213,7 @@ var XBCAudioVisualizer = function(config = {}){
 	    startTime = then;
 
 		let draw = () =>{
-			window._requestAnimationFrame = requestAnimationFrame(draw);
+			window._requestAnimationFrame = window.requestAnimationFrame(draw);
 			
 	        
 	        now = Date.now();
