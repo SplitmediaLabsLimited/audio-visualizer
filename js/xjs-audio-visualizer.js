@@ -78,10 +78,7 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.canvas = null;
 
-	/**
-	 * [log prints into the console the given arguments]
-	 * @return {[type]} [description]
-	 */
+
 	this.log = (args) =>{
 		var self = this;
 		if(self.enableLog){
@@ -109,7 +106,7 @@ var XBCAudioVisualizer = function(config = {}){
 	this.setXBCAudioDeviceAsSource = (XBCAudioDeviceId = '') => {
 		var self = this;
 		/**
-		 * In case there is a previous request animation, we cancel it, so we avoid glitchy animations 
+		 * In case there is a previous request animation, we cancel it, so we avoid glitchy animations	 
 		 */
 		if(window._requestAnimationFrame){
 			window.cancelAnimationFrame(window._requestAnimationFrame);
@@ -213,15 +210,13 @@ var XBCAudioVisualizer = function(config = {}){
 	    fpsInterval = 1000 / self._defaults.fps;
 	    then = Date.now();
 	    startTime = then;
-
+	    /**
+	     * [draw is a function that renders in the canvas the data to be visualized]
+	     */
 		let draw = () =>{
 			window._requestAnimationFrame = window.requestAnimationFrame(draw);
-			
-	        
 	        now = Date.now();
 	        elapsed = now - then;
-
-
 			if(elapsed > fpsInterval){
 				self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
 				var delta = (new Date().getTime() - lastRun)/1000;
@@ -230,8 +225,6 @@ var XBCAudioVisualizer = function(config = {}){
 		        if(self._defaults.showfps){
 		        	showFPS()
 		        }
-
-
 				then = now - (elapsed % fpsInterval);
 
 				switch(self._defaults.skin){
@@ -309,96 +302,10 @@ var XBCAudioVisualizer = function(config = {}){
 		}
 
 		draw();
-		
-		/**
-		 * this code is commented to check how the visualization affects the performace
-		 * of the cpu... wondering if we really need a 64 bit xsplit core since memory is getting 
-		 * blown by any kind of visualization
-		 */
-
-		/*
-		javascriptNode.onaudioprocess = (e) => {
-			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
-			switch(self._defaults.skin){
-				case 'sinewave':
-					self.analyser.getByteTimeDomainData(frequencyArray);
-					var x = 0;
-					var y = 0;
-					var sliceWidth = self.canvas.width / bufferLength;
-					self.visualizer.lineWidth = 2;
-					self.visualizer.strokeStyle = '#fff';
-					self.visualizer.setLineDash([2,2]);
-					self.visualizer.shadowColor = 'white';
-					self.visualizer.shadowBlur = 5;
-					self.visualizer.beginPath();
-					var sliceWidth = self.canvas.width * 1.0 / bufferLength;
-		      		var x = 0;
-		      		for(var i = 0; i < bufferLength; i++) {
-						var v = frequencyArray[i] / 128.0;
-						var y = v * self.canvas.height/2;
-						if(i === 0) {
-						self.visualizer.moveTo(x, y);
-						} else {
-						self.visualizer.lineTo(x, y);
-						}
-						x += sliceWidth;
-					}
-					
-					var gradientObject = self.visualizer.createLinearGradient(0,self.canvas.height,self.canvas.width,self.canvas.height);
-					gradientObject.addColorStop('0' ,'#ff0a0a')
-					gradientObject.addColorStop('0.2' ,'#f1ff0a')
-					gradientObject.addColorStop('0.9' ,'#d923b9')
-					gradientObject.addColorStop('1' ,'#050d61')
-					self.visualizer.strokeStyle = gradientObject;
-					
-					self.visualizer.lineTo(self.canvas.width, self.canvas.height/2);
-					self.visualizer.stroke();
-				break;
-				case 'bars':
-					var spaceh = window.innerWidth/bufferLength;
-					self.analyser.getByteFrequencyData(frequencyArray);
-					self.visualizer.setLineDash([4,4])
-					self.visualizer.lineWidth = 4;
-					
-					var tmpPath = null;
-					let adjustedLength = 0;
-					let pos = 0;
-					let calc1 = 0;
-					let calc2  = 0;
-					for(var i = 0; i < bufferLength; i++) {
-						
-						calc1 = (frequencyArray[i]/bufferLength);
-						calc2 = (window.innerHeight * calc1);           	
-						if(i==0){
-							pos = 1
-						} else {
-							pos = (i)*spaceh;
-						}
-
-						var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
-						gradientObject.addColorStop('0' ,'#ff0a0a')
-						gradientObject.addColorStop('0.2' ,'#f1ff0a')
-						gradientObject.addColorStop('0.9' ,'#d923b9')
-						gradientObject.addColorStop('1' ,'#050d61')
-						tmpPath = new Path2D('M '+(pos)+','+self.canvas.height+' v -'+calc2);
-						self.visualizer.strokeStyle = gradientObject;
-						self.visualizer.stroke(tmpPath);
-					}
-				break;
-				case 'custom':
-
-				break;
-			}
-		}
-		*/
-		
-
 		/**
 		 * finally we connect all the pieces and run the visualization.
 		 */
-		self.audioStream.connect(self.analyser); 
-		//self.analyser.connect(javascriptNode); 
-		//javascriptNode.connect(self.audioContent.destination); 
+		self.audioStream.connect(self.analyser);  
 	}
 	/**
 	 * [soundNotAllowed throws an exception when the audio is not being handled properly (wrong device, system error, etc)]
