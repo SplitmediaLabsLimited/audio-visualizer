@@ -28,6 +28,10 @@
 			margin:0;
 			overflow: hidden;
 		}
+		select{
+			color:#000;
+		}
+
 	</style>
 </head>
 <body>
@@ -36,18 +40,38 @@
 	<div class="rows">
 		<div class="row">
 			<div class="row__item text-right"><div class="content text-right">Select Skin:</div></div>
-			<div class="row__item row__item--double text-left"><div class="btn-group" role="group" aria-label="...">
-			<button type="button" class="btn btn-xs btn-primary">Bars</button>
-			<button type="button" class="btn btn-xs btn-primary">Sinewave</button>
-			<button type="button" class="btn btn-xs btn-primary">Custom</button>
+			<div class="row__item row__item--double text-left">
+				<select name="skin" id="skin">
+					<option value="bars">Bars</option>
+					<option value="sinewave">Sinewave</option>
+				</select>
+			</div>
 		</div>
-		<div class="row"></div>
+		<div class="row">
+			<div class="row__item text-right"><div class="content text-right">Select Frame rate:</div></div>
+			<div class="row__item row__item--double text-left">
+				<select name="fps" id="fps">
+					<option value="15">15fps</option>
+					<option value="30">30fps</option>
+					<option value="45">45fps</option>
+					<option value="60">60fps</option>
+				</select>
+			</div>
+		</div>
+		<div class="row">
+			<div class="row__item text-right"><div class="content text-right">Select Audio Device:</div></div>
+			<div class="row__item row__item--double text-left">
+				<select name="audioId" id="audioId">
+	
+				</select>
+			</div>
+		</div>
 	</div>
 </div>
 
 <script src="./bower_components/xjs-framework/dist/xjs.js"></script>
 <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-<script src="./bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="./js/config.js"></script>
+<script>require('xjs').ready();</script>
 </body>
 </html>

@@ -14,9 +14,6 @@
  */
 let xjs = require('xjs');
 "use strict";
-if(typeof window.external.SetLocalProperty !== "undefined"){
-	window.external.SetLocalProperty("prop:Browser60fps","1");  
-}
 
 /**
  * [XBCAudioVisualizer is a class that allows the manipulation of audio visualizations]
@@ -211,8 +208,6 @@ var XBCAudioVisualizer = function(config = {}){
 					self.visualizer.lineWidth = 2;
 					self.visualizer.strokeStyle = '#fff';
 					self.visualizer.setLineDash([1,1]);
-					self.visualizer.shadowColor = 'white';
-					self.visualizer.shadowBlur = 5;
 					self.visualizer.beginPath();
 					var sliceWidth = self.canvas.width * 1.0 / bufferLength;
 		      		var x = 0;
@@ -383,6 +378,7 @@ var XBCAudioVisualizer = function(config = {}){
 	 * @return {[type]} [description]
 	 */
 	this.init = () => {
+		debugger;
 		var self = this;
 		var defaults = {
 			visualizer : 'visualizer',
@@ -397,25 +393,21 @@ var XBCAudioVisualizer = function(config = {}){
 			customSoundNotAllowed : function() {},
 			is3d : false,
 			enableLog:false,
-			skin : 'custom',
-			customVisualization : () => {
-				if(typeof window._requestAnimationFrame !== 'undefined'){
-					cancelAnimationFrame(window._requestAnimationFrame);
-					alert('The customVisualization parameter is not a function, not defined or it\'s content is empty');
-				}				
-			}
+			skin : 'bars',
+			fps : 30
 		}
 
 		/**
 		 * then we pass the arguments to the _default attribute to be shared on the class...
 		 */
+		console.log(self.config);
 		self._defaults = $.extend({},defaults,self.config);
 
 		var self = this;
-		if(typeof self.config.visualizer === 'undefined') throw 'It is required the use of the id of the visualizer container';
-		if(document.getElementById(self._defaults.visualizer) === null) throw 'The visualizer container was not found into the HTML DOM';
-		if(typeof self.config.canvas_width === 'undefined') throw 'The visualizer width was not found on the settings';
-		if(typeof self.config.canvas_height === 'undefined') throw 'The visualizer height was not found on the settings';
+		if(typeof self.config.visualizer === 'undefined') console.error('It is required the use of the id of the visualizer container');
+		if(document.getElementById(self._defaults.visualizer) === null) console.error('The visualizer container was not found into the HTML DOM');
+		if(typeof self.config.canvas_width === 'undefined') console.error('The visualizer width was not found on the settings');
+		if(typeof self.config.canvas_height === 'undefined') console.error('The visualizer height was not found on the settings');
 
 		if(self._defaults.enableLog){
 			self.enableLog = true;
@@ -429,7 +421,12 @@ var XBCAudioVisualizer = function(config = {}){
 		self.mask = document.getElementById(self._defaults.mask);
 		if(self._defaults.skin === 'custom'){
 			self.customVisualization = self._defaults.customVisualization;
-		} 
+		}
+
+		/**
+		 * This could change... I need an fps counter on the panel of properties
+		 */
+		window.external.SetLocalProperty("prop:Browser"+self._defaults.fps+"fps","1");  
 		
 		/** 
 		 * ready to go!
@@ -442,42 +439,3 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.init();
 }
-
-
-$(function(){
-	var xjs = require('xjs');
-	var Item = xjs.Source;
-	var SourcePropsWindow = xjs.SourcePropsWindow;
-	var myItem;
-	var sourceWindow = xjs.SourcePluginWindow.getInstance();
-
-	sourceWindow.on('save-config',(cfg)=>{
-
-	})
-	xjs.ready().then(()=>{
-		var configWindow =  SourcePropsWindow.getInstance();
-	})
-	/*
-	xjs.ready()
-	.then(Item.getCurrentSource)
-	.then((item)=>{
-		myItem = item;
-	})
-	.then((item)=>{
-		return item.loadConfig();
-	})
-
-	.then((cfg)=>{
-		alert(Object.keys(cfg).length);*/
-		/*var config = {
-			visualizer : 'visualizer',
-			haveMask : true,
-			canvas_width : '100%',
-			canvas_height : '100%',
-			enableLog : true,
-			skin : 'custom',
-		}
-		new XBCAudioVisualizer(config);*/	
-	//})
-	
-})
