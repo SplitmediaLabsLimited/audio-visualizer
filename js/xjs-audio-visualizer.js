@@ -14,7 +14,6 @@
  */
 let xjs = require('xjs');
 "use strict";
-let requestId = null;
 /**
  * [XBCAudioVisualizer is a class that allows the manipulation of audio visualizations]
  */
@@ -109,6 +108,9 @@ var XBCAudioVisualizer = function(config = {}){
 	 */
 	this.setXBCAudioDeviceAsSource = (XBCAudioDeviceId = '') => {
 		var self = this;
+		/**
+		 * In case there is a previous request animation, we cancel it, so we avoid glitchy animations 
+		 */
 		if(window._requestAnimationFrame){
 			window.cancelAnimationFrame(window._requestAnimationFrame);
 			window._requestAnimationFrame = undefined;
