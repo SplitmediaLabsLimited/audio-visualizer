@@ -26,6 +26,13 @@ $(()=>{
 			$('#fps option[value='+config.fps+']').prop('selected',true)
 		}
 
+		if(typeof config.bitsample === 'undefined'){
+			firstTime = true;
+			config.bitsample = 512;
+			$('#bitsample option[value=512]').prop('selected',true);
+		} else {
+			$('#bitsample option[value='+config.bitsample+']').prop('selected',true);
+		}
 
 		if(firstTime){
 			updateConfig(currentSource)

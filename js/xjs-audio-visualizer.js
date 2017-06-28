@@ -339,6 +339,7 @@ var XBCAudioVisualizer = function(config = {}){
 			enableLog:false,
 			skin : 'bars',
 			fps : 30,
+			bitsample : 512,
 			showfps : true
 		}
 

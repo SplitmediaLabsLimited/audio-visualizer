@@ -27,6 +27,7 @@
 			padding:0;
 			margin:0;
 			overflow: hidden;
+			background-color: none;
 		}
 		select{
 			color:#000;
@@ -59,10 +60,20 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Select Audio Device:</div></div>
+			<div class="row__item text-right"><div class="content text-right">Bit sampling:</div></div>
 			<div class="row__item row__item--double text-left">
-				<select name="audioId" id="audioId">
-	
+				<select name="bitsample" id="bitsample">
+					<option value="2"></option>
+					<option value="4"></option>
+					<option value="8"></option>
+					<option value="16"></option>
+					<option value="32"></option>
+					<option value="64"></option>
+					<option value="128"></option>
+					<option value="256"></option>
+					<option value="512"></option>
+					<option value="1024"></option>
+					<option value="2048"></option>
 				</select>
 			</div>
 		</div>
