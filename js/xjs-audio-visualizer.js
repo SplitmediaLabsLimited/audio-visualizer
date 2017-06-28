@@ -195,10 +195,25 @@ var XBCAudioVisualizer = function(config = {}){
 		 * code performance issues... looking into using requestAnimationFrame
 		 * rather than javascriptNode
 		 */
-		
+		let fps = 0;
+		let lastRun;
+
+		function showFPS(){
+	        self.visualizer.fillStyle = "red";
+	        self.visualizer.font      = "normal 16pt Arial";
+	        self.visualizer.fillText(Math.floor(fps) + " fps", 10, 26);
+	    }
+
 		let draw = () =>{
 			window._requestAnimationFrame = requestAnimationFrame(draw);
 			self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+        	var delta = (new Date().getTime() - lastRun)/1000;
+	        lastRun = new Date().getTime();
+	        fps = 1/delta;
+	        if(self._defaults.showfps){
+	        	showFPS()
+	        }
+			
 			switch(self._defaults.skin){
 				case 'sinewave':
 					self.analyser.getByteTimeDomainData(frequencyArray);
@@ -394,7 +409,8 @@ var XBCAudioVisualizer = function(config = {}){
 			is3d : false,
 			enableLog:false,
 			skin : 'bars',
-			fps : 30
+			fps : 30,
+			showfps : true
 		}
 
 		/**
