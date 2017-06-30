@@ -22,7 +22,13 @@ $(()=>{
 	 * [XBCMixerId will store the HW ID of XSplitBoradcaster (DirectShow) Input]
 	 * @type {String}
 	 */
-	let XBCMixerId = ''
+	let XBCMixerId = '';
+	/**
+	 * [XBCCodeMirror loads a codemirror instance on this variable]
+	 * @type {null}
+	 */
+	let XBCCodeMirror = null;
+	
 
 	/**
 	 * Let's first map the audio devices into the audioDeviceId 
@@ -141,16 +147,23 @@ $(()=>{
 	setGUILogic = () =>{
 		$("#skin").change((e)=>{
 			config.skin = $("#skin option:selected").val();
+			if(config.skin === 'custom'){
+				$('.std').hide();
+				$('.custom').show();
+			} else {
+				$('.std').show();
+				$('.custom').hide();
+			}
 			updateConfig(currentSource);
 		})
 
 		$("#fps").change((e)=>{
-			config.fps = $("#fps option:selected").val();
+			config.fps = parseInt($("#fps option:selected").val(),10);
 			updateConfig(currentSource);
 		})
 
 		$("#bitsample").change((e)=>{
-			config.bitsample = $("#bitsample option:selected").val();
+			config.bitsample = parseInt($("#bitsample option:selected").val(),10);
 			updateConfig(currentSource);
 		})
 
@@ -182,6 +195,37 @@ $(()=>{
 			}
 			updateConfig(currentSource);
 		})
+
+		$('#refreshVisualizer').click((e)=>{
+			 xjs.Source.getCurrentSource().then(function(source) {
+			   source.refresh(); // execution of JavaScript halts because of refresh
+			});
+		})
+
+		if(config.skin === 'custom'){
+			$('.std').hide();
+			$('.custom').show();
+		} else {
+			$('.std').show();
+			$('.custom').hide();
+		}
+
+		/**
+		 * setup tabs
+		 */
+		$('.tabs a').click((e)=>{
+			e.preventDefault();
+			$('.tabs a').removeClass('selected');
+			$(e.currentTarget).addClass('selected');
+			$('.tabContainer').hide()
+			$($(e.currentTarget).attr('href')).show();
+		});
+
+		/**
+		 * We make codemirror to take control over customClientJS textarea
+		 */
+
+
 
 
 	},
@@ -215,11 +259,13 @@ $(()=>{
 	 */
 	xjs.ready().then(() =>{
 		var configWindow =  SourcePropsWindow.getInstance();
-		propsWindow.useTabbedWindow({
+		propsWindow.useFullWindow();
+		propsWindow.resize(400,550);
+		/*propsWindow.useTabbedWindow({
 			customTabs: ['Audio Visualizer'],
 			tabOrder: ['Audio Visualizer', 'Layout', 'Color', 'Transition']
-		});
-		 return Item.getCurrentSource();
+		});*/
+		return Item.getCurrentSource();
 	})
 	/** 
 	 * then load the config from the visualization

@@ -5,10 +5,10 @@ https://codepen.io/tbogard/pen/gmrLvP
 .toolbox {
   position: relative;
   top: 0;
-  width: 98%;
+  width: 100%;
   height: 100vh;
-  margin: 0 auto;
-  font-size:11px;
+  font-size:10px;
+  margin:0px
 }
 .toolbox .layer {
   position: absolute;
@@ -29,6 +29,8 @@ https://codepen.io/tbogard/pen/gmrLvP
 }
 .toolbox .row {
   display: flex;
+  margin-left: 0px;
+  margin-right: 0px;
 }
 .toolbox .row__item {
   flex-grow: 1;
@@ -36,8 +38,8 @@ https://codepen.io/tbogard/pen/gmrLvP
   flex-basis: 0;
   border: none;
   display: inline-flex;
-  padding: 2px;
-  margin: 2px;
+  padding: 0px;
+  margin: 1px;
 }
 .toolbox .row__item--double {
   flex-grow: 2;

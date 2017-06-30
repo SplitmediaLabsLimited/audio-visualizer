@@ -22,161 +22,143 @@
 	<title></title>
 	<link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="./bower_components/codemirror/lib/codemirror.css">
+	<link rel="stylesheet" href="./css/config.css">
 	<link rel="stylesheet" href="./css/flexbox-grid.css">
-	<style>
-		body, html{
-			padding:0;
-			margin:0;
-			overflow: hidden;
-			background-color: none;
-		}
-		select{
-			color:#000;
-		}
-
-		.spinner {
-		  width: 50px;
-		  margin-right: 5px;
-		}
-		.spinner input {
-		  text-align: right;
-		}
-		.input-group-btn-vertical {
-		  position: relative;
-		  white-space: nowrap;
-		  width: 1%;
-		  vertical-align: middle;
-		  display: table-cell;
-		}
-		.input-group-btn-vertical > .btn {
-			display: block;
-			float: none;
-			width: 100%;
-			max-width: 100%;
-			padding: 4px 5px;
-			margin-left: -1px;
-			position: relative;
-			border-radius: 0;
-			font-size:8px;
-		}
-		.input-group-btn-vertical > .btn:first-child {
-		  border-top-right-radius: 4px;
-		}
-		.input-group-btn-vertical > .btn:last-child {
-		  margin-top: -2px;
-		  border-bottom-right-radius: 4px;
-		}
-		.input-group-btn-vertical i{
-		  position: absolute;
-		  top: 0;
-		  left: 4px;
-		}
-
-		.input-xs {
-		  height: 22px;
-		  padding: 2px 5px;
-		  font-size: 12px;
-		  line-height: 1.5; /* If Placeholder of the input is moved up, rem/modify this. */
-		  border-radius: 3px;
-		  width:100px;
-		}
-
-	</style>
 </head>
 <body>
-<div style="margin:25px 0px; display:block"></div>
+<div class="bs-component">
+	<button id="refreshVisualizer" class="btn btn-primary btn-xs"><i class="fa fa-refresh"></i> Refresh Visualizer</button>
+</div>
 <div class="toolbox">
 	<div class="rows">
 		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Select Skin:</div></div>
-			<div class="row__item text-left">
+			<div class="row__item"><div class="content">Select Skin:</div></div>
+			<div class="row__item row__item--double text-left">
 				<select name="skin" id="skin">
 					<option value="bars">Bars</option>
 					<option value="oscilloscope">Oscilloscope</option>
+					<option value="custom">custom</option>
 				</select>
 			</div>
 		</div>
 		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Audio Input to Map</div></div>
-				<div class="row__item text-left"></div>
-		</div>
-		<div class="row">
-			<div class="row__item">
-				<div class="content text-center">
+			<div class="row__item"><div class="content">Audio Input to Map</div></div>
+			<div class="row__item row__item--double ">
+				<div class="content">
 					<select name="audioDeviceId" id="audioDeviceId">
 					</select>	
 				</div>
 			</div>
 		</div>
 		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Select Frame rate:</div></div>
-			<div class="row__item text-left">
-				<select name="fps" id="fps">
-					<option value="15">15fps</option>
-					<option value="30">30fps</option>
-					<option value="45">45fps</option>
-					<option value="60">60fps</option>
-				</select>
-			</div>
-		</div>
-		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Bit sampling:</div></div>
-			<div class="row__item text-left">
-				<select name="bitsample" id="bitsample">
-					<option value="32">32</option>
-					<option value="64">64</option>
-					<option value="128">128</option>
-					<option value="256">256</option>
-					<option value="512">512</option>
-					<option value="1024">1024</option>
-					<option value="2048">2048</option>
-				</select>
-			</div>
-		</div>
-		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Stroke width</div></div>
-			<div class="row__item">
-				<div class="input-group spinner">
-					<input type="text" class="form-control input-xs" id="strokeW" value="2">
-					<div class="input-group-btn-vertical">
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+			<div class="row__item"><div class="content">Frame rate:</div></div>
+			<div class="row__item row__item--double">
+				<div class="row" style="width: 100%">
+					<row class="row__item">
+						<select name="fps" id="fps">
+							<option value="15">15fps</option>
+							<option value="30">30fps</option>
+							<option value="45">45fps</option>
+							<option value="60">60fps</option>
+						</select>
+					</row>
+					<div class="row__item row__item--double">
+						<div class="content text-right">Bit Sample:</div>
 					</div>
-			 	</div>
-			</div>
-		</div>
-		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Stroke segmentation</div></div>
-			<div class="row__item">
-				<div class="input-group spinner">
-					<input type="text" class="form-control input-xs" id="strokeS1" value="1">
-					<div class="input-group-btn-vertical">
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+					<div class="row__item">
+						<select name="bitsample" id="bitsample">
+							<option value="32">32</option>
+							<option value="64">64</option>
+							<option value="128">128</option>
+							<option value="256">256</option>
+							<option value="512">512</option>
+							<option value="1024">1024</option>
+							<option value="2048">2048</option>
+							<option value="2048">4096</option>
+						</select>
 					</div>
-			 	</div>
+				</div>
+			</div>
 			
-				<div class="input-group spinner">
-					<input type="text" class="form-control input-xs" id="strokeS2" value="1">
-					<div class="input-group-btn-vertical">
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
-						<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+
+		</div>
+		<div class="row">
+		<div class="row__item"><div class="content">Display framerate</div></div>
+			<div class="row__item row__item--double">
+				<input type="checkbox" id="displayfps" />
+			</div>
+		</div>
+		<div class="std">
+			<div class="row">
+				<div class="row__item text-right"><div class="content text-right">Stroke width</div></div>
+				<div class="row__item row__item--double ">
+					<div class="input-group spinner">
+						<input type="text" class="form-control input-xs" id="strokeW" value="2">
+						<div class="input-group-btn-vertical">
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+						</div>
+				 	</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="row__item text-right"><div class="content text-right">Stroke segmentation</div></div>
+				<div class="row__item row__item--double ">
+					<div class="input-group spinner">
+						<input type="text" class="form-control input-xs" id="strokeS1" value="1">
+						<div class="input-group-btn-vertical">
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+						</div>
+				 	</div>
+				
+					<div class="input-group spinner">
+						<input type="text" class="form-control input-xs" id="strokeS2" value="1">
+						<div class="input-group-btn-vertical">
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+							<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="row__item text-right"><div class="content text-right">Display graph framerate</div></div>
-			<div class="row__item">
-				<input type="checkbox" id="displayfps" />
-			</div>
+		<div class="custom">
+			<fieldset>
+				<legend>Custom Visualization</legend>
+				<div class="row ">
+					<div class="row__item forceNoMargin tabs">
+						<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
+						<a class="codeView" href="#codeView">Code Editor</a>
+						<a class="jsIncludes" href="#jsIncludes">External JS Files</a>
+					</div>
+				</div>
+				<div class="row">
+					<div class="row__item forceNoMargin">
+						<div class="tabContainer" id="introDocs">
+							<p>Initial wording to indicate the user what to do in a custom view, and how to import their desired visualizer into XBC</p>
+						</div>
+						<div class="tabContainer" id="codeView" style="display: none">
+							<p>we place here the JS code</p>
+							<textarea id="customClientJS"></textarea>
+							<div class="bs-component">
+								<button id="refreshVisualizer" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save &amp; Refresh XBC Audio Visualizer</button>
+							</div>
+						</div>
+						<div class="tabContainer" id="jsIncludes" style="display: none">
+							<p>we make reference to external js files</p>
+						</div>
+					</div>
+				</div>
+			</fieldset>
 		</div>
 	</div>
 </div>
 
 <script src="./bower_components/xjs-framework/dist/xjs.js"></script>
 <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-<<script src="/javascripts/application.js" type="text/javascript" charset="utf-8" async defer></script>
+<script src="./bower_components/requirejs/require.js"></script>
+<script src="./bower_components/codemirror/lib/codemirror.js"></script>
 <script src="./js/config.js"></script>
 <script type="text/javascript">
 (function ($) {

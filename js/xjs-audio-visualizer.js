@@ -271,6 +271,7 @@ var XBCAudioVisualizer = function(config = {}){
 					break;
 					case 'bars':
 						var spaceh = window.innerWidth/bufferLength;
+						console.log(spaceh);
 						self.analyser.getByteFrequencyData(frequencyArray);
 						self.visualizer.lineWidth = self._defaults.strokeW;
 						self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
@@ -306,7 +307,7 @@ var XBCAudioVisualizer = function(config = {}){
 						}
 					break;
 					case 'custom':
-						self.customVisualization();
+						self.customVisualization;
 					break;
 				}
 
@@ -354,7 +355,8 @@ var XBCAudioVisualizer = function(config = {}){
 			displayfps            : false,
 			strokeW               : 1,
 			strokeS1              : 0,
-			strokeS2              : 0
+			strokeS2              : 0,
+			customVisualization   : function(){}
 		}
 
 		/**
