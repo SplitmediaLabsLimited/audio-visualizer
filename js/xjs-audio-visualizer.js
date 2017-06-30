@@ -164,7 +164,6 @@ var XBCAudioVisualizer = function(config = {}){
 		let resizeHandler = () => {
 			let w = window.innerWidth;
 			let h = window.innerHeight;
-			console.log(w+','+h);
 			let cx = w / 2;
 			let cy = h / 2;
 			self.visualizer.canvas.width = w;
@@ -194,7 +193,6 @@ var XBCAudioVisualizer = function(config = {}){
 		let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
 
 		
-		console.log(frequencyArray);
 		window.addEventListener('resize',resizeHandler,false)
 
 		/**
@@ -235,16 +233,19 @@ var XBCAudioVisualizer = function(config = {}){
 				then = now - (elapsed % fpsInterval);
 
 				switch(self._defaults.skin){
-					case 'sinewave':
+					case 'oscilloscope':
 						self.analyser.getByteTimeDomainData(frequencyArray);
+						self.visualizer.beginPath();
 						var x = 0;
 						var y = 0;
 						var sliceWidth = self.canvas.width / bufferLength;
 						self.visualizer.strokeStyle = '#fff';
 						self.visualizer.lineWidth = self._defaults.strokeW;
-						self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
-						self.visualizer.beginPath();
-						var sliceWidth = self.canvas.width * 1.0 / bufferLength;
+						if(self._defaults.strokeS1>0 && self._defaults.strokeS2 > 0){
+							self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
+						}
+						
+						var sliceWidth = self.canvas.width / bufferLength;
 			      		var x = 0;
 			      		for(var i = 0; i < bufferLength; i++) {
 							var v = frequencyArray[i] / 128.0;
@@ -359,7 +360,6 @@ var XBCAudioVisualizer = function(config = {}){
 		/**
 		 * then we pass the arguments to the _default attribute to be shared on the class...
 		 */
-		console.log(self.config);
 		self._defaults = $.extend({},defaults,self.config);
 
 		var self = this;
@@ -399,7 +399,7 @@ var XBCAudioVisualizer = function(config = {}){
 		/** 
 		 * ready to go!
 		 */
-		self.setXBCAudioDeviceAsSource()
+		self.setXBCAudioDeviceAsSource(self._defaults.audioDeviceId)
 	}
 
 	/**

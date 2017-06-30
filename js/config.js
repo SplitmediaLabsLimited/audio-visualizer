@@ -1,14 +1,60 @@
+/**
+ * Copyright (c) 2017 Split Media Labs, All rights reserved.
+ * <licenseinfo@splitmedialabs.com>
+ * 
+ * You may only use this file subject to direct and explicit grant of rights by Split Media Labs,
+ * either by written license agreement or written permission.
+ * 
+ * You may use this file in its original or modified form solely for the purpose, and subject to the terms,
+ * stipulated by the license agreement or permission.
+ * 
+ * If you have not received this file in source code format directly from Split Media Labs,
+ * then you have no right to use this file or any part hereof.
+ * Please delete all traces of the file from your system and notify Split Media Labs immediately.
+ */
 $(()=>{
 	/**
-	 * [updateConfigGUI changes the config GUI to match the config]
-	 * @type {[type]}
+	 * [config stores the configuration previous to be sent to the plugin]
+	 * @type {Object}
 	 */
-	
-	let myItem = null;
-
 	let config = {};
+	/**
+	 * [XBCMixerId will store the HW ID of XSplitBoradcaster (DirectShow) Input]
+	 * @type {String}
+	 */
+	let XBCMixerId = ''
 
-	let updateElements = (config)=>{
+	/**
+	 * Let's first map the audio devices into the audioDeviceId 
+	 */
+	navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
+		/**
+		 * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
+		 */
+		$("#audioDeviceId").html('');
+		/**
+		 * [tmpstr is a cleaned up version of the audio input]
+		 * @type {String}
+		 */
+		let tmpstr = '';
+		for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
+			if (uuidAudioSourceId[i].kind === 'audioinput') {
+				if($.trim(uuidAudioSourceId[i].label) !== ''){
+					tmpstr = uuidAudioSourceId[i].label.replace(' (DirectShow)','');
+					$('<option value="'+uuidAudioSourceId[i].deviceId+'">'+tmpstr+'</option>').appendTo("#audioDeviceId");
+					if(tmpstr.indexOf('XSplitBroadcaster') === 0){
+						XBCMixerId = uuidAudioSourceId[i].deviceId;
+					}	
+				}
+			}
+		}
+	});
+
+	/**
+	 * [updateElements prepares the initial events of the plugin in order to setup default values to be used by the plugin]
+	 * @param  {Object} config [the configuration object]
+	 */
+	let updateElements = (config = {})=>{	
 		var firstTime = false;
 		if(typeof config.skin === 'undefined'){
 			firstTime = true;
@@ -66,16 +112,24 @@ $(()=>{
 			$('#displayfps').prop('checked',config.displayfps);
 		}
 
+		if(typeof config.audioDeviceId === 'undefined'){
+			firstTime = true;
+			config.audioDeviceId = XBCMixerId;
+			$('#audioDeviceId option[value='+config.audioDeviceId+']').prop('selected',true);
+		} else {
+			$('#audioDeviceId option[value='+config.audioDeviceId+']').prop('selected',true);
+		}
+
 
 		if(firstTime){
 			updateConfig(currentSource)
 		}
 	},
 	/**
-	 * [updateConfig saves the configuration passed by the argument.]
-	 * @type {[type]}
+	 * updateConfig saves the configuration passed by the argument.
+	 * @param  {Object} item [the XBC reference to the source iten]
 	 */
-	updateConfig = (item)=>{
+	updateConfig = (item = {})=>{
 		console.log(config);
 		item.requestSaveConfig(config);
 	},
@@ -115,6 +169,11 @@ $(()=>{
 			updateConfig(currentSource);
 		})
 
+		$("#audioDeviceId").change((e)=>{
+			config.audioDeviceId = $("#audioDeviceId option:selected").val();
+			updateConfig(currentSource);
+		})
+
 		$('#displayfps').click((e)=>{
 			if($(e.currentTarget).is(':checked')){
 				config.displayfps = true;			
@@ -138,11 +197,19 @@ $(()=>{
 	Item = xjs.Source
 	/**
 	 * [SourcePropsWindow Contains the properties of the source window]
-	 * @type {[type]}
+	 * @type {Object}
 	 */
 	SourcePropsWindow = xjs.SourcePropsWindow,
+	/**
+	 * [propsWindow is a short reference for xjs.SourcePropsWindow.getInstance()]
+	 * @type {Function}
+	 */
 	propsWindow = xjs.SourcePropsWindow.getInstance(),
-	currentSource = null;
+	/**
+	 * [currentSource is the source to be used by the application to load the configurations]
+	 * @type {Object}
+	 */
+	currentSource = {};
 	/**
 	 * [then we run the concatenated sets of promises to get and apply the config.]
 	 */
