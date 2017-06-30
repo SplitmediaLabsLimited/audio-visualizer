@@ -34,6 +34,39 @@ $(()=>{
 			$('#bitsample option[value='+config.bitsample+']').prop('selected',true);
 		}
 
+		if(typeof config.strokeW === 'undefined'){
+			firstTime = true;
+			$('#strokeW').val(2);
+			config.strokeW = 2;
+		} else {
+			$('#strokeW').val(config.strokeW);
+		}
+		
+		if(typeof config.strokeS1 === 'undefined'){
+			firstTime = true;
+			$('#strokeS1').val(1);
+			config.strokeS1 = 1;
+		} else {
+			$('#strokeS1').val(config.strokeS1);
+		}
+		
+		if(typeof config.strokeS2 === 'undefined'){
+			firstTime = true;
+			$('#strokeS2').val(1);
+			config.strokeS2 = 1;
+		} else {
+			$('#strokeS2').val(config.strokeS2);
+		}
+
+		if(typeof config.displayfps === 'undefined'){
+			firstTime = true;
+			$('#displayfps').prop('checked',false);
+			config.displayfps = false;
+		} else {
+			$('#displayfps').prop('checked',config.displayfps);
+		}
+
+
 		if(firstTime){
 			updateConfig(currentSource)
 		}
@@ -61,7 +94,37 @@ $(()=>{
 			config.fps = $("#fps option:selected").val();
 			updateConfig(currentSource);
 		})
-		
+
+		$("#bitsample").change((e)=>{
+			config.bitsample = $("#bitsample option:selected").val();
+			updateConfig(currentSource);
+		})
+
+		$("#strokeW").change((e)=>{
+			config.strokeW = parseInt($("#strokeW").val(),10);
+			updateConfig(currentSource);
+		})
+
+		$("#strokeS1").change((e)=>{
+			config.strokeS1 = parseInt($("#strokeS1").val(),10);
+			updateConfig(currentSource);
+		})
+
+		$("#strokeS2").change((e)=>{
+			config.strokeS2 = parseInt($("#strokeS2").val(),10);
+			updateConfig(currentSource);
+		})
+
+		$('#displayfps').click((e)=>{
+			if($(e.currentTarget).is(':checked')){
+				config.displayfps = true;			
+			} else{
+				config.displayfps = false;
+			}
+			updateConfig(currentSource);
+		})
+
+
 	},
 	/**
 	 * [xjs is the XJS Framework]

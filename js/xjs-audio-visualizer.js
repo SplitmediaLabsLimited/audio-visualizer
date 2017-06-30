@@ -53,7 +53,7 @@ var XBCAudioVisualizer = function(config = {}){
 	 * [AudioContext is an instance of AudioContext Browser Worker]
 	 * @type {AudioContext}
 	 */
-	this.audioContent = new AudioContext();
+	this.audioContent = null;
 
 	/**
 	 * [audioStream is a handler for the audio stream]
@@ -77,6 +77,12 @@ var XBCAudioVisualizer = function(config = {}){
 	 * @type {[type]}
 	 */
 	this.canvas = null;
+
+	/**
+	 * [temp is used for math operations that could involve temporary values to be used.]
+	 * @type {Number}
+	 */
+	this.temp = 0;
 
 
 	this.log = (args) =>{
@@ -112,6 +118,7 @@ var XBCAudioVisualizer = function(config = {}){
 			window.cancelAnimationFrame(window._requestAnimationFrame);
 			window._requestAnimationFrame = undefined;
 		}
+
 		/**
 		 * [if no device id is given, then we will use the default 'XSplitBroadcaster (DirectShow)' source]
 		 */
@@ -170,9 +177,9 @@ var XBCAudioVisualizer = function(config = {}){
 		 * [we prepare the stream by connecting the audio stream to the needed analyzer]
 		 */
 		window.persistAudioStream = stream;
-		self.audioStream = self.audioContent.createMediaStreamSource( stream );
-		self.analyser = self.audioContent.createAnalyser();
-		self.analyser.fftSize = 512;
+		self.audioStream = window._audioContent.createMediaStreamSource( stream );
+		self.analyser = window._audioContent.createAnalyser();
+		self.analyser.fftSize = self._defaults.bitsample;
 		resizeHandler();
 
 		/**
@@ -222,7 +229,7 @@ var XBCAudioVisualizer = function(config = {}){
 				var delta = (new Date().getTime() - lastRun)/1000;
 		        lastRun = new Date().getTime();
 		        fps = 1/delta;
-		        if(self._defaults.showfps){
+		        if(self._defaults.displayfps){
 		        	showFPS()
 		        }
 				then = now - (elapsed % fpsInterval);
@@ -233,9 +240,9 @@ var XBCAudioVisualizer = function(config = {}){
 						var x = 0;
 						var y = 0;
 						var sliceWidth = self.canvas.width / bufferLength;
-						self.visualizer.lineWidth = 2;
 						self.visualizer.strokeStyle = '#fff';
-						self.visualizer.setLineDash([1,1]);
+						self.visualizer.lineWidth = self._defaults.strokeW;
+						self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
 						self.visualizer.beginPath();
 						var sliceWidth = self.canvas.width * 1.0 / bufferLength;
 			      		var x = 0;
@@ -264,24 +271,28 @@ var XBCAudioVisualizer = function(config = {}){
 					case 'bars':
 						var spaceh = window.innerWidth/bufferLength;
 						self.analyser.getByteFrequencyData(frequencyArray);
-						self.visualizer.setLineDash([4,4])
-						self.visualizer.lineWidth = 4;
+						self.visualizer.lineWidth = self._defaults.strokeW;
+						self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
 						
 						var tmpPath = null;
 						let adjustedLength = 0;
 						let pos = 0;
 						let calc1 = 0;
 						let calc2  = 0;
-						for(var i = 0; i < bufferLength; i++) {
-							
+						let max = 0;
+						for(var i = 0; i < bufferLength; i++) {	
 							calc1 = (frequencyArray[i]/bufferLength);
-							calc2 = (window.innerHeight * calc1);           	
+							calc2 = (window.innerHeight * calc1);
+							// here we calculate the max height accordingly to window height vs max size of the bufferlength	
+							max = (255/bufferLength)*window.innerHeight;
+							calc2 = parseFloat(((calc2/max)*100).toFixed(2)); //this reveals the height of calc2 against the height of the screen in %
+							calc2 = calc2 * 0.01;
+							calc2 = window.innerHeight * calc2; //and here we get the correct height of the bar.
 							if(i==0){
 								pos = 0
 							} else {
 								pos = (i)*spaceh;
 							}
-
 							var gradientObject = self.visualizer.createLinearGradient(pos,(self.canvas.height - calc2),pos,self.canvas.height);
 							gradientObject.addColorStop('0' ,'#ff0a0a')
 							gradientObject.addColorStop('0.2' ,'#f1ff0a')
@@ -322,25 +333,27 @@ var XBCAudioVisualizer = function(config = {}){
 	 * @return {[type]} [description]
 	 */
 	this.init = () => {
-		debugger;
 		var self = this;
 		var defaults = {
-			visualizer : 'visualizer',
-			isSVG : false,
-			isCANVAS: false,
-			haveMask : true,
-			isMaskMarkup : false,
-			mask : 'mask',
-			audioDeviceId : '',
+			visualizer            : 'visualizer',
+			isSVG                 : false,
+			isCANVAS              : false,
+			haveMask              : true,
+			isMaskMarkup          : false,
+			mask                  : 'mask',
+			audioDeviceId         : '',
 			hasCustomSoundAllowed : false,
-			customSoundAllowed : function() {},
+			customSoundAllowed    : function() {},
 			customSoundNotAllowed : function() {},
-			is3d : false,
-			enableLog:false,
-			skin : 'bars',
-			fps : 30,
-			bitsample : 512,
-			showfps : true
+			is3d                  : false,
+			enableLog             :false,
+			skin                  : 'bars',
+			fps                   : 30,
+			bitsample             : 512,
+			displayfps            : false,
+			strokeW               : 1,
+			strokeS1              : 0,
+			strokeS2              : 0
 		}
 
 		/**
@@ -350,14 +363,7 @@ var XBCAudioVisualizer = function(config = {}){
 		self._defaults = $.extend({},defaults,self.config);
 
 		var self = this;
-		if(typeof self.config.visualizer === 'undefined') console.error('It is required the use of the id of the visualizer container');
 		if(document.getElementById(self._defaults.visualizer) === null) console.error('The visualizer container was not found into the HTML DOM');
-		if(typeof self.config.canvas_width === 'undefined') console.error('The visualizer width was not found on the settings');
-		if(typeof self.config.canvas_height === 'undefined') console.error('The visualizer height was not found on the settings');
-
-		if(self._defaults.enableLog){
-			self.enableLog = true;
-		}
 
 		/**
 		 * starting up instances...
@@ -367,6 +373,22 @@ var XBCAudioVisualizer = function(config = {}){
 		self.mask = document.getElementById(self._defaults.mask);
 		if(self._defaults.skin === 'custom'){
 			self.customVisualization = self._defaults.customVisualization;
+		}
+
+		//parse defaults with integer values to be integers...
+		self._defaults.bitsample = parseInt(self._defaults.bitsample,10);
+		self._defaults.fps       = parseInt(self._defaults.fps,10);
+		self._defaults.strokeW   = parseInt(self._defaults.strokeW,10);
+		self._defaults.strokeS1  = parseInt(self._defaults.strokeS1,10);
+		self._defaults.strokeS2  = parseInt(self._defaults.strokeS2,10);
+
+		if(typeof window._audioContent !== 'undefined'){
+			window._audioContent.close().then(()=>{
+				window._audioContent = null;
+				window._audioContent = new AudioContext();
+			})
+		} else {
+			window._audioContent = new AudioContext();	
 		}
 
 		/**
