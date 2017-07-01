@@ -28,7 +28,7 @@ var XBCAudioVisualizer = function(config = {}){
 	 * [_defaults a queueable object where we can merge local defaults with defaults of the user.]
 	 * @type {Object}
 	 */
-	this._defaults = {}
+	this._defaults = {};
 	/**
 	 * [paths is an array that will display multiple visualizations when used on frequece bars]
 	 * @type {[type]}
@@ -271,7 +271,6 @@ var XBCAudioVisualizer = function(config = {}){
 					break;
 					case 'bars':
 						var spaceh = window.innerWidth/bufferLength;
-						console.log(spaceh);
 						self.analyser.getByteFrequencyData(frequencyArray);
 						self.visualizer.lineWidth = self._defaults.strokeW;
 						self.visualizer.setLineDash([self._defaults.strokeS1,self._defaults.strokeS2]);
@@ -307,7 +306,20 @@ var XBCAudioVisualizer = function(config = {}){
 						}
 					break;
 					case 'custom':
-						self.customVisualization;
+						var XBC_avz = {
+							canvas : self.canvas,
+							visualizer : self.visualizer,
+							analyser : self.analyser,
+							bitsample : self._defaults.bitsample
+						}
+						var executeFunction = (XBC_avz = {}) => {
+							eval(self.customVisualization);
+						}
+						try{
+							executeFunction(XBC_avz);
+						} catch(e){
+							console.log(e.stack)
+						}
 					break;
 				}
 
@@ -356,7 +368,7 @@ var XBCAudioVisualizer = function(config = {}){
 			strokeW               : 1,
 			strokeS1              : 0,
 			strokeS2              : 0,
-			customVisualization   : function(){}
+			customVisualization   : "/**\r\n * When you use your custom function, please make sure to map properly your\r\n * variables as shown below:\r\n */\r\n/**\r\n * [canvas holds the DOM Object of the visualization, a <canvas> tag]\r\n * @type {DOM(<CANVAS>)}\r\n */\r\nvar canvas = XBC_avz.canvas;\r\n/**\r\n * [visualizer holds the current context of the canvas. if you want to later on\r\n * override the visualization from 2d to 3d, you could use after the assignation\r\n * the following:\r\n * visualizer = canvas.getContext('3d');\r\n * ]\r\n * @type {VISUALIZER}\r\n */\r\nvar visualizer = XBC_avz.visualizer;\r\n/**\r\n * The analyser represents a node able to provide real-time frequency and time-domain \r\n * analysis information. It is an AudioNode that passes the audio stream unchanged \r\n * from the input to the output, but allows you to take the generated data, process it, \r\n * and create audio visualizations.\r\n * \r\n * An AnalyserNode has exactly one input and one output. The node works even if the \r\n * output is not connected.\r\n * @type {Analizer}\r\n */\r\nvar analyser = XBC_avz.analyser;\r\n/**\r\n * XBC_avz.bitsample is the fftSize property of the AnalyserNode interface is an \r\n * unsigned long value representing the size of the FFT (Fast Fourier Transform) \r\n * to be used to determine the frequency domain.\r\n * \r\n * The fftSize property's value must be a non-zero power of 2 in a range \r\n * from 32 to 32768; \r\n *\r\n * the bitsample comes from the selection of the Bit Sample dropdown box. \r\n * You can override its value manually or let XBC_avz manage by the given \r\n * options of the main dialog\r\n * @type {Numeric|XBC_avz.bitsample}\r\n */\r\nanalyser.fftSize = XBC_avz.bitsample;\r\n/** \r\n * FROM HERE YOU CAN SETUP CUSTOM VARIABLES\r\n */\r\n/**\r\n * [bufferLength contains the frequency bitcount to be used in the visualization]\r\n * @type {integer}\r\n */\r\nvar bufferLength = analyser.frequencyBinCount;\r\n/**\r\n * [frequencyArray indicates the array of elements that defines the lenghth of \r\n * the frequency and its variances]\r\n * @type {Uint8Array}\r\n */\r\nvar frequencyArray = new Uint8Array(XBC_avz.analyser.frequencyBinCount);\r\n/**\r\n * BELOW USE YOUR CUSTOM CODE TO DRAW YOUR VISUALIZATION. DO NOT INCLUDE LOOPS SINCE\r\n * THE PLUGIN TAKES CARE OF THE REDRAW.\r\n */"
 		}
 
 		/**
@@ -397,6 +409,12 @@ var XBCAudioVisualizer = function(config = {}){
 		 * This could change... I need an fps counter on the panel of properties
 		 */
 		window.external.SetLocalProperty("prop:Browser"+self._defaults.fps+"fps","1");  
+
+		/**
+		 * setup the value of the custom code
+		 */
+		console.log(self._defaults)
+		$("#customClientJS").val(self._defaults.customVisualization);
 		
 		/** 
 		 * ready to go!

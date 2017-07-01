@@ -22,9 +22,39 @@
 	<title></title>
 	<link rel="stylesheet" href="./bower_components/bootstrap/dist/css/bootstrap.min.css">
 	<link rel="stylesheet" href="./bower_components/font-awesome/css/font-awesome.min.css">
-	<link rel="stylesheet" href="./bower_components/codemirror/lib/codemirror.css">
 	<link rel="stylesheet" href="./css/config.css">
 	<link rel="stylesheet" href="./css/flexbox-grid.css">
+
+	<script src="./bower_components/xjs-framework/dist/xjs.js"></script>
+	<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="./bower_components/ace/build/src/ace.js"></script>
+	<script src="./js/config.js"></script>
+	<script type="text/javascript">
+	
+	$(()=> {
+		$('.spinner .btn:first-of-type').on('click', function(e) {
+			let obj =  $(this).parent().parent().find('input');
+			$(obj).val( parseInt($(obj).val(), 10) + 1);
+			$(obj).change();
+	  	});
+	  	$('.spinner .btn:last-of-type').on('click', function(e) {
+			let obj =  $(this).parent().parent().find('input');
+			$(obj).val( parseInt($(obj).val(), 10) - 1);
+			$(obj).change();
+	  	});
+
+	  	$('.tabs a').click((e)=>{
+			e.preventDefault();
+			$('.tabs a').removeClass('selected');
+			$(e.currentTarget).addClass('selected');
+			$('.tabContainer').hide()
+			$($(e.currentTarget).attr('href')).show();
+		});
+
+		
+	});
+	</script>
+<script>require('xjs').ready();</script>
 </head>
 <body>
 <div class="bs-component">
@@ -47,7 +77,7 @@
 			<div class="row__item row__item--double ">
 				<div class="content">
 					<select name="audioDeviceId" id="audioDeviceId">
-					</select>	
+					</select>   
 				</div>
 			</div>
 		</div>
@@ -99,7 +129,7 @@
 							<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
 							<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
 						</div>
-				 	</div>
+					</div>
 				</div>
 			</div>
 			<div class="row">
@@ -111,7 +141,7 @@
 							<button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
 							<button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
 						</div>
-				 	</div>
+					</div>
 				
 					<div class="input-group spinner">
 						<input type="text" class="form-control input-xs" id="strokeS2" value="1">
@@ -128,21 +158,21 @@
 				<legend>Custom Visualization</legend>
 				<div class="row ">
 					<div class="row__item forceNoMargin tabs">
-						<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
-						<a class="codeView" href="#codeView">Code Editor</a>
+						<a class="introDocs" href="#introDocs">Initial Documentation</a>
+						<a class="codeView selected" href="#codeView">Code Editor</a>
 						<a class="jsIncludes" href="#jsIncludes">External JS Files</a>
 					</div>
 				</div>
 				<div class="row">
 					<div class="row__item forceNoMargin">
-						<div class="tabContainer" id="introDocs">
-							<p>Initial wording to indicate the user what to do in a custom view, and how to import their desired visualizer into XBC</p>
+						<div class="tabContainer" id="introDocs" style="display: none">
+							<p>Javascript knowledge is required when using the custom visualization settings.</p>
 						</div>
-						<div class="tabContainer" id="codeView" style="display: none">
+						<div class="tabContainer" id="codeView" >
 							<p>we place here the JS code</p>
 							<textarea id="customClientJS"></textarea>
 							<div class="bs-component">
-								<button id="refreshVisualizer" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save &amp; Refresh XBC Audio Visualizer</button>
+								<button id="saveCustomVisualization" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save Code</button>
 							</div>
 						</div>
 						<div class="tabContainer" id="jsIncludes" style="display: none">
@@ -154,26 +184,5 @@
 		</div>
 	</div>
 </div>
-
-<script src="./bower_components/xjs-framework/dist/xjs.js"></script>
-<script src="./bower_components/jquery/dist/jquery.min.js"></script>
-<script src="./bower_components/requirejs/require.js"></script>
-<script src="./bower_components/codemirror/lib/codemirror.js"></script>
-<script src="./js/config.js"></script>
-<script type="text/javascript">
-(function ($) {
-  $('.spinner .btn:first-of-type').on('click', function(e) {
-  	let obj =  $(this).parent().parent().find('input');
-    $(obj).val( parseInt($(obj).val(), 10) + 1);
-    $(obj).change();
-  });
-  $('.spinner .btn:last-of-type').on('click', function(e) {
-  	let obj =  $(this).parent().parent().find('input');
-    $(obj).val( parseInt($(obj).val(), 10) - 1);
-    $(obj).change();
-  });
-})(jQuery);
-</script>
-<script>require('xjs').ready();</script>
 </body>
 </html>

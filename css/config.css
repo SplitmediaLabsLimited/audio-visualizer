@@ -111,3 +111,8 @@ fieldset legend{
 .forceNoMargin {
 	margin:0 !important;
 }
+
+.ace_editor{
+	height:330px;
+	font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
