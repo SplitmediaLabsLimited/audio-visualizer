@@ -27,7 +27,11 @@
 
 	<script src="./bower_components/xjs-framework/dist/xjs.js"></script>
 	<script src="./bower_components/jquery/dist/jquery.min.js"></script>
+	
 	<script src="./bower_components/ace/build/src/ace.js"></script>
+	<script src="./bower_components/Sortable/jquery.binding.js"></script>
+	<script src="./bower_components/Sortable/jquery.fn.sortable.js"></script>
+
 	<script src="./js/config.js"></script>
 	<script type="text/javascript">
 	
@@ -50,13 +54,8 @@
 			$('.tabContainer').hide()
 			$($(e.currentTarget).attr('href')).show();
 		});
-
-		/*window._editor = ace.edit("customClientJS");
-	    window._editor.setTheme("ace/theme/monokai");
-	    window._editor.getSession().setMode("ace/mode/javascript");
-		window._editor.setFontSize(10);
-		window._editor.setShowPrintMargin(false);*/
-
+	  	
+		
 		
 	});
 	</script>
@@ -164,25 +163,29 @@
 				<legend>Custom Visualization</legend>
 				<div class="row ">
 					<div class="row__item forceNoMargin tabs">
-						<a class="introDocs" href="#introDocs">Initial Documentation</a>
-						<a class="codeView selected" href="#codeView">Code Editor</a>
+						<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
+						<a class="codeView " href="#codeView">Code Editor</a>
 						<a class="jsIncludes" href="#jsIncludes">External JS Files</a>
 					</div>
 				</div>
 				<div class="row">
 					<div class="row__item forceNoMargin">
-						<div class="tabContainer" id="introDocs" style="display: none">
+						<div class="tabContainer" id="introDocs" >
 							<p>Javascript knowledge is required when using the custom visualization settings.</p>
 						</div>
-						<div class="tabContainer" id="codeView" >
-							<p>we place here the JS code</p>
+						<div class="tabContainer" id="codeView" style="display: none">
+							<span>Place the code for your visualization on the text editor below. Make sure to read carefully the instructions for integration</span>
 							<textarea id="customClientJS"></textarea>
 							<div class="bs-component">
-								<button id="saveCustomVisualization" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save Code</button>
+								<button id="saveCustomVisualization" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save</button>
 							</div>
 						</div>
 						<div class="tabContainer" id="jsIncludes" style="display: none">
-							<p>we make reference to external js files</p>
+							<p>These scripts will run in this order and before the code in the JavaScript editor.</p>
+							<div class="nocontent">No external JS files are linked to this visualization</div>
+							<ul id="list">
+							</ul>
+							<button type="button" id="addExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add New Script</button> <button id="saveExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save</button>
 						</div>
 					</div>
 				</div>

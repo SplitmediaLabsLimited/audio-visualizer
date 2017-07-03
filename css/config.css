@@ -105,7 +105,8 @@ fieldset legend{
 	display: block;
 	width: 100%;
 	padding: 10px;
-	min-height:400px;
+	min-height:350px;
+	overflow:auto;
 }
 
 .forceNoMargin {
@@ -113,6 +114,39 @@ fieldset legend{
 }
 
 .ace_editor{
-	height:330px;
+	height:280px;
 	font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+}
+
+#list{	
+	list-style-type: none;
+	margin: 5px 0px;
+	padding: 0px;
+	font-size:12px
+}
+
+#list li{
+	width:100%;
+	margin-bottom:5px;
+}
+#list .handler{
+	vertical-align:middle;
+	display:inline-flex;
+	margin: auto 0;
+	font-size: 18px;
+	cursor: move;
+}
+#list input{
+	padding:2px;
+	vertical-align:middle;
+	margin:0px 5px;
+	width:90%;
+}
+
+#list .removeThis{
+	cursor:pointer;
+}
+
+.ghost {
+  opacity: 0;
 }
