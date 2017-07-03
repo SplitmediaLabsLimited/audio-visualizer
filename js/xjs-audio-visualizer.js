@@ -509,6 +509,8 @@ var XBCAudioVisualizer = function(config = {}) {
         /**
          * This could change... I need an fps counter on the panel of properties
          */
+        window.external.SetLocalProperty("prop:Browser"+self._defaults.fps+"fps","1");  
+
 
         /**
          * setup the value of the custom code
