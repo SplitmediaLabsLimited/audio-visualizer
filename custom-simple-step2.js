@@ -2,8 +2,6 @@
  * code formatted properly for the visualizer.
  * I have cleaned up the unnecesary functions and initializations.
  */
-
-var context           = XBC_avz.mediaStreamSource;
 var analyser          = XBC_avz.analyser;
 var canvas            = XBC_avz.canvas;
 var ctx               = XBC_avz.visualizer;
