@@ -76,7 +76,7 @@ fieldset {
 
 fieldset legend{
 	font-size:12px;
-	margin: 10px;
+	margin: 0px 10px;
 	display: inline;
 	width: initial;
 }
@@ -105,24 +105,24 @@ fieldset legend{
 	display: block;
 	width: 100%;
 	padding: 10px;
-	min-height:350px;
+	min-height:340px;
 	overflow:auto;
 }
 
 .forceNoMargin {
 	margin:0 !important;
 }
-
-.ace_editor{
-	height:280px;
-	font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+.forceMargin{
+	margin:5px !important;
 }
 
 #list{	
 	list-style-type: none;
 	margin: 5px 0px;
 	padding: 0px;
-	font-size:12px
+	font-size:12px;
+	overflow:auto;
+	max-height:150px;
 }
 
 #list li{
@@ -149,4 +149,19 @@ fieldset legend{
 
 .ghost {
   opacity: 0;
+}
+
+#addLocalVisual, #addURLVisual {
+	display:none;
+}
+
+#manageVisualizations fieldset{
+	padding:5px;
+}
+
+input[type='text'].form-control{
+	padding: 5px;
+    height: 20px;
+   	font-size:13px;
+   	margin: auto 0;
 }

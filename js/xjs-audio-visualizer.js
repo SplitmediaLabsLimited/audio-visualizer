@@ -183,7 +183,7 @@ var XBCAudioVisualizer = function(config = {}) {
         self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
         self.analyser = window._audioContext.createAnalyser();
         self.analyser.fftSize = self._defaults.bitsample;
-        if (self._defaults.skin === 'custom') {
+        if (self._defaults.skin !== 'bars' && self._defaults.skin !=='osciloscope') {
 
             /**
              * When we do a custom animation, we give total freedom to the user to manipulate

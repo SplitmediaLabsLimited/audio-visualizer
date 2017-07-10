@@ -55,6 +55,9 @@
 			$($(e.currentTarget).attr('href')).show();
 		});
 	  	
+	  	$('.tabContainer').hide();
+	  	$($('.tabs .selected').attr('href')).show();
+
 		
 		
 	});
@@ -73,7 +76,6 @@
 				<select name="skin" id="skin">
 					<option value="bars">Bars</option>
 					<option value="oscilloscope">Oscilloscope</option>
-					<option value="custom">custom</option>
 				</select>
 			</div>
 		</div>
@@ -163,29 +165,56 @@
 				<legend>Custom Visualization</legend>
 				<div class="row ">
 					<div class="row__item forceNoMargin tabs">
-						<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
-						<a class="codeView " href="#codeView">Code Editor</a>
-						<a class="jsIncludes" href="#jsIncludes">External JS Files</a>
+							<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
+							<a class="codeView " href="#manageVisualizations">Manage Custom Visualizations</a>
 					</div>
 				</div>
 				<div class="row">
 					<div class="row__item forceNoMargin">
 						<div class="tabContainer" id="introDocs" >
 							<p>Javascript knowledge is required when using the custom visualization settings.</p>
+							<h5>Managing your visualizations</h5>
+							<p>Every time you create a new visualization. it is listed on the selection skin drop down list. You can be able to reference a local javascript file or indicate a URL where  your visualization is uploaded. In case you have an external URL, we strongly recommend to use Github where you can upload your scripts to be easily readable for this plugin</p>
 						</div>
-						<div class="tabContainer" id="codeView" style="display: none">
-							<span>Place the code for your visualization on the text editor below. Make sure to read carefully the instructions for integration</span>
-							<textarea id="customClientJS"></textarea>
-							<div class="bs-component">
-								<button id="saveCustomVisualization" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save</button>
+						<div class="tabContainer" id="manageVisualizations">
+							<div class="bs-component manageAction">
+								<!-- <button class="btn btn-primary btn-xs addLocal"><i class="fa fa-plus"></i> Add Local JS File</button> or  --><button class="addURL btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a Remote JS URL</button>
 							</div>
-						</div>
-						<div class="tabContainer" id="jsIncludes" style="display: none">
-							<p>These scripts will run in this order and before the code in the JavaScript editor.</p>
-							<div class="nocontent">No external JS files are linked to this visualization</div>
-							<ul id="list">
-							</ul>
-							<button type="button" id="addExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add New Script</button> <button id="saveExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-floppy-o"></i> Save</button>
+							<!-- <fieldset id="addLocalVisual" class="subpanel">
+								<legend>Add Local JS Visualization File</legend>
+								<button class="btn btn-primary btn-xs cancelAction"><i class="fa fa-times"></i> Cancel</button>
+							</fieldset> -->
+							<fieldset id="addURLVisual" class="subpanel">
+								<legend>Add Remote JS Visualization File</legend>
+								<div class="">
+									<div class="row">
+										<div class="row__item">Please paste the URL where your script is located</div>
+									</div>
+									<div class="row">
+										<div class="row__item--triple"  style="display:flex"><input type="text" id="urlscript" class="form-control"/></div>
+										<div class="row__item"><div class="" style="width:100%;display: block; margin: auto 0"><button class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Verify URL</button></div> <button class="btn btn-primary btn-xs cancelAction"><i class="fa fa-times"></i> Cancel</button></div>
+									</div>
+									<div class="row">
+										<div class="row__item"><h5>Add External Javascript</h5></div>
+									</div>
+									<div class="row">
+										<div class="row__item"><p>You can add external javascript files that provide extra support to your visualizantion. This plugin will render this files in the order you are providing.</p></div>
+									</div>
+									<div class="row nocontent">
+										<div class="row__item"><p>No external Javascript files were included at the moment</p></div>
+									</div>
+									<ul id="list">
+                    				</ul>
+                    				<button type="button" id="addExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add New Script</button>
+
+
+								</div>
+
+							</fieldset>
+                            <fieldset id="manageVisuals">
+                            	<legend>Manage Visualizations</legend>
+                            	<div class="empty">No extra visualizations are available at the moment.</div>
+                            </fieldset>
 						</div>
 					</div>
 				</div>
