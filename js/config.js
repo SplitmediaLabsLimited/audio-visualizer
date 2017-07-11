@@ -73,7 +73,7 @@ $(()=>{
 		if(typeof config.fps === 'undefined'){
 			firstTime = true;
 			config.fps = 60;
-			$('#fps option[value=bars]').prop('selected',true)
+			$('#fps option[value=60]').prop('selected',true)
 		} else {
 			$('#fps option[value='+config.fps+']').prop('selected',true)
 		}
@@ -88,24 +88,24 @@ $(()=>{
 
 		if(typeof config.strokeW === 'undefined'){
 			firstTime = true;
-			$('#strokeW').val(2);
-			config.strokeW = 2;
+			$('#strokeW').val(4);
+			config.strokeW = 4;
 		} else {
 			$('#strokeW').val(config.strokeW);
 		}
 		
 		if(typeof config.strokeS1 === 'undefined'){
 			firstTime = true;
-			$('#strokeS1').val(1);
-			config.strokeS1 = 1;
+			$('#strokeS1').val(2);
+			config.strokeS1 = 2;
 		} else {
 			$('#strokeS1').val(config.strokeS1);
 		}
 		
 		if(typeof config.strokeS2 === 'undefined'){
 			firstTime = true;
-			$('#strokeS2').val(1);
-			config.strokeS2 = 1;
+			$('#strokeS2').val(2);
+			config.strokeS2 = 2;
 		} else {
 			$('#strokeS2').val(config.strokeS2);
 		}
@@ -134,7 +134,7 @@ $(()=>{
 			firstTime = true;
 		} else {
 			config.externalJSURL.forEach((o,i)=>{
-				addUrlToConfig(o);
+				renderListVisuals(o);
 			})
 		}
 
@@ -142,6 +142,14 @@ $(()=>{
 		if(firstTime){
 			updateConfig(currentSource)
 		}
+	},
+	/**
+	 * [renderListVisuals displays the list of visualizations into the panel, in order to be selected by the user]
+	 * @param  {Object} item [item is composed of: visualname which is the visualization name, and visualurl that is the url of the remote script]
+	 * @return {[type]}      [description]
+	 */
+	renderListVisuals = (item = {visualname:'',visualurl:''})=>{
+
 	},
 	/**
 	 * updateConfig saves the configuration passed by the argument.
@@ -251,6 +259,71 @@ $(()=>{
 			//clean up function for local and remote url
 			$('.manageAction').show();
 		})
+		$('.addRemoteSource').click((e)=>{
+			e.preventDefault();
+			let obj = {
+				visualname:null,
+				visualurl:null
+			};
+
+			let checkScriptName = () => {
+				var d = $.Deferred();
+				var isFound = false;
+				var visualname = $.trim($('#scriptName').val());
+				if(visualname.length < 3){
+					d.reject('- Visualization name must have more than 3 characters')
+				} else {
+					config.externalJSURL.forEach((o,i)=>{
+						if(o.visualname.toLowerCase() === visualname.toLowerCase()){
+							isFound = true;
+						}
+					})
+					if(isFound){
+						d.reject('Visualization name already exists. Please use another name');
+					} else {
+						d.resolve(visualname)
+					}
+				}
+				return d.promise();
+			};
+			let checkUrl = () =>{
+				var d = $.Deferred();
+				var visualurl = 'https://raw.githubusercontent.com/xjsframework/audio-visualizer/master/example_remote_visual1.js'//;$.trim($('.urlscript').val());
+				if(visualurl.length < 3){
+					d.reject('- URL is too short')
+				} else {
+					IO.getWebContent(visualurl).then(function(base64Content) {
+					    try{
+					    	var actualContent = decodeURIComponent(escape(window.atob(base64Content)));
+					    	//d.resolve($.trim($('#urlscript').val()));
+					    	d.resolve('https://raw.githubusercontent.com/xjsframework/audio-visualizer/master/example_remote_visual1.js');
+					    } catch(e) {
+					    	d.reject('- The Provided URL is invalid');
+					    }
+					});
+				}
+				return d.promise();
+			}
+			
+			$.when(checkScriptName(),checkUrl())
+			.then((rCheckScriptName,rCheckUrl)=>{
+				//success
+				debugger;
+				console.log('success',[rCheckScriptName,rCheckUrl]);
+			},
+			(f1,f2)=>{
+				let str = '';
+				if(typeof f1 !== 'undefined') str+=f1+'\n';
+				if(typeof f2 !== 'undefined') str+=f2+'\n';
+			
+				if(str !== ''){
+					alert ('There are erros adding your script:\n'+str);
+				}
+			})
+			
+			
+
+		})
 
 		
 
@@ -305,7 +378,12 @@ $(()=>{
 	 * [currentSource is the source to be used by the application to load the configurations]
 	 * @type {Object}
 	 */
-	currentSource = {};
+	currentSource = {},
+	/**
+	 * [util handles the io utilities from xjs]
+	 * @type {Object}
+	 */
+	IO = xjs.IO;
 	/**
 	 * [then we run the concatenated sets of promises to get and apply the config.]
 	 */
@@ -313,10 +391,6 @@ $(()=>{
 		var configWindow =  SourcePropsWindow.getInstance();
 		propsWindow.useFullWindow();
 		propsWindow.resize(600,550);
-		/*propsWindow.useTabbedWindow({
-			customTabs: ['Audio Visualizer'],
-			tabOrder: ['Audio Visualizer', 'Layout', 'Color', 'Transition']
-		});*/
 		return Item.getCurrentSource();
 	})
 	/** 

@@ -183,7 +183,7 @@ var XBCAudioVisualizer = function(config = {}) {
         self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
         self.analyser = window._audioContext.createAnalyser();
         self.analyser.fftSize = self._defaults.bitsample;
-        if (self._defaults.skin !== 'bars' && self._defaults.skin !=='osciloscope') {
+        if (self._defaults.skin !== 'bars' && self._defaults.skin !=='oscilloscope') {
 
             /**
              * When we do a custom animation, we give total freedom to the user to manipulate
@@ -248,7 +248,6 @@ var XBCAudioVisualizer = function(config = {}) {
                 mediaStreamSource: self.mediaStreamSource,
                 fps: self._defaults.fps,
                 displayfps: self._defaults.displayfps
-
             }
             var executeFunction = (XBC_avz = {}) => {
                 eval(self.customVisualization);
@@ -333,6 +332,7 @@ var XBCAudioVisualizer = function(config = {}) {
              * [draw is a function that renders in the canvas the data to be visualized]
              */
             let draw = () => {
+                console.log(self._defaults.skin);
                 window._requestAnimationFrame = window.requestAnimationFrame(draw);
                 now = Date.now();
                 elapsed = now - then;
@@ -447,6 +447,11 @@ var XBCAudioVisualizer = function(config = {}) {
      * @return {[type]} [description]
      */
     this.init = () => {
+        debugger;
+        var IO = xjs.IO;
+
+        
+
         var self = this;
         var defaults = {
             visualizer: 'visualizer',
@@ -462,13 +467,12 @@ var XBCAudioVisualizer = function(config = {}) {
             is3d: false,
             enableLog: false,
             skin: 'bars',
-            fps: 30,
+            fps: 60,
             bitsample: 512,
-            displayfps: false,
-            strokeW: 1,
-            strokeS1: 0,
-            strokeS2: 0,
-            customVisualization: "/**\r\n * USE CUSTOM VISUALIZATION IF YOU ARE VERY WELL VERSED ON JAVASCRIPT!!!!\r\n * WHEN YOU HAVE CUSTOM VISUALIZATIONS, PLEASE READ CAREFULLY THE INSTRUCTIONS \r\n * BELOW IN ORDER TO MAKE YOUR CODE TO WORK. If you need more scope variables that\r\n * could be missing, please write to erro@splitmedialabs.com with the requested\r\n * scope variable with details.\r\n *\r\n * ### Development Notes ###\r\n *\r\n * You can pass your code ALMOST intact. Few modifications are needed to make your\r\n * code to work. Please read carefully this references notes in order to consider  \r\n * what to do to make your custom visualization code work properly.\r\n *\r\n *   ### DEBUGGING YOUR CODE ###\r\n * please enable developer mode on XBC and debug in http://localhost:9222\r\n * (default port used for XBC to debug sources) and look for \r\n * 'XSplit Broadcaster Audio Visualizer' on the list of links. IN THAT WAY YOU CAN\r\n * DEBUG YOUR CODE IF THERE IS ANY ERROR OR IF THE VISUALIZATION DOESN'T WORK\r\n * PROPERLY\r\n *\r\n *   ### STRICT MODE ###\r\n *\r\n * Note that strict mode is enforced from the start up. If you have a visualization\r\n * that has bad notations or undefined calls, it will most likely throw you an error. \r\n *\r\n *   ### Canvas Object and Visualizer Object ###\r\n *\r\n * The canvas object already exists on the visualization plugin:\r\n * <canvas id=\"visualizer\"></canvas>\r\n * so you could use this to reference such DOM Object:\r\n\r\n\r\nvar canvas = document.getElementById('visualizer');\r\nvar visualizer = canvas.getContext('2d');\r\n\r\n * or use the existing reference passed by XBC_avz (canvas & visualizer):\r\n \r\nvar canvas = XBC_avz.canvas; \r\nvar visualizer = XBC_avz.visualizer;\r\n\r\n *\r\n *   ### AudioContext ###\r\n *\r\n * Audio context is already stored in window._audioContext, so If you want to extract \r\n * or set any method or propertym you do not need to create a new AudioContext(). Use\r\n * the existing reference. WARNING: Creating new AudioContext() instances COULD RESULT\r\n * IN BREAKING THE SCRIPT.\r\n *\r\n *   ### Analyser Object ###\r\n * \r\n * so If you want to create an analyzer, the answer is\r\n * var analyser = window._audioContext.createAnalyser()\r\n *\r\n * or you can use this if you want to save some time. Again it is under your \r\n * convenience\r\n\r\nvar analyser = XBC_avz.analyser;\r\n\r\n * If you want to set getByteFrequencyData or getByteTimeDomainData for the analyser\r\n * you have to set the frequencyArray as follows:\r\n \r\n var frequencyArray = new Uint8Array(analyser.frequencyBinCount);\r\n\r\n *   ### FFTSIZE ###\r\n * The analyser uses the fttsize (bitsample) passed by the main configuration window.\r\n * so if you want to use the configuration options, please use XBC_avz.fftsize to use\r\n * its value against the analyzer:\r\n\r\nvar analyser = XBC_avz.analyser;\r\nanalyzer.fttSize = XBC_avz.fttsize;\r\n\r\n *   ### Media Stream Source ###\r\n *\r\n * By default, This plugin already connects to the audio source, so you don not need \r\n * to do\r\n * myMediaStream = window._audioContext.createMediaStreamSource(stream)\r\n *\r\n * if you want to connect methods and properties of the Media Stream Source use \r\n * XBC_avz.mediaStreamSource to call any method or property of the current\r\n * selected source. example:\r\n *\r\n * var myMediaStreamSource = XBC_avz.mediaStreamSource;\r\n * .\r\n * .\r\n * .\r\n * Visualization code\r\n * .\r\n * .\r\n * .\r\n * myMediaStreamSource.connect(analyzer);\r\n * \r\n *\r\n *   ### fftSize ###\r\n *\r\n * the fftSize is defined on the main dialog window, and can be called user as follows:\r\n * analyser.fftSize = XBC_avz.fftSize;\r\n *\r\n *   ### requestAnimationFrame CALLBACKS AND ID ###\r\n *\r\n * When you setup a requstAnimationFrame in your function PLEASE bind the id of the \r\n * request to window._requestAnimationFrame, so in case the plugin have to perform a \r\n * cancelation of the drawing the plugin can stop the execution of the drawing function \r\n * without breaking your visualization. this is an example on how to achieve this:\r\n\r\nvar myMediaStreamSource = XBC_avz.mediaStreamSource;\r\nvar drawFunction = function(){\r\n\twindow._requestAnimationFrame = window.requestAnimationFrame(drawFunction);\r\n\t.\r\n\t.\r\n\t.\r\n\tanimation code\r\n\t.\r\n\t.\r\n\t.\r\n}\r\ndrawFunction();\r\nmyMediaStreamSource.connect(analyser);\r\n\r\n *\r\n *   ### CONTROLING FRAMERATE ###\r\n *\r\n * By default This plugin provides a framerate control for the two default visualizers\r\n * bars and osciloscope, while on custom it is always set to 60fps. If you want to\r\n * control your framerate you have to add the following code.\r\n *\r\n *  ## indicatons\r\n *  1. Use XBC_avz.fps to use the fps you set on the configuration dialog window, and use\r\n *  XBC_avz.displayfps to allow to see the framerate on screen.\r\n *\r\n *  2. insert this code before the function that creates the draw:\r\n\r\nlet fps = 0;\r\nlet lastRun;\r\nlet fpInterval,startTime,now,then,elapsed;\r\nfunction showFPS(){\r\n    self.visualizer.fillStyle = \"red\";\r\n    self.visualizer.font      = \"normal 16pt Arial\";\r\n    self.visualizer.fillText(Math.floor(fps) + \" fps\", 10, 26);\r\n}\r\nfpsInterval = 1000 / XBC_avz.fps;\r\nthen = Date.now();\r\nstartTime = then;\r\n\r\n *  3. add this piece of code INSIDE of your drawing function BEFORE your code that\r\n *  performs the drawing. please see this example\r\n\r\nvar canvas = XBC_avz.canvas; \r\nvar visualizer = XBC_avz.visualizer;\r\nvar analyser = XBC_avz.analyser;\r\nanalyzer.fttSize = XBC_avz.fttsize;\r\n\r\n// ### START FRAMESKIP INITIALIZATION CODE\r\nlet fps = 0;\r\nlet lastRun;\r\nlet fpInterval,startTime,now,then,elapsed;\r\nfunction showFPS(){\r\n    self.visualizer.fillStyle = \"red\";\r\n    self.visualizer.font      = \"normal 16pt Arial\";\r\n    self.visualizer.fillText(Math.floor(fps) + \" fps\", 10, 26);\r\n}\r\nfpsInterval = 1000 / XBC_avz.fps;\r\nthen = Date.now();\r\nstartTime = then;\r\n// END FRAMESKIP INITIALIZATION CODE\r\n\r\nvar drawFunction = function(){\r\n\twindow._requestAnimationFrame = window.requestAnimationFrame(drawFunction);\r\n\t..\r\n\t..\r\n\tsetup initial visualization settings\r\n\t..\r\n\t..\r\n\t// ### START FRAMESKIP CODE PART 1\r\n\tnow = Date.now();\r\n\telapsed = now - then;\r\n\tif(elapsed > fpsInterval){\r\n\t\tvisualizer.clearRect(0, 0, canvas.width, canvas.height);\r\n\t\tvar delta = (new Date().getTime() - lastRun)/1000;\r\n\t    lastRun = new Date().getTime();\r\n\t    fps = 1/delta;\r\n\t    if(XBC_avz.displayfps){\r\n\t    \tshowFPS()\r\n\t    }\r\n\t\tthen = now - (elapsed % fpsInterval);\r\n\t// ## END FRAMESKIP CODE PART 1\r\n\t\t..\r\n\t\t..\r\n\t\t.. \r\n\t\tyour animation DRAWING code\r\n\t\t..\r\n\t\t..\r\n\t\t..\r\n\t// ## START FRAMESKIP CODE PART 2\r\n\t}\r\n\t// ## END FRAMESKIP CODE PART 2\r\n\r\n}\r\ndrawFunction();\r\nmyMediaStreamSource.connect(analyser);\r\n\r\n *\r\n * ############### INSERT YOUR CODE BELOW ################## \r\n */",
+            displayfps: true,
+            strokeW: 4,
+            strokeS1: 4,
+            strokeS2: 4,
             externalJSURL: []
         }
 
@@ -486,9 +490,7 @@ var XBCAudioVisualizer = function(config = {}) {
         self.canvas = document.getElementById(self._defaults.visualizer);
         self.visualizer = self.canvas.getContext("2d")
         self.mask = document.getElementById(self._defaults.mask);
-        if (self._defaults.skin === 'custom') {
-            self.customVisualization = self._defaults.customVisualization;
-        }
+
 
         //parse defaults with integer values to be integers...
         self._defaults.bitsample = parseInt(self._defaults.bitsample, 10);

@@ -1,7 +1,7 @@
 /**
- * XBCAVZ_START
- * @require https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js
- * XBCAVZ_END
+XBCAVZ_START
+@require https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js
+XBCAVZ_END
  */
 
 /*

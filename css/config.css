@@ -3,6 +3,7 @@ body, html{
 	margin:0;
 	overflow: hidden;
 	background-color: none;
+	width:600px;
 }
 select{
 	color:#000;
@@ -164,4 +165,23 @@ input[type='text'].form-control{
     height: 20px;
    	font-size:13px;
    	margin: auto 0;
+}
+
+.documentation {
+	min-height: 330px;
+    overflow: auto;
+    height: 330px;
+    display: block;
+    font-size: 9px;
+    width: 578px;
+
+}
+
+.documentation h3{
+	font-size:14px;
+}
+
+.documentation pre{
+	margin: 0 10px 0px 0px;
+	font-size:10px
 }
