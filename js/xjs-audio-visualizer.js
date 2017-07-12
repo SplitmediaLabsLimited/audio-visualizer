@@ -469,6 +469,9 @@ var XBCAudioVisualizer = function(config = {}) {
             strokeS2: 4,
             externalJSURL: []
         }
+        if($("#visualization").length === 0){
+            $('<canvas id="visualizer"></canvas>').appendTo('body');
+        }
 
         /**
          * then we pass the arguments to the _default attribute to be shared on the class...
