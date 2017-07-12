@@ -102,6 +102,7 @@ starField.position.z = 400;
 var time = new THREE.Clock();
 
 var render = function () {  
+  cubecam.position.z = cubeMesh.position.z = 0;
   camera.position.x = mouseX * 0.05;
   camera.position.y = -mouseY * 0.05;
   camera.lookAt(scene.position);
@@ -121,7 +122,6 @@ var render = function () {
   
   tunnelTexture.offset.y = time.getElapsedTime() / 2;
   tunnelTexture.offset.x = time.getElapsedTime() / 6;
-  //controls.update();
   cubeMesh.visible = false;
   cubecam.updateCubeMap( renderer, scene );
   cubeMesh.visible = true;

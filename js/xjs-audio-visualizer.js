@@ -215,7 +215,8 @@ var XBCAudioVisualizer = function(config = {}) {
             
             $.ajax({
                 url : self._defaults.skin,
-                dataType : 'text'
+                dataType : 'text',
+                cache:false,
             }).done((data)=>{
                 $.when(self.preloadRemoteScript(data))
                 .then(()=>{
@@ -233,12 +234,6 @@ var XBCAudioVisualizer = function(config = {}) {
             })
 
         } else {
-            
-                
-            
-            
-
-
             let resizeHandler = () => {
                 let w = window.innerWidth;
                 let h = window.innerHeight;
@@ -469,9 +464,9 @@ var XBCAudioVisualizer = function(config = {}) {
             strokeS2: 4,
             externalJSURL: []
         }
-        if($("#visualization").length === 0){
-            $('<canvas id="visualizer"></canvas>').appendTo('body');
-        }
+        $("canvas").remove();
+        $('<canvas id="visualizer"></canvas>').appendTo('body');
+        
 
         /**
          * then we pass the arguments to the _default attribute to be shared on the class...
