@@ -233,7 +233,12 @@ var XBCAudioVisualizer = function(config = {}) {
             })
 
         } else {
-            self.visualizer = self.canvas.getcontext('2d');
+            
+                
+            
+            
+
+
             let resizeHandler = () => {
                 let w = window.innerWidth;
                 let h = window.innerHeight;
