@@ -9,7 +9,6 @@ XBCAVZ_END
  * luigimannoni.com / codepen.io/luigimannoni
  * CC BY-NC 4.0 http://creativecommons.org/licenses/by-nc/4.0/ 
  */
-$("#visualizer").remove();
 
 function deg2rad(_degrees) {
   return (_degrees * Math.PI / 180);
