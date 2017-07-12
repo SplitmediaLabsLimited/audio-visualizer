@@ -55,17 +55,6 @@ $(function(){
 	 * @return {[type]} [description]
 	 */
 	initializePlugin = () => {
-		debugger;
-		var IO = xjs.IO;
-		IO.getWebContent('random text').then(function(base64Content) {
-			try{
-				var actualContent = decodeURIComponent(escape(window.atob(base64Content)));
-				console.log(actualContent);
-			} catch(e) {
-				var actualContent = 'invalid url'
-				console.log(actualContent);
-			}
-		});
 		/** 
 		 * Apply config when the property panel saves info
 		 */

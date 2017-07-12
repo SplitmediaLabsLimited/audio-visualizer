@@ -183,6 +183,8 @@ var XBCAudioVisualizer = function(config = {}) {
         self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
         self.analyser = window._audioContext.createAnalyser();
         self.analyser.fftSize = self._defaults.bitsample;
+
+
         if (self._defaults.skin !== 'bars' && self._defaults.skin !=='oscilloscope') {
 
             /**
@@ -195,49 +197,7 @@ var XBCAudioVisualizer = function(config = {}) {
              * instantiate their own callbacks for redraw.
              */
 
-            var load = (function() {
-                // Function which returns a function: https://davidwalsh.name/javascript-functions
-                function _load(tag) {
-                    return function(url) {
-                        // This promise will be used by Promise.all to determine success or failure
-                        return new Promise(function(resolve, reject) {
-                            var element = document.createElement(tag);
-                            var parent = 'body';
-                            var attr = 'src';
-
-                            // Important success and error for the promise
-                            element.onload = function() {
-                                resolve(url);
-                            };
-                            element.onerror = function() {
-                                reject(url);
-                            };
-
-                            // Need to set different attributes depending on tag type
-                            switch (tag) {
-                                case 'script':
-                                    element.async = true;
-                                    break;
-                                case 'link':
-                                    element.type = 'text/css';
-                                    element.rel = 'stylesheet';
-                                    attr = 'href';
-                                    parent = 'head';
-                            }
-
-                            // Inject into document to kick off loading
-                            element[attr] = url;
-                            document[parent].appendChild(element);
-                        });
-                    };
-                }
-
-                return {
-                    css: _load('link'),
-                    js: _load('script'),
-                    img: _load('img')
-                }
-            })();
+            
 
             var XBC_avz = {
                 canvas: self.canvas,
@@ -249,36 +209,31 @@ var XBCAudioVisualizer = function(config = {}) {
                 fps: self._defaults.fps,
                 displayfps: self._defaults.displayfps
             }
-            var executeFunction = (XBC_avz = {}) => {
-                eval(self.customVisualization);
+            var executeFunction = (XBC_avz = {},strData = '') => {
+                eval(strData);
             }
-            try {
-            	if(self._defaults.externalJSURL.length > 0){
-            		var arrs = [];
-            		self._defaults.externalJSURL.forEach((o,i)=>{
-            			arrs.push(load.js(o))
-            		})
-            		Promise.all(arrs)
-            		.then(()=>{
-            			executeFunction(XBC_avz);
-            		})
-            		.catch(()=>{
-            			console.log('the following script didnt load');
-            			console.log(arguments);
-            		})
-            	} else {
-            		executeFunction(XBC_avz);	
-            	}
-                
-            } catch (e) {
-                /**
-                 * To see if there are errors on the stream, it is a must to have
-                 * the developer mode on XBC to see the errors.
-                 */
-                console.log(e.stack)
-            }
+            
+            $.ajax({
+                url : self._defaults.skin,
+                dataType : 'text'
+            }).done((data)=>{
+                $.when(self.preloadRemoteScript(data))
+                .then(()=>{
+                    try{
+                        executeFunction(XBC_avz,data)    
+                    } catch(e){
+                        console.error(e.stack);            
+                    }
+                })
+                .fail((msg)=>{
+                    alert(msg);
+                })
+            }).fail((a,b,c,x)=>{
+                alert(self._defaults.skin +' was not loaded (url may not be valid anymore).')
+            })
 
         } else {
+            
 
 
             let resizeHandler = () => {
@@ -437,21 +392,100 @@ var XBCAudioVisualizer = function(config = {}) {
      * @return {[type]}       [description]
      */
     this.soundNotAllowed = (error) => {
-        debugger;
-        throw ('there was an error fetching audio:')
-        console.error(error);
-    }
+        console.error('there was an error fetching audio:'+error);
+    },
+    /**
+     * [preloadRemoteScript will include the required scripts defined by user on the header file]
+     * @param  {[type]} strData [description]
+     * @return {[type]}         [description]
+     */
+    this.preloadRemoteScript = (strData) => {
+        let refreshData = strData.split('\n'),
+        flagStart = false,
+        flagEnd = false,
+        listPreload = [],
+        tmp = null,
+        deferred = $.Deferred();
+        var load = (function() {
+            // Function which returns a function: https://davidwalsh.name/javascript-functions
+            function _load(tag) {
+                return function(url) {
+                    // This promise will be used by Promise.all to determine success or failure
+                    return new Promise(function(resolve, reject) {
+                        var element = document.createElement(tag);
+                        var parent = 'body';
+                        var attr = 'src';
+
+                        // Important success and error for the promise
+                        element.onload = function() {
+                            resolve(url);
+                        };
+                        element.onerror = function() {
+                            reject(url);
+                        };
+
+                        // Need to set different attributes depending on tag type
+                        switch (tag) {
+                            case 'script':
+                                element.async = true;
+                                break;
+                            case 'link':
+                                element.type = 'text/css';
+                                element.rel = 'stylesheet';
+                                attr = 'href';
+                                parent = 'head';
+                        }
+
+                        // Inject into document to kick off loading
+                        element[attr] = url;
+                        document[parent].appendChild(element);
+                    });
+                };
+            }
+
+            return {
+                css: _load('link'),
+                js: _load('script'),
+                img: _load('img')
+            }
+        })();
+        for (var i = 0; i < refreshData.length; i++) {
+            if(refreshData[i] === 'XBCAVZ_START'){
+                flagStart = true;
+                continue;
+            }
+            if(flagStart){
+                tmp = refreshData[i].split('@require ');
+                if($.trim(tmp[1]).length > 0){
+                    listPreload.push($.trim(tmp[1]));
+                    tmp = null;
+                }
+            }
+            if(refreshData[i] === 'XBCAVZ_END'){
+                flagEnd = true;
+                break;
+            }
+        }
+
+        if(listPreload.length > 0){
+            for (var i = 0; i < listPreload.length; i++) {
+                load.js(listPreload[i])
+            }
+            deferred.resolve();
+        } else {
+            deferred.resolve();
+        }
+        if(flagStart && !flagEnd){
+            deferred.reject('The Header of your javascript does not contain the ending XBCAVZ_END. This could lead to slow performance reading your visualization.')
+        }
+        return deferred.promise();
+    },
 
     /**
      * [init will read the config passed to the class and put everything in order to start to work]
      * @return {[type]} [description]
      */
     this.init = () => {
-        debugger;
-        var IO = xjs.IO;
-
-        
-
         var self = this;
         var defaults = {
             visualizer: 'visualizer',

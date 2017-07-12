@@ -192,9 +192,9 @@ what to do to make your custom visualization code work properly.</p>
   that has bad notations or undefined calls, it will most likely throw you an error. </p>
 <h3>scope variables</h3>
 <p>xsplit broadcaste audiovisualizer plugin exposes a series of variables that allows you to interact with the resultant audio visualizing process. here is the structure of the scope we provide:</p>
-<p>the variable xbc_avz is an object type variable that exposes the following attributes:</p>
+<p>the variable XBC_avz is an object type variable that exposes the following attributes:</p>
 <pre>
-var xbc_avz = {
+var XBC_avz = {
     canvas,
     visualizer,
     analyser,
@@ -205,41 +205,41 @@ var xbc_avz = {
     displayfps
 }
 </pre>
-<h3> xbc_avz.canvas and xbc_avz.visualizer</h3>
+<h3> XBC_avz.canvas and XBC_avz.visualizer</h3>
 <p>the canvas object already exists on the visualization plugin: <em> &lt;canvas id=&quot;visualizer&quot;&gt;&lt;/canvas&gt;</em>  so you could use this to reference such dom object:<br>
 </p>
 <pre>var canvas = document.getelementbyid('visualizer');
 var visualizer = canvas.getcontext('2d');</pre>
 
-<p><br>or use the existing reference passed by xbc_avz (canvas &amp; visualizer):</p>
-<pre>var canvas = xbc_avz.canvas; 
-var visualizer = xbc_avz.visualizer;</pre>
+<p><br>or use the existing reference passed by XBC_avz (canvas &amp; visualizer):</p>
+<pre>var canvas = XBC_avz.canvas; 
+var visualizer = XBC_avz.visualizer;</pre>
 <p><br>given the case that some visualizations scripts such three.js creates their own &lt;canvas&gt; object, you could hide the initial visualizer using a jquery sentence:</p>
 <pre>$('#visualizer').hide()</pre>
 <p><br>then process the new visualization. please make sure to do correct reference to the visualizer variable in your script.<br>
 </p>
-<h3>xbc_avz.analyser</h3>
+<h3>XBC_avz.analyser</h3>
 <p>if you want to create an analyser for your audio stream, the answer is</p>
 <pre>var analyser = window._audiocontext.createanalyser()</pre>
 <p><br>or you can use</p>
-<pre>var analyser = xbc_avz.analyser;</pre>
+<pre>var analyser = XBC_avz.analyser;</pre>
 <p><br>if you want to set getbytefrequencydata or getbytetimedomaindata for the analyser 
   you have to set the frequencyarray as follows:
 </p>
 <pre>var frequencyarray = new uint8array(analyser.frequencybincount);</pre>
-<h3>xbc_avz.fttsize</h3>
+<h3>XBC_avz.fttsize</h3>
 <p> the analyser uses the fttsize (bitsample) passed by the main configuration window.
-  so if you want to use the configuration options, please use xbc_avz.fftsize to use 
+  so if you want to use the configuration options, please use XBC_avz.fftsize to use 
 its value against the analyzer:</p>
-<pre>var analyser = xbc_avz.analyser;
-analyzer.fttsize = xbc_avz.fttsize;</pre>
-<h3>xbc_avz.stream</h3>
+<pre>var analyser = XBC_avz.analyser;
+analyzer.fttsize = XBC_avz.fttsize;</pre>
+<h3>XBC_avz.stream</h3>
 <p><br>the stream object is passed by the plugin when you select an audio source from the configuration panel of this plugin</p>
-<h3>xbc_avz.mediastreamsource</h3>
+<h3>XBC_avz.mediastreamsource</h3>
 <p>by default, this plugin already connects to the audio source, so you don not need 
 to connect from the window object. if you want to connect methods and properties of the media stream source use <br>
-  xbc_avz.mediastreamsource to call any method or property for your source. example:</p>
-<pre>var mymediastreamsource = xbc_avz.mediastreamsource;
+  XBC_avz.mediastreamsource to call any method or property for your source. example:</p>
+<pre>var mymediastreamsource = XBC_avz.mediastreamsource;
 .
 .
 .
@@ -248,13 +248,13 @@ visualization code
 .
 .
 mymediastreamsource.connect(analyser);</pre>
-<h3>xbc_avz.fps and xbc_avz.displayfps</h3>
+<h3>XBC_avz.fps and XBC_avz.displayfps</h3>
 <p><br>by default this plugin provides a framerate control for the two default visualizers
   bars and oscilloscope, while on custom it is always set to 60fps. if you want to 
 control your framerate you have to add the following code.</p>
 <p> ## indicatons<br>
-  1. use xbc_avz.fps to use the fps you set on the configuration dialog window, and use
-  xbc_avz.displayfps to allow to see the framerate on screen.</p>
+  1. use XBC_avz.fps to use the fps you set on the configuration dialog window, and use
+  XBC_avz.displayfps to allow to see the framerate on screen.</p>
 <p> 2. insert this code before the function that creates the draw:</p>
 <pre>let fps = 0;
 let lastrun;
@@ -270,10 +270,10 @@ starttime = then;
 </pre>
 <p><br> 3. add this piece of code inside of your drawing function before your code that
   performs the drawing. please see this example</p>
-<pre>var canvas = xbc_avz.canvas; 
-var visualizer = xbc_avz.visualizer;
-var analyser = xbc_avz.analyser;
-analyzer.fttsize = xbc_avz.fttsize;
+<pre>var canvas = XBC_avz.canvas; 
+var visualizer = XBC_avz.visualizer;
+var analyser = XBC_avz.analyser;
+analyzer.fttsize = XBC_avz.fttsize;
 
 // ### start frameskip initialization code
 let fps = 0;
@@ -320,7 +320,7 @@ then = now - (elapsed % fpsinterval);
   request to <strong>window._requestanimationframe</strong>, so in case the plugin have to perform a 
   cancelation of the drawing the plugin can stop the execution of the drawing function <br>
   without breaking your visualization. this is an example on how to achieve this:</p>
-<pre>var mymediastreamsource = xbc_avz.mediastreamsource;
+<pre>var mymediastreamsource = XBC_avz.mediastreamsource;
 var drawfunction = function(){
 window._requestanimationframe = window.requestanimationframe(drawfunction);
 .
@@ -336,13 +336,13 @@ mymediastreamsource.connect(analyser);</pre>
 <h3>including external required libraries into your code</h3>
 <p><br>if your code needs external js libraries to make your animation work it is important to add the following on the header of your document:</p>
 <pre>/**
-xbcavz_start
+XBCAVZ_START
 @require https://cdnjs.cloudflare.com/ajax/libs/three.js/r70/three.min.js
-xbcavz_end
+XBCAVZ_END
  */</pre>
 <p>&nbsp;</p>
  <ul>
-   <li>you must define in your header a comment that includes xbcavz_start and xbcavz_end</li>
+   <li>you must define in your header a comment that includes XBCAVZ_START and XBCAVZ_END</li>
    <li>use per each script a @require tag with the url of the external js reference you want to link to this script. the program will render those scripts on the order given</li>
    <li>each url must have a @require tag. if you have multiple external required libraries, use a @require tag per line per url</li>
  </ul>
@@ -383,8 +383,7 @@ xbcavz_end
 									<div class="row nocontent">
 										<div class="row__item"><p>No external Javascript files were included at the moment</p></div>
 									</div>
-									<ul id="list">
-									                    				</ul> -->
+									 -->
                     				<!-- <button type="button" id="addExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add New Script</button> -->
 								</div>
 
@@ -392,6 +391,7 @@ xbcavz_end
                             <fieldset id="manageVisuals">
                             	<legend>Manage Visualizations</legend>
                             	<div class="empty">No extra visualizations are available at the moment.</div>
+                            	<ul id="list"></ul>
                             </fieldset>
 						</div>
 					</div>

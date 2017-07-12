@@ -67,7 +67,7 @@ $(()=>{
 			config.skin = 'bars';
 			$('#skin option[value=bars]').prop('selected',true)
 		} else {
-			$('#skin option[value='+config.skin+']').prop('selected',true)
+			$('#skin option[value=\''+config.skin+'\']').prop('selected',true)
 		}
 
 		if(typeof config.fps === 'undefined'){
@@ -133,6 +133,7 @@ $(()=>{
 			$('.nocontent').show();
 			firstTime = true;
 		} else {
+			$("#list")
 			config.externalJSURL.forEach((o,i)=>{
 				renderListVisuals(o);
 			})
@@ -149,7 +150,10 @@ $(()=>{
 	 * @return {[type]}      [description]
 	 */
 	renderListVisuals = (item = {visualname:'',visualurl:''})=>{
-
+		let skinBox = $('#skin');
+		let tpl = '<option value="{0}">{1}</option>';
+		skinBox.append(tpl.format(item.visualurl,item.visualname));
+		addUrlToConfig(item.visualname,item.visualurl);
 	},
 	/**
 	 * updateConfig saves the configuration passed by the argument.
@@ -164,9 +168,9 @@ $(()=>{
 	 * @param  {String} urlstr [description]
 	 * @return {[type]}        [description]
 	 */
-	addUrlToConfig = (urlstr='') =>{
-		var tpl = '<li><i class="fa fa-bars handler"></i> <input class="targetScript" type="text" value="{0}"><i class="removeThis fa fa-times"></i></li>';
-		$(tpl.format(urlstr)).appendTo('#list');
+	addUrlToConfig = (urlstr='',labelstr='') =>{
+		var tpl = '<li><i class="fa fa-bars handler"></i> <input class="targetScript" type="text" value="{1}" data-url="{0}" readOnly><i class="removeThis fa fa-times"></i></li>';
+		$(tpl.format(labelstr,urlstr)).appendTo('#list');
 	}
 
 	/**
@@ -261,17 +265,14 @@ $(()=>{
 		})
 		$('.addRemoteSource').click((e)=>{
 			e.preventDefault();
-			let obj = {
-				visualname:null,
-				visualurl:null
-			};
-
+			let msg = [];
 			let checkScriptName = () => {
 				var d = $.Deferred();
 				var isFound = false;
 				var visualname = $.trim($('#scriptName').val());
 				if(visualname.length < 3){
-					d.reject('- Visualization name must have more than 3 characters')
+					msg.push('- Visualization name must have more than 3 characters');
+					d.reject();
 				} else {
 					config.externalJSURL.forEach((o,i)=>{
 						if(o.visualname.toLowerCase() === visualname.toLowerCase()){
@@ -279,7 +280,8 @@ $(()=>{
 						}
 					})
 					if(isFound){
-						d.reject('Visualization name already exists. Please use another name');
+						msg.push('- Visualization name already exists. Please use another name');
+						d.reject();
 					} else {
 						d.resolve(visualname)
 					}
@@ -288,41 +290,43 @@ $(()=>{
 			};
 			let checkUrl = () =>{
 				var d = $.Deferred();
-				var visualurl = 'https://raw.githubusercontent.com/xjsframework/audio-visualizer/master/example_remote_visual1.js'//;$.trim($('.urlscript').val());
+				var visualurl = $.trim($('#urlscript').val())
 				if(visualurl.length < 3){
-					d.reject('- URL is too short')
+					msg.push('- URL is too short');
+					d.reject();
 				} else {
-					IO.getWebContent(visualurl).then(function(base64Content) {
-					    try{
-					    	var actualContent = decodeURIComponent(escape(window.atob(base64Content)));
-					    	//d.resolve($.trim($('#urlscript').val()));
-					    	d.resolve('https://raw.githubusercontent.com/xjsframework/audio-visualizer/master/example_remote_visual1.js');
-					    } catch(e) {
-					    	d.reject('- The Provided URL is invalid');
-					    }
-					});
+					$.ajax({
+						url : visualurl,
+						dataType : 'text'
+					}).done((data)=>{
+						console.log(data);
+						d.resolve(visualurl);
+					}).fail((a,b,c,x)=>{
+						console.log([a,b,c,x])
+						msg.push('- invalid url');
+						d.reject();
+					})
 				}
 				return d.promise();
 			}
 			
 			$.when(checkScriptName(),checkUrl())
 			.then((rCheckScriptName,rCheckUrl)=>{
-				//success
-				debugger;
 				console.log('success',[rCheckScriptName,rCheckUrl]);
-			},
-			(f1,f2)=>{
-				let str = '';
-				if(typeof f1 !== 'undefined') str+=f1+'\n';
-				if(typeof f2 !== 'undefined') str+=f2+'\n';
-			
-				if(str !== ''){
-					alert ('There are erros adding your script:\n'+str);
-				}
+				let obj = {
+					visualname : rCheckScriptName,
+					visualurl : rCheckUrl
+				};
+				config.externalJSURL.push(obj);
+				renderListVisuals(obj);
+				updateConfig(currentSource);
+				alert('Visualization '+rCheckScriptName+' was added successfully. the Item will be available now on the selection box.')
+				$("#manageVisuals").show();
+				$('.subpanel').hide();
 			})
-			
-			
-
+			.fail(()=>{
+				alert ('There are erros adding your script:\n'+msg.join('\n'));
+			})
 		})
 
 		
@@ -344,10 +348,7 @@ $(()=>{
 
 		
 
-		/**
-		 * verifying if the editor is available
-		 */
-		window._editor.gotoLine(0,0)
+	
 		
 
 
