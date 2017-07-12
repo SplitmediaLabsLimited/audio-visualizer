@@ -188,3 +188,6 @@ input[type='text'].form-control{
 #manageVisuals{
 	margin-top:5px;
 }
+.manageAction {
+	margin-bottom: 10px;
+}

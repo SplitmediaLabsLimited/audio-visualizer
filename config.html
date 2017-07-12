@@ -352,12 +352,20 @@ XBCAVZ_END
 						</div>
 						<div class="tabContainer" id="manageVisualizations">
 							<div class="bs-component manageAction">
-								<!-- <button class="btn btn-primary btn-xs addLocal"><i class="fa fa-plus"></i> Add Local JS File</button> or  --><button class="addURL btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a Remote JS URL</button>
+								<button class="btn btn-primary btn-xs addLocal"><i class="fa fa-plus"></i> Add Local JS File</button> or <button class="addURL btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a Remote JS URL</button>
 							</div>
-							<!-- <fieldset id="addLocalVisual" class="subpanel">
+							<fieldset id="addLocalVisual" class="subpanel" style="display: block !important">
 								<legend>Add Local JS Visualization File</legend>
+								<input type="file" id="mylocalfile">
+								<script type="text/javascript">
+									$('#mylocalfile').on('change',(e)=>{
+										debugger;
+										//resolve the fakepath, so we can read the file as needed
+										console.log(e)
+									})
+								</script>
 								<button class="btn btn-primary btn-xs cancelAction"><i class="fa fa-times"></i> Cancel</button>
-							</fieldset> -->
+							</fieldset>
 							<fieldset id="addURLVisual" class="subpanel">
 								<legend>Add Remote JS Visualization File</legend>
 								<div class="">
@@ -374,17 +382,6 @@ XBCAVZ_END
 										<div class="row__item--triple"  style="display:flex"><input type="text" id="urlscript" class="form-control"/></div>
 										<div class="row__item"><div class="" style="width:100%;display: block; margin: auto 0"><button class="btn btn-primary btn-xs addRemoteSource"><i class="fa fa-plus"></i> Process URL</button></div> <button class="btn btn-primary btn-xs cancelAction"><i class="fa fa-times"></i> Cancel</button></div>
 									</div>
-									<!-- <div class="row">
-										<div class="row__item"><h5>Add External Javascript</h5></div>
-									</div>
-									<div class="row">
-										<div class="row__item"><p>You can add external javascript files that provide extra support to your visualizantion. This plugin will render this files in the order you are providing.</p></div>
-									</div>
-									<div class="row nocontent">
-										<div class="row__item"><p>No external Javascript files were included at the moment</p></div>
-									</div>
-									 -->
-                    				<!-- <button type="button" id="addExternalJS" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add New Script</button> -->
 								</div>
 
 							</fieldset>
