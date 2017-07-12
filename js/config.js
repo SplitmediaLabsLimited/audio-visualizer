@@ -62,13 +62,7 @@ $(()=>{
 	 */
 	let updateElements = (config = {})=>{	
 		var firstTime = false;
-		if(typeof config.skin === 'undefined'){
-			firstTime = true;
-			config.skin = 'bars';
-			$('#skin option[value=bars]').prop('selected',true)
-		} else {
-			$('#skin option[value=\''+config.skin+'\']').prop('selected',true)
-		}
+		
 
 		if(typeof config.fps === 'undefined'){
 			firstTime = true;
@@ -139,6 +133,13 @@ $(()=>{
 			})
 		}
 
+		if(typeof config.skin === 'undefined'){
+			firstTime = true;
+			config.skin = 'bars';
+			$('#skin option[value=bars]').prop('selected',true)
+		} else {
+			$('#skin option[value=\''+config.skin+'\']').prop('selected',true)
+		}
 
 		if(firstTime){
 			updateConfig(currentSource)

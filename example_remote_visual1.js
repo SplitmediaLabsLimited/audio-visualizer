@@ -102,7 +102,7 @@ starField.position.z = 400;
 var time = new THREE.Clock();
 
 var render = function () {  
-  cubecam.position.z = cubeMesh.position.z = 0;
+  cubeMesh.position.z = 110;
   camera.position.x = mouseX * 0.05;
   camera.position.y = -mouseY * 0.05;
   camera.lookAt(scene.position);
