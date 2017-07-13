@@ -9,7 +9,6 @@ XBCAVZ_END
  * luigimannoni.com / codepen.io/luigimannoni
  * CC BY-NC 4.0 http://creativecommons.org/licenses/by-nc/4.0/ 
  */
-$("#visualizer").remove();
 
 function deg2rad(_degrees) {
   return (_degrees * Math.PI / 180);
@@ -102,7 +101,7 @@ starField.position.z = 400;
 var time = new THREE.Clock();
 
 var render = function () {  
-  cubeMesh.position.z = Math.random() * (100 - 200) + 200;
+  cubeMesh.position.z = 400;
   camera.position.x = mouseX * 0.05;
   camera.position.y = -mouseY * 0.05;
   camera.lookAt(scene.position);

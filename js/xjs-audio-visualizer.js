@@ -210,6 +210,7 @@ var XBCAudioVisualizer = function(config = {}) {
                 displayfps: self._defaults.displayfps
             }
             var executeFunction = (XBC_avz = {},strData = '') => {
+                $('#visualizer').remove();
                 eval(strData);
             }
             
