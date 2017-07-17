@@ -24,7 +24,7 @@ cubecam.renderTarget.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filte
 var currentCanvas = document.getElementById('visualizer');
 var context = currentCanvas.getContext("3d");
 
-var renderer = new THREE.WebGLRenderer({ antialias: true});
+var renderer = new THREE.WebGLRenderer({ antialias: true,canvas:currentCanvas});
 renderer.setClearColor( 0x000000, 0 ); // background
 
 renderer.setSize(window.innerWidth, window.innerHeight);
