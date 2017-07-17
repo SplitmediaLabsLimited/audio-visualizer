@@ -21,10 +21,10 @@ var innerColor = 0x2222ff;
 var cubecam = new THREE.CubeCamera(0.1, 120, 256);
 cubecam.renderTarget.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filter
 
-var currentCanvas = document.getElementById('visualizer');
-var context = currentCanvas.getContext("3d");
+$('#visualizer').remove();
 
-var renderer = new THREE.WebGLRenderer({ antialias: true,canvas:currentCanvas});
+
+var renderer = new THREE.WebGLRenderer({ antialias: true});
 renderer.setClearColor( 0x000000, 0 ); // background
 
 renderer.setSize(window.innerWidth, window.innerHeight);
