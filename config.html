@@ -131,7 +131,6 @@
 					<div class="row__item forceNoMargin tabs">
 							<a class="introDocs selected" href="#introDocs">Initial Documentation</a>
 							<a class="manageVisualizations" href="#manageVisualizations">Manage Custom Visualizations</a>
-							<a class="manageOptions" href="#manageOptions">Import/Export Options</a>
 
 					</div>
 				</div>
@@ -318,20 +317,8 @@ XBCAVZ_END
 						</div>
 						<div class="tabContainer" id="manageVisualizations">
 							<div class="bs-component manageAction">
-								<button class="btn btn-primary btn-xs addLocal"><i class="fa fa-plus"></i> Add Local JS File</button> or <button class="addURL btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a Remote JS URL</button>
+								<button class="addURL btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a Remote JS URL</button>
 							</div>
-							<fieldset id="addLocalVisual" class="subpanel" style="display: block !important">
-								<legend>Add Local JS Visualization File</legend>
-								<input type="file" id="mylocalfile">
-								<script type="text/javascript">
-									$('#mylocalfile').on('change',(e)=>{
-										debugger;
-										//resolve the fakepath, so we can read the file as needed
-										console.log(e)
-									})
-								</script>
-								<button class="btn btn-primary btn-xs cancelAction"><i class="fa fa-times"></i> Cancel</button>
-							</fieldset>
 							<fieldset id="addURLVisual" class="subpanel">
 								<legend>Add Remote JS Visualization File</legend>
 								<div class="">
@@ -356,14 +343,6 @@ XBCAVZ_END
                             	<div class="empty">No extra visualizations are available at the moment.</div>
                             	<ul id="list"></ul>
                             </fieldset>
-						</div>
-						<div class="tabContainer" id="manageOptions">
-							<fieldset>
-								<legend>Export Settings</legend>
-								<p>Use this option to export your settings in a location of your preference.</p>
-								<p>Please type the location in your computer where you want to place the configuration file. For example: 
-								<pre>c:\my stream folder\settings</pre>
-							</fieldset>
 						</div>
 					</div>
 				</div>

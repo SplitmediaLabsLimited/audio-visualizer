@@ -251,12 +251,6 @@ $(()=>{
 			$('<li><i class="fa fa-bars handler"></i> <input class="targetScript" type="text" value=""><i class="removeThis fa fa-times"></i></li>').appendTo('#list');
 		});
 
-		$('.addLocal').click((e)=>{
-			$('.manageAction').hide();
-			$("#manageVisuals").hide();
-			$('#addLocalVisual').show();
-		})
-
 		$('.addURL').click((e)=>{
 			$('.manageAction').hide();
 			$("#manageVisuals").hide();
@@ -422,6 +416,12 @@ $(()=>{
 			ghostClass : 'ghost',
 			filter: '.removeThis',
 			onFilter: function (evt) {
+				let item = $(evt.item).find('input');
+				let url = $(item).data('url');
+				let name = $(item).val();
+
+				console.log(cfg)
+
 				evt.item.parentNode.removeChild(evt.item);
 			}
 		});
