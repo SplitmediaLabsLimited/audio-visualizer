@@ -139,6 +139,11 @@ $(()=>{
 			$('#skin option[value=bars]').prop('selected',true)
 		} else {
 			$('#skin option[value=\''+config.skin+'\']').prop('selected',true)
+			if(config.skin === 'bars' || config.skin === 'oscilloscope'){
+				$('.showStd').show();
+			} else {
+				$('.showStd').hide();
+			}
 		}
 
 		if(firstTime){
