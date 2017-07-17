@@ -127,7 +127,10 @@ $(()=>{
 			$('.nocontent').show();
 			firstTime = true;
 		} else {
-			$("#list")
+			$("#list").html('');
+			$("#skin").html('');
+			$('<option value="bars">Bars</option><option value="oscilloscope">Oscilloscope</option>')
+			.appendTo('#skin');
 			config.externalJSURL.forEach((o,i)=>{
 				renderListVisuals(o);
 			})
@@ -138,7 +141,7 @@ $(()=>{
 			config.skin = 'bars';
 			$('#skin option[value=bars]').prop('selected',true)
 		} else {
-			$('#skin option[value=\''+config.skin+'\']').prop('selected',true)
+			$('#skin option[value=\''+config.skin+'\']').prop('selected',true);
 			if(config.skin === 'bars' || config.skin === 'oscilloscope'){
 				$('.showStd').show();
 			} else {
@@ -186,6 +189,11 @@ $(()=>{
 	setGUILogic = () =>{
 		$("#skin").change((e)=>{
 			config.skin = $("#skin option:selected").val();
+			if(config.skin === 'bars' || config.skin === 'oscilloscope'){
+				$('.showStd').show();
+			} else {
+				$('.showStd').hide();
+			}
 			updateConfig(currentSource);
 		})
 
@@ -291,21 +299,34 @@ $(()=>{
 			let checkUrl = () =>{
 				var d = $.Deferred();
 				var visualurl = $.trim($('#urlscript').val())
+				var isFound = false;
 				if(visualurl.length < 3){
 					msg.push('- URL is too short');
 					d.reject();
 				} else {
-					$.ajax({
-						url : visualurl,
-						dataType : 'text'
-					}).done((data)=>{
-						console.log(data);
-						d.resolve(visualurl);
-					}).fail((a,b,c,x)=>{
-						console.log([a,b,c,x])
-						msg.push('- invalid url');
-						d.reject();
+					
+					config.externalJSURL.forEach((o,i)=>{
+						if(o.visualurl.toLowerCase() === visualurl.toLowerCase()){
+							isFound = true;
+						}
 					})
+
+					if(isFound){
+						msg.push('- Visualization URL already exists. Please use another URL');
+						d.reject();
+					} else {
+						$.ajax({
+							url : visualurl,
+							dataType : 'text'
+						}).done((data)=>{
+							console.log(data);
+							d.resolve(visualurl);
+						}).fail((a,b,c,x)=>{
+							console.log([a,b,c,x])
+							msg.push('- invalid url');
+							d.reject();
+						})
+					}
 				}
 				return d.promise();
 			}
@@ -318,6 +339,7 @@ $(()=>{
 					visualurl : rCheckUrl
 				};
 				config.externalJSURL.push(obj);
+
 				renderListVisuals(obj);
 				updateConfig(currentSource);
 				alert('Visualization '+rCheckScriptName+' was added successfully. the Item will be available now on the selection box.')
@@ -345,15 +367,15 @@ $(()=>{
 		var tempSelected = $('.tabs a.selected').attr('href');
 		$('.tabContainer').hide();
 		$(tempSelected).show();
-
-		
-
-	
-		
-
-
-
-
+	},
+	removeAt = (array, index) => {
+	    var len = array.length;
+	    var ret = array[index];
+	    for (var i = index + 1; i < len; ++i) {
+	        array[i - 1] = array[i];
+	    }
+	    array.length = len - 1;
+	    return ret;
 	},
 	/**
 	 * [xjs is the XJS Framework]
@@ -405,24 +427,30 @@ $(()=>{
 	 * Finally apply the GUI logic and preload the data from the config
 	 */
 	.then((cfg)=>{
-		/**
-		 * [editor is an instance of Ace editor]
-		 * for some reason, it doesn't seems to work with the config.js file, just here...
-		 * @type {Object}
-		 */
 		$("#list").sortable({
-			handle:'.handler',
+			handle:'.unknown',
 			animation: 150,
 			ghostClass : 'ghost',
 			filter: '.removeThis',
 			onFilter: function (evt) {
+				evt.item.parentNode.removeChild(evt.item);
 				let item = $(evt.item).find('input');
 				let url = $(item).data('url');
 				let name = $(item).val();
-
-				console.log(cfg)
-
-				evt.item.parentNode.removeChild(evt.item);
+				var detect = 0;
+				
+				for(i = 0;i<config.externalJSURL.length;i++){
+					if (config.externalJSURL[i].visualurl === url){
+						detect = i;
+						break;
+					}
+				}
+				config.externalJSURL.splice(detect,1);
+				updateElements(config);
+				updateConfig(currentSource);
+				$('#skin').find('option[value="'+url+'"]').remove();
+				$('#skin option[value=bars]').prop('selected',true);
+				$('#skin').change();
 			}
 		});
 		config = cfg;
