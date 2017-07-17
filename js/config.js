@@ -304,13 +304,11 @@ $(()=>{
 					msg.push('- URL is too short');
 					d.reject();
 				} else {
-					
 					config.externalJSURL.forEach((o,i)=>{
 						if(o.visualurl.toLowerCase() === visualurl.toLowerCase()){
 							isFound = true;
 						}
 					})
-
 					if(isFound){
 						msg.push('- Visualization URL already exists. Please use another URL');
 						d.reject();
@@ -319,10 +317,8 @@ $(()=>{
 							url : visualurl,
 							dataType : 'text'
 						}).done((data)=>{
-							console.log(data);
 							d.resolve(visualurl);
-						}).fail((a,b,c,x)=>{
-							console.log([a,b,c,x])
+						}).fail(()=>{
 							msg.push('- invalid url');
 							d.reject();
 						})

@@ -223,7 +223,7 @@ var XBCAudioVisualizer = function(config = {}) {
                     try{
                         executeFunction(XBC_avz,data)    
                     } catch(e){
-                        console.error(e.stack);            
+                        alert(e.message+'\n'+e.stack);            
                     }
                 })
                 .fail((msg)=>{
