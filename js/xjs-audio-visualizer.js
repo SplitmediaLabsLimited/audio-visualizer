@@ -210,7 +210,6 @@ var XBCAudioVisualizer = function(config = {}) {
                 displayfps: self._defaults.displayfps
             }
             var executeFunction = (XBC_avz = {},strData = '') => {
-                $('#visualizer').remove();
                 eval(strData);
             }
             
@@ -465,7 +464,7 @@ var XBCAudioVisualizer = function(config = {}) {
             strokeS2: 4,
             externalJSURL: []
         }
-        $("canvas").remove();
+        $('canvas').remove();
         $('<canvas id="visualizer"></canvas>').appendTo('body');
         
 
