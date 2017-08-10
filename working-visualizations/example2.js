@@ -9,7 +9,7 @@ XBCAVZ_END
  * luigimannoni.com / codepen.io/luigimannoni
  * CC BY-NC 4.0 http://creativecommons.org/licenses/by-nc/4.0/ 
  */
-
+$('canvas').remove();
 function deg2rad(_degrees) {
   return (_degrees * Math.PI / 180);
 }
@@ -21,7 +21,7 @@ var innerColor = 0x2222ff;
 var cubecam = new THREE.CubeCamera(0.1, 120, 256);
 cubecam.renderTarget.minFilter = THREE.LinearMipMapLinearFilter; // mipmap filter
 
-$('#visualizer').remove();
+
 
 
 var renderer = new THREE.WebGLRenderer({ antialias: true});

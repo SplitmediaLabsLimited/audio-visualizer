@@ -198,7 +198,6 @@ var XBCAudioVisualizer = function(config = {}) {
              */
 
             
-
             var XBC_avz = {
                 canvas: self.canvas,
                 visualizer: self.visualizer,
