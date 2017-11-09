@@ -48,7 +48,7 @@ xui-tab {
 .contentContainerBlack{
 	background: #000 !important;
 	margin:-5px;
-	min-height: 205px;
+	min-height: 180px;
 }
 #animationPanel > div#content{
 	min-height: 400px;
@@ -82,8 +82,8 @@ xui-tab[selected]{
 /* close commented backslash hack */
 
 /** tooltip */
-#help {
-  background-image: url("../images/help_lighter.png");
+.help {
+  background-image: url("../assets/images/help.png");
   background-color: #000;
   background-repeat: no-repeat;
   font-size: 11px;
@@ -94,44 +94,51 @@ xui-tab[selected]{
   cursor: pointer;
   width: 14px;
   height: 14px;
-  top: 1px;
-  left: 1px;
-  position: absolute;
+  position: relative;
   z-index: 5;
+  margin: auto 0;
+  margin-left:5px;
 }
-#help div.help-text {
+.help div.help-text {
   display: none;
-  overflow: hidden;
-}
-#help[notfound] {
-  top: 146px;
-}
-#help:hover {
-  /*background-image: url("../images/help_hover.png");
-  background-position: 5px 5px;*/
-  box-shadow: 0 0 0 1px #333;
   width: 154px;
-  height: auto;
-  top: 112px;
-  left: 192px;
 }
-#help:hover div.help-text {
+.help[notfound] {
+}
+.help:hover {
+  background-image: url("../assets/images/help_hover.png");
+  background-position: 5px 5px;
+  box-shadow: 0 0 0 1px #333;
+  width: 155px;
+  height: auto;
+  position: absolute;
+  z-index: 10;
+}
+.help:hover div.help-text {
   display: block;
   padding: 5px;
+  width:145px;
 }
-#help:hover div.title {
+.help:hover div.title {
   font-size: 12px;
   color: #0095de;
   padding-left: 18px;
   line-height: 16px;
   font-weight: bold;
 }
-#help:hover div.text {
+.help:hover div.text {
   font-size: 11px;
   color: #888;
   line-height: 16px;
   margin-top: 5px;
 }
-#help:hover[notfound] {
-  top: 142px;
+.help:hover[notfound] {
+}
+
+.help:hover[sensitivity]{
+    left: 45px;
+}
+
+.help:hover[smoothing]{
+    left: 45px;
 }

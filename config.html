@@ -5,7 +5,7 @@
     <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
     <title>XBC Audio Visualizer Configuration</title>
 
-    <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
+<!--     <script src="bower_components/webcomponentsjs/webcomponents.js"></script> -->
     <!-- <link rel="import" href="bower_components/xui/components/globals/globals.html" /> -->
     <link rel="import" href="bower_components/xui/polymer.html">
     <link rel="import" href="bower_components/xui/imports.html" />
@@ -28,32 +28,69 @@
               </div>
               <div class="row">
                 <div class="row__item">
-
                   <label>Sensitivity</label>
-
-                  <i id="help" class="help">            
+                  <i class="help" sensitivity>            
                      <div class="help-text">
                         <div class="title">
                           Sensitivity
                         </div>
                         <div class="text">
-                            Checking this option will disable mouse hover, repositioning and resizing of the components.<br>Check this if you don't want to display hover effects on the components, especially while streaming or recording.
+                            This option increases the sensitivity of the selected audio source. A higher value will make the graphic to react even to low sounds, while lower value will decrease the sensitivity to loud sounds
                         </div>
                       </div>
                   </i>
-
-
                 </div>
                 <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="sensitivity" value="0" min="-50" max="50" step="1"></xui-slider></div>
               </div>
               <div class="row">
-                <div class="row__item"><label>Smoothing</label></div>
+                <div class="row__item"><label>Smoothing</label>
+                  <i class="help" smoothing>            
+                     <div class="help-text">
+                        <div class="title">
+                          Smoothing
+                        </div>
+                        <div class="text">
+                          Smoothing indicates how fluid the graphic will be. A high value increases the framerate to a maximum value of 60 frames per second, while a lower value will decrease such framerate. the minimum value is 1 as 1 frame per second
+                        </div>
+                      </div>
+                  </i>
+                </div>
                 <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="smoothing" value="0" min="-50" max="50" step="1"></xui-slider></div>
               </div>
-            </div>
+              <div class="row">
+                    <div class="row__item" ><label for="">Bit Sample</label>
+                    <i class="help" smoothing>            
+                     <div class="help-text">
+                        <div class="title">
+                          Bit Sample
+                        </div>
+                        <div class="text">
+                          Bit Sample indicates the amount of details the graphic will have. A high value increases the value of details, while a lower value will decrease details. Be aware that certain visualizations that uses a high value could increment the use of CPU, so use it carefully.
+                        </div>
+                      </div>
+                  </i>
+                </div>
+                    <div class="row__item row__item--double">
+                      <xui-select class="fullWidthSelect" value="512" id="BitSample">
+                        <xui-option value="8">8</xui-option>
+                        <xui-option value="16">16</xui-option>
+                        <xui-option value="32">32</xui-option>
+                        <xui-option value="64">64</xui-option>
+                        <xui-option value="128">128</xui-option>
+                        <xui-option value="256">256</xui-option>
+                        <xui-option value="512">512</xui-option>
+                        <xui-option value="1024">1024</xui-option>
+                        <xui-option value="2048">2048</xui-option>
+                        <xui-option value="4096">4096</xui-option>
+                      </xui-select>
+                    </div>
+                  </div>
+                </div>
+              </div>
           </div>
         </xui-subsection>
     </xui-section>
+
     <xui-section label="Animation" id="animationPanel">
       <div class="contentContainerBlack">
         <div class="padding">
@@ -62,7 +99,10 @@
               <div class="row">
                 <div class="row__item"><label for="">Skin</label></div>
                 <div class="row__item row__item--quad">
-                  <xui-select id="animationElement" class="fullWidthSelect" label="Animation Element"></xui-select>
+                  <xui-select id="animationElement" value="bars" class="fullWidthSelect" label="Animation Element">
+                      <xui-option value="oscilloscope">Oscilloscope</xui-option>
+                      <xui-option value="bars">Bars</xui-option>
+                  </xui-select>
                 </div>
               </div>
             </div>
@@ -76,20 +116,14 @@
               <div class="toolbox">
                 <div class="rows">
                   <div class="row">
-                    <div class="row__item" ><label for="">Bit Sample</label></div>
-                    <div class="row__item">
-                      <xui-input class="spinnerWidth" value="0" id="BitSample" type="number" min="0" max="100"></xui-input>
-                    </div>
-                  </div>
-                  <div class="row">
                     <div class="row__item" ><label for="">Bar Count</label></div>
-                    <div class="row__item">
+                    <div class="row__item row__item--double">
                       <xui-input class="spinnerWidth" value="0" id="BarCount" type="number" min="0" max="100"></xui-input>
                     </div>
                   </div>
                   <div class="row">
                     <div class="row__item" ><label for="">Color</label></div>
-                    <div class="row__item">
+                    <div class="row__item row__item--double">
                       <xui-select id="color" class="" label="Color" value="flames">
                         <xui-option value="flames">Flames</xui-option>
                         <xui-option value="solid">Solid</xui-option>
@@ -97,43 +131,28 @@
                     </div>
                   </div>
                 </div>
-              </div>
-              
-                  
+              </div>  
             </xui-subsection>
-            <div class="toolbox">
-                <div class="rows">
-                  <div class="row">
-                    <div class="row__item">
-                      <xui-checkbox checked="" id="enable60fps">Enable 60fps</xui-checkbox>
-                    </div>
-                  </div>
-                </div>
-              </div> 
             </div>
-            
-            
           </xui-tab-content>
           <xui-tab section="tab2">Skins</xui-tab>
           <xui-tab-content section="tab2">
-            
+            <div class="padding">
               <xui-subsection class="panelHeight">
                 <div class="padding">
                   <p>We will provide support for multiple skins in next updates of this plugin.</p>
                 </div>
-              </xui-subsection>  
-            
-            
-              
-            
-            
+              </xui-subsection>
+            </div>
           </xui-tab-content>
         </xui-tab-group> 
       </div>
     </xui-section>
   </div> 
 </body>
-<script src="./bower_components/xjs-framework/dist/xjs.js"></script>
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/xjs-framework/dist/xjs.js"></script>
+<script type="text/javascript" src="js/tooltip.js"></script>
 <script>
   // within your config HTML
 var xjs = require('xjs');
