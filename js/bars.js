@@ -8,7 +8,6 @@ var remoteFn = (canvas,analyser,visualizer,frequencyArray,bufferLength,defaults)
   var spaceh = window.innerWidth / bufferLength;
   analyser.getByteFrequencyData(frequencyArray);
   visualizer.lineWidth = defaults.strokeWidth;
-  debugger;
   let usableLength = 200;
   consZ = 0,
   consZLim = 50,
