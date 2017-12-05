@@ -109,7 +109,7 @@ xui-tab[selected]{
   background-image: url("../assets/images/help_hover.png");
   background-position: 5px 5px;
   box-shadow: 0 0 0 1px #333;
-  width: 155px;
+  width: 220px;
   height: auto;
   position: absolute;
   z-index: 10;
@@ -117,7 +117,7 @@ xui-tab[selected]{
 .help:hover div.help-text {
   display: block;
   padding: 5px;
-  width:145px;
+  width:215px;
 }
 .help:hover div.title {
   font-size: 12px;
@@ -142,3 +142,10 @@ xui-tab[selected]{
 .help:hover[smoothing]{
     left: 45px;
 }
+
+#solidOption{
+	margin: auto 0;
+	height:22px;
+	margin-left: 3px;
+}
+

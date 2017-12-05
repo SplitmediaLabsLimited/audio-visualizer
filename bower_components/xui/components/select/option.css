@@ -1,9 +1,9 @@
 :host
 {
 	display: block;
-	line-height: 2.2em;
+	line-height: 14px;
 	white-space: nowrap;
-	font-size: 1.2em;
+	font-size: 11px;
 	padding: 0 0.5em;
 	text-overflow: ellipsis;
   	overflow: hidden;

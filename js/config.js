@@ -28,33 +28,6 @@ $(()=>{
 	 * @type {null}
 	 */
 	let XBCCodeMirror = null;
-	
-
-	/**
-	 * Let's first map the audio devices into the audioDeviceId 
-	 */
-	navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
-		/**
-		 * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
-		 */
-		$("#audioDeviceId").html('');
-		/**
-		 * [tmpstr is a cleaned up version of the audio input]
-		 * @type {String}
-		 */
-		let tmpstr = '';
-		for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
-			if (uuidAudioSourceId[i].kind === 'audioinput') {
-				if($.trim(uuidAudioSourceId[i].label) !== ''){
-					tmpstr = uuidAudioSourceId[i].label.replace(' (DirectShow)','');
-					$('<option value="'+uuidAudioSourceId[i].deviceId+'">'+tmpstr+'</option>').appendTo("#audioDeviceId");
-					if(tmpstr.indexOf('XSplitBroadcaster') === 0){
-						XBCMixerId = uuidAudioSourceId[i].deviceId;
-					}	
-				}
-			}
-		}
-	});
 
 	/**
 	 * [updateElements prepares the initial events of the plugin in order to setup default values to be used by the plugin]
@@ -62,93 +35,70 @@ $(()=>{
 	 */
 	let updateElements = (config = {})=>{	
 		var firstTime = false;
-		
 
-		if(typeof config.fps === 'undefined'){
-			firstTime = true;
-			config.fps = 60;
-			$('#fps option[value=60]').prop('selected',true)
-		} else {
-			$('#fps option[value='+config.fps+']').prop('selected',true)
-		}
-
-		if(typeof config.bitsample === 'undefined'){
-			firstTime = true;
-			config.bitsample = 512;
-			$('#bitsample option[value=512]').prop('selected',true);
-		} else {
-			$('#bitsample option[value='+config.bitsample+']').prop('selected',true);
-		}
-
-		if(typeof config.strokeW === 'undefined'){
-			firstTime = true;
-			$('#strokeW').val(4);
-			config.strokeW = 4;
-		} else {
-			$('#strokeW').val(config.strokeW);
-		}
-		
-		if(typeof config.strokeS1 === 'undefined'){
-			firstTime = true;
-			$('#strokeS1').val(2);
-			config.strokeS1 = 2;
-		} else {
-			$('#strokeS1').val(config.strokeS1);
-		}
-		
-		if(typeof config.strokeS2 === 'undefined'){
-			firstTime = true;
-			$('#strokeS2').val(2);
-			config.strokeS2 = 2;
-		} else {
-			$('#strokeS2').val(config.strokeS2);
-		}
-
-		if(typeof config.displayfps === 'undefined'){
-			firstTime = true;
-			$('#displayfps').prop('checked',false);
-			config.displayfps = false;
-		} else {
-			$('#displayfps').prop('checked',config.displayfps);
-		}
-
+		/**audio device */
 		if(typeof config.audioDeviceId === 'undefined'){
 			firstTime = true;
 			config.audioDeviceId = XBCMixerId;
-			$('#audioDeviceId option[value='+config.audioDeviceId+']').prop('selected',true);
-		} else {
-			$('#audioDeviceId option[value='+config.audioDeviceId+']').prop('selected',true);
 		}
+		$('#selectAudioSource').val(config.audioDeviceId);
+
+		/** sensitivity */
+		if(typeof config.sensitivity === 'undefined'){
+			firstTime = true;
+			config.sensitivity = 50;
+		}
+		$("#sensitivity").val(config.sensitivity);
+
+		/** fps */
+		if(typeof config.fps === 'undefined'){
+			firstTime = true;
+			config.fps = 60;
+		}
+		$("#fps").val(config.fps);
+
+		/** Bit Sample */
+		if(typeof config.bitsample === 'undefined'){
+			firstTime = true;
+			config.bitsample = "512";
+		}
+		$("#bitsample").val(config.bitsample);
+
+		if(typeof config.spacing === 'undefined'){
+			firstTime = true;
+			config.spacing = "1";
+		}
+		$("#spacing").val(config.spacing);
+
+		/** default visualization */
+		console.log('config.animationElement',config.animationElement)
+		if (typeof config.animationElement === 'undefined'){
+			firstTime = true;
+			config.animationElement = 'bars';
+		}
+		$("#animationElement").val(config.animationElement);
+		console.log('$("#animationElement").val()',$("#animationElement").val())
+
+		if(typeof config.barcount === 'undefined'){
+			firstTime = true;
+			config.barcount = 70;
+		}
+		$("#barCount").val(config.barcount);
+
+		if (typeof config.visualizationSelect === 'undefined'){
+			firstTime = true;
+			config.visualizationSelect = 'flames';
+		}
+		$("#visualizationSelect").val(config.visualizationSelect);
+
+		if(typeof config.colorcode === 'undefined'){
+			firstTime = true;
+			config.colorcode = "#ffffff";
+		}
+		$("#solidOption").val(config.colorcode);
 
 		
-
-		if(typeof config.externalJSURL === 'undefined'){
-			config.externalJSURL = [];
-			$('.nocontent').show();
-			firstTime = true;
-		} else {
-			$("#list").html('');
-			$("#skin").html('');
-			$('<option value="bars">Bars</option><option value="oscilloscope">Oscilloscope</option>')
-			.appendTo('#skin');
-			config.externalJSURL.forEach((o,i)=>{
-				renderListVisuals(o);
-			})
-		}
-
-		if(typeof config.skin === 'undefined'){
-			firstTime = true;
-			config.skin = 'bars';
-			$('#skin option[value=bars]').prop('selected',true)
-		} else {
-			$('#skin option[value=\''+config.skin+'\']').prop('selected',true);
-			if(config.skin === 'bars' || config.skin === 'oscilloscope'){
-				$('.showStd').show();
-			} else {
-				$('.showStd').hide();
-			}
-		}
-
+		
 		if(firstTime){
 			updateConfig(currentSource)
 		}
@@ -186,183 +136,63 @@ $(()=>{
 	 * [setGUILogic provide the GUI elements with actions to update the configuration of the view]
 	 * @return {[type]} [description]
 	 */
-	setGUILogic = () =>{
-		$("#skin").change((e)=>{
-			config.skin = $("#skin option:selected").val();
-			if(config.skin === 'bars' || config.skin === 'oscilloscope'){
-				$('.showStd').show();
+	setGUILogic = () => {
+
+		$("#selectAudioSource").on('select-changed', (e)=>{
+			config.audioDeviceId = e.detail.value;
+		});
+
+		$("#sensitivity").on('change', (e)=>{
+			config.sensitivity = $(e.currentTarget).val()
+		});
+
+		$("#fps").on('change', (e)=>{
+			config.fps = $(e.currentTarget).val()
+		});
+
+		$("#bitsample").on('select-changed', (e)=>{
+			config.bitsample = parseInt(e.detail.value);
+			let barcount = parseInt($("#barCount").val());
+			if (barcount > (config.bitsample/2)){
+				$("#barCount").attr("max",(config.bitsample/2));
+				$("#barCount").val(config.bitsample/2);
+				config.barcount = config.bitsample/2;
+			}
+		});
+
+		$("#animationElement").on('select-changed',(e)=>{
+			config.animationElement = e.detail.value;
+		})
+
+		$("#barCount").on('change', (e)=>{
+			config.barcount = parseInt($(e.currentTarget).val());
+			let bitsample = parseInt($("#bitsample").val());
+			if (config.barcount > (bitsample/2)){
+				$("#barCount").val(bitsample/2);
+				config.barcount = bitsample/2;
+			}
+		});
+
+		$("#visualizationSelect").on('select-changed',(e)=>{
+			config.visualizationSelect = e.detail.value;
+			if(config.visualizationSelect !== 'solid'){
+				$("#solidOption").hide();
 			} else {
-				$('.showStd').hide();
+				$("#solidOption").show();
 			}
+		})
+
+		$("#solidOption").on('change',(e)=>{
+			config.colorcode = $(e.currentTarget).val();
+		})
+
+		$("#spacing").on('change',(e)=>{
+			config.spacing = parseInt($(e.currentTarget).val());
+		})
+
+		$("#saveSettings").on('click', (e) => {
 			updateConfig(currentSource);
 		})
-
-		$("#fps").change((e)=>{
-			config.fps = parseInt($("#fps option:selected").val(),10);
-			updateConfig(currentSource);
-		})
-
-		$("#bitsample").change((e)=>{
-			config.bitsample = parseInt($("#bitsample option:selected").val(),10);
-			updateConfig(currentSource);
-		})
-
-		$("#strokeW").change((e)=>{
-			config.strokeW = parseInt($("#strokeW").val(),10);
-			updateConfig(currentSource);
-		})
-
-		$("#strokeS1").change((e)=>{
-			config.strokeS1 = parseInt($("#strokeS1").val(),10);
-			updateConfig(currentSource);
-		})
-
-		$("#strokeS2").change((e)=>{
-			config.strokeS2 = parseInt($("#strokeS2").val(),10);
-			updateConfig(currentSource);
-		})
-
-		$("#audioDeviceId").change((e)=>{
-			config.audioDeviceId = $("#audioDeviceId option:selected").val();
-			updateConfig(currentSource);
-		})
-
-		$('#displayfps').click((e)=>{
-			if($(e.currentTarget).is(':checked')){
-				config.displayfps = true;			
-			} else{
-				config.displayfps = false;
-			}
-			updateConfig(currentSource);
-		})
-
-		$('#refreshVisualizer').click((e)=>{
-			 xjs.Source.getCurrentSource().then(function(source) {
-			   source.refresh(); // execution of JavaScript halts because of refresh
-			});
-		})
-
-		$("#saveExternalJS").click((e)=>{	
-			config.externalJSURL = [];
-			$('.targetScript').each((i,o)=>{
-				if($.trim($(o).val()) !== ''){
-					config.externalJSURL.push($.trim($(o).val()))
-				} else{
-					$(o).parent().remove();
-				}
-			})
-			updateConfig(currentSource);
-		});
-
-		$("#addExternalJS").click((e)=>{
-			$('.nocontent').hide();
-			$('<li><i class="fa fa-bars handler"></i> <input class="targetScript" type="text" value=""><i class="removeThis fa fa-times"></i></li>').appendTo('#list');
-		});
-
-		$('.addURL').click((e)=>{
-			$('.manageAction').hide();
-			$("#manageVisuals").hide();
-			$('#addURLVisual').show();
-		})
-
-		$('.cancelAction').click((e)=>{
-			$("#manageVisuals").show();
-			$('.subpanel').hide();
-			//clean up function for local and remote url
-			$('.manageAction').show();
-		})
-		$('.addRemoteSource').click((e)=>{
-			e.preventDefault();
-			let msg = [];
-			let checkScriptName = () => {
-				var d = $.Deferred();
-				var isFound = false;
-				var visualname = $.trim($('#scriptName').val());
-				if(visualname.length < 3){
-					msg.push('- Visualization name must have more than 3 characters');
-					d.reject();
-				} else {
-					config.externalJSURL.forEach((o,i)=>{
-						if(o.visualname.toLowerCase() === visualname.toLowerCase()){
-							isFound = true;
-						}
-					})
-					if(isFound){
-						msg.push('- Visualization name already exists. Please use another name');
-						d.reject();
-					} else {
-						d.resolve(visualname)
-					}
-				}
-				return d.promise();
-			};
-			let checkUrl = () =>{
-				var d = $.Deferred();
-				var visualurl = $.trim($('#urlscript').val())
-				var isFound = false;
-				if(visualurl.length < 3){
-					msg.push('- URL is too short');
-					d.reject();
-				} else {
-					config.externalJSURL.forEach((o,i)=>{
-						if(o.visualurl.toLowerCase() === visualurl.toLowerCase()){
-							isFound = true;
-						}
-					})
-					if(isFound){
-						msg.push('- Visualization URL already exists. Please use another URL');
-						d.reject();
-					} else {
-						$.ajax({
-							url : visualurl,
-							dataType : 'text'
-						}).done((data)=>{
-							d.resolve(visualurl);
-						}).fail(()=>{
-							msg.push('- invalid url');
-							d.reject();
-						})
-					}
-				}
-				return d.promise();
-			}
-			
-			$.when(checkScriptName(),checkUrl())
-			.then((rCheckScriptName,rCheckUrl)=>{
-				console.log('success',[rCheckScriptName,rCheckUrl]);
-				let obj = {
-					visualname : rCheckScriptName,
-					visualurl : rCheckUrl
-				};
-				config.externalJSURL.push(obj);
-
-				renderListVisuals(obj);
-				updateConfig(currentSource);
-				alert('Visualization '+rCheckScriptName+' was added successfully. the Item will be available now on the selection box.')
-				$("#manageVisuals").show();
-				$('.subpanel').hide();
-			})
-			.fail(()=>{
-				alert ('There are erros adding your script:\n'+msg.join('\n'));
-			})
-		})
-
-		
-
-		/**
-		 * setup tabs
-		 */
-		$('.tabs a').click((e)=>{
-			e.preventDefault();
-			$('.tabs a').removeClass('selected');
-			$(e.currentTarget).addClass('selected');
-			$('.tabContainer').hide()
-			$($(e.currentTarget).attr('href')).show();
-		});
-
-		var tempSelected = $('.tabs a.selected').attr('href');
-		$('.tabContainer').hide();
-		$(tempSelected).show();
 	},
 	removeAt = (array, index) => {
 	    var len = array.length;
@@ -407,9 +237,33 @@ $(()=>{
 	 * [then we run the concatenated sets of promises to get and apply the config.]
 	 */
 	xjs.ready().then(() =>{
+		/**
+		 * Let's first map the audio devices into the audioDeviceId 
+		 */
+		navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
+			/**
+			 * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
+			 */
+			
+			/**
+			 * [tmpstr is a cleaned up version of the audio input]
+			 * @type {String}
+			 */
+			let tmpstr = '';
+			for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
+				if (uuidAudioSourceId[i].kind === 'audioinput') {
+					if($.trim(uuidAudioSourceId[i].label) !== ''){
+						tmpstr = uuidAudioSourceId[i].label.replace(' (DirectShow)','');
+						$("#selectAudioSource").append(`<xui-option value="${uuidAudioSourceId[i].deviceId}">${tmpstr}</xui-option>`);
+						if(tmpstr.indexOf('XSplitBroadcaster') === 0){
+							XBCMixerId = uuidAudioSourceId[i].deviceId;
+						}	
+					}
+				}
+			}
+		});
+
 		var configWindow =  SourcePropsWindow.getInstance();
-		propsWindow.useFullWindow();
-		propsWindow.resize(600,550);
 		return Item.getCurrentSource();
 	})
 	/** 
@@ -423,36 +277,9 @@ $(()=>{
 	 * Finally apply the GUI logic and preload the data from the config
 	 */
 	.then((cfg)=>{
-		$("#list").sortable({
-			handle:'.unknown',
-			animation: 150,
-			ghostClass : 'ghost',
-			filter: '.removeThis',
-			onFilter: function (evt) {
-				evt.item.parentNode.removeChild(evt.item);
-				let item = $(evt.item).find('input');
-				let url = $(item).data('url');
-				let name = $(item).val();
-				var detect = 0;
-				
-				for(i = 0;i<config.externalJSURL.length;i++){
-					if (config.externalJSURL[i].visualurl === url){
-						detect = i;
-						break;
-					}
-				}
-				config.externalJSURL.splice(detect,1);
-				updateElements(config);
-				updateConfig(currentSource);
-				$('#skin').find('option[value="'+url+'"]').remove();
-				$('#skin option[value=bars]').prop('selected',true);
-				$('#skin').change();
-			}
-		});
 		config = cfg;
 		updateElements(cfg);
 		setGUILogic();
-
 	});
 });
 

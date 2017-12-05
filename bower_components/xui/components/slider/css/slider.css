@@ -22,7 +22,7 @@ input[type="range"]
     background-color: #141414;
     width: 70px;
     cursor: pointer;
-    height: 14px;
+    height: 12px;
     vertical-align: middle;
 }
 
@@ -62,7 +62,7 @@ input[type="range"]::-webkit-slider-thumb
     width: 40px;
     margin-left: 5px;
     cursor: text;
-    font-size: 12px;
+    font-size: 11px;
     color: #999999;
     border: 1px solid #000000;
     height: 20px;

@@ -20,13 +20,11 @@ $(function(){
 	 * then fetch the config
 	 */
 	.then((item)=>{
-		debugger;
 		myItem = item;
 		return item.loadConfig();
 	})
 	.then((config)=>{
 		tempConfig = config
-		debugger;
 		if (Object.keys(config).length > 0) {
 			try{
 				throw new Error();
