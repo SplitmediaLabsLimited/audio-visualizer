@@ -18,7 +18,8 @@ let xjs = require('xjs');
  * [XBCAudioVisualizer is a class that allows the manipulation of audio visualizations]
  */
 var XBCAudioVisualizer = function(config = {}) {
-
+  /**  */
+  this.defaultDeviceId = null;
   /**
    * [config contains all the needed information to startup]
    * @type {[type]}
@@ -142,6 +143,7 @@ var XBCAudioVisualizer = function(config = {}) {
           if (uuidAudioSourceId[i].kind === 'audioinput') {
             if (uuidAudioSourceId[i].label.indexOf('XSplitBroadcaster (DirectShow)') === 0) {
               defaultDeviceId = uuidAudioSourceId[i].deviceId;
+              self.defaultDeviceId = defaultDeviceId;
               break;
             }
           }
@@ -160,6 +162,7 @@ var XBCAudioVisualizer = function(config = {}) {
        * Otherwise we map what we can get from the configuration.
        */
     } else {
+      self.defaultDeviceId = XBCAudioDeviceId;
       navigator.getUserMedia({
         video: false,
         audio: {
@@ -179,89 +182,158 @@ var XBCAudioVisualizer = function(config = {}) {
    */
   this.soundAllowed = (stream) => {
     var self = this;
+    var fft;
+    var p5C = function(p,container,extrajuice){
+      console.log(extrajuice);
+      
+      p.setup = ()=>{
+        var sac = window._audioContext.createMediaStreamSource(stream);
+        var cnv = p.createCanvas(1,1);
+        var audioAnalysis = new p5.AudioIn();
+        audioAnalysis.connect(sac);
+        audioAnalysis.start();
+        fft = new p5.FFT(0.99,16);
+        fft.setInput(audioAnalysis);
+
+        // var getAudioIdx = async ()=>{
+        //   var idx = await audioDeviceIdx();
+        //   return idx;
+        // };
+        // var audioDeviceIdx = () =>{
+        //   return new Promise( (resolve,reject) =>{
+        //     audioAnalysis.getSources((sourceList)=>{
+        //       let idx = 0;
+        //       for(let i = 0; i < sourceList.length; i++){
+        //         if(self._defaults.audioDeviceId === sourceList[i].deviceId){
+        //           idx = i;
+        //           break;
+        //         }
+        //       }
+        //       console.log(sourceList[idx].deviceId);
+        //       resolve({idx:idx,device:sourceList[idx]});
+        //     });
+        //   });
+        // };
+        // getAudioIdx().then(data => {
+        //   //fft.setInput(audioAnalysis);
+          
+
+        //   // audioAnalysis.connect();
+        //   // audioAnalysis.start(function(data){
+        //   //   console.log('success',data)
+        //   // },function(error){
+        //   //   console.log('error',error)
+        //   // })
+        //   // console.log('idx',data)
+        //   // console.log(audioAnalysis);
+        // })
+        // .catch(e =>{
+        //   console.log('error',e);
+        // })
+
+      };
+
+      p.draw = ()=>{
+        var spectrum = fft.analyze();
+        console.log('spectrum',spectrum)
+      }
+      
+    };
+    
+    var myP5 = new p5(p5C,'dataSource',self._defaults);
+    
+    
+    
+    
+    
+
+    
+    //console.log(_audioIdx);
+    //audioAnalysis.setSource(idx);
     window.persistAudioStream = stream;
     self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
     self.analyser = window._audioContext.createAnalyser();
     self.analyser.fftSize = self._defaults.bitsample;
 
-    var XBC_avz = {
-      canvas: self.canvas,
-      visualizer: self.visualizer,
-      analyser: self.analyser,
-      fftsize: self._defaults.bitsample,
-      stream: stream,
-      mediaStreamSource: self.mediaStreamSource,
-      fps: self._defaults.fps,
-      displayfps: self._defaults.displayfps
-    }
+
+    // var XBC_avz = {
+    //   canvas: self.canvas,
+    //   visualizer: self.visualizer,
+    //   analyser: self.analyser,
+    //   fftsize: self._defaults.bitsample,
+    //   stream: stream,
+    //   mediaStreamSource: self.mediaStreamSource,
+    //   fps: self._defaults.fps,
+    //   displayfps: self._defaults.displayfps
+    // }
   
-    let resizeHandler = () => {
-      let w = window.innerWidth;
-      let h = window.innerHeight;
-      let cx = w / 2;
-      let cy = h / 2;
-      self.visualizer.canvas.width = w;
-      self.visualizer.canvas.height = h;
-      self.canvas.width = w;
-      self.canvas.height = h
-    };
+    // let resizeHandler = () => {
+    //   let w = window.innerWidth;
+    //   let h = window.innerHeight;
+    //   let cx = w / 2;
+    //   let cy = h / 2;
+    //   self.visualizer.canvas.width = w;
+    //   self.visualizer.canvas.height = h;
+    //   self.canvas.width = w;
+    //   self.canvas.height = h
+    // };
 
-    /**
-     * [we prepare the stream by connecting the audio stream to the needed analyzer]
-     */
+    // /**
+    //  * [we prepare the stream by connecting the audio stream to the needed analyzer]
+    //  */
 
-    resizeHandler();
+    // resizeHandler();
 
-    /**
-     * we clear the frame
-     */
-    self.clearCanvas();
+    // /**
+    //  * we clear the frame
+    //  */
+    // self.clearCanvas();
 
-    /**
-     * [then we prepare a audioprocessor to fetch the frequencyArray to be drawn]
-     */
-    let bufferLength = self.analyser.frequencyBinCount;
-    let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
+    // /**
+    //  * [then we prepare a audioprocessor to fetch the frequencyArray to be drawn]
+    //  */
+    // let bufferLength = self.analyser.frequencyBinCount;
+    // let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
 
 
-    window.addEventListener('resize', resizeHandler, false)
+    // window.addEventListener('resize', resizeHandler, false)
 
-    /**
-     * [and we draw what comes in the audio process]
-     */
+    // /**
+    //  * [and we draw what comes in the audio process]
+    //  */
 
-    let fps = 0;
-    let lastRun;
-    let fpInterval, startTime, now, then, elapsed;
+    // let fps = 0;
+    // let lastRun;
+    // let fpInterval, startTime, now, then, elapsed;
 
-    function showFPS() {
-      self.visualizer.fillStyle = "red";
-      self.visualizer.font = "normal 16pt Arial";
-      self.visualizer.fillText(Math.floor(fps) + " fps", 10, 26);
-    }
-    fpsInterval = 1000 / self._defaults.fps;
-    then = Date.now();
-    startTime = then;
+    // function showFPS() {
+    //   self.visualizer.fillStyle = "red";
+    //   self.visualizer.font = "normal 16pt Arial";
+    //   self.visualizer.fillText(Math.floor(fps) + " fps", 10, 26);
+    // }
+    // fpsInterval = 1000 / self._defaults.fps;
+    // then = Date.now();
+    // startTime = then;
 
-    /**
-     * [draw is a function that renders in the canvas the data to be visualized]
-     */
+    // /**
+    //  * [draw is a function that renders in the canvas the data to be visualized]
+    //  */
   
 
-    let loadUrl = null;
-    let setType = 'script'
-    if(self._defaults.animationElement === "oscilloscope" || self._defaults.animationElement === "bars"){
-      loadUrl = {
-        url:`./js/${self._defaults.animationElement}.js`,
-        dataType: 'text'
-       };
-    } else {
-      loadUrl = {
-        url : `${self._defaults.animationElement}`,
-        dataType: 'text'
-      }
-    }
-
+    // let loadUrl = null;
+    // let setType = 'script'
+    // if(self._defaults.animationElement === "oscilloscope" || self._defaults.animationElement === "bars"){
+    //   loadUrl = {
+    //     url:`./js/${self._defaults.animationElement}.js`,
+    //     dataType: 'text'
+    //    };
+    // } else {
+    //   loadUrl = {
+    //     url : `${self._defaults.animationElement}`,
+    //     dataType: 'text'
+    //   }
+    // }
+    /*
     $.ajax(loadUrl)
     .then(data => {
       $.when(self.preloadRemoteScript(data))
@@ -272,9 +344,11 @@ var XBCAudioVisualizer = function(config = {}) {
               a = self.analyser,
               v = self.visualizer,
               fa = frequencyArray,
-              bf = bufferLength;
-          var capYPositionArray = [];
+              bf = bufferLength,
+              fft = new p5.FFT(self._defaults.smoothing,64);
+          window.capYPositionArray = [];
           const drawGraph = () => {
+            // from here we deduct the wave pattern using p5.js
             window._requestAnimationFrame = window.requestAnimationFrame(drawGraph);
             now = Date.now(); elapsed = now - then;
             if (elapsed > fpsInterval) {
@@ -305,9 +379,7 @@ var XBCAudioVisualizer = function(config = {}) {
           }
 
           drawGraph();
-          /**
-           * finally we connect all the pieces and run the visualization.
-           */
+
           self.mediaStreamSource.connect(self.analyser);
         } catch(e){
           console.error(e.message+'\n'+e.stack);            
@@ -317,7 +389,7 @@ var XBCAudioVisualizer = function(config = {}) {
         console.error(msg);
       })
     })
-
+    */
 
     
 
@@ -419,6 +491,7 @@ var XBCAudioVisualizer = function(config = {}) {
      * then we pass the arguments to the _default attribute to be shared on the class...
      */
     self._defaults = $.extend({}, defaults, self.config);
+    console.log('defaults',self._defaults);
 
     var self = this;
     if (document.getElementById(self._defaults.visualizer) === null) console.error('The visualizer container was not found into the HTML DOM');

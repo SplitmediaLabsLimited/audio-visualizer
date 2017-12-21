@@ -142,6 +142,15 @@ xui-tab[selected]{
 .help:hover[smoothing]{
     left: 45px;
 }
+.help:hover[bitsample]{
+  left: 45px;
+}
+.help:hover[barcount]{
+  left: 45px;
+}
+.help:hover[space]{
+  left: 27px;
+}
 
 #solidOption{
 	margin: auto 0;

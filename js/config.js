@@ -51,11 +51,11 @@ $(()=>{
 		$("#sensitivity").val(config.sensitivity);
 
 		/** fps */
-		if(typeof config.fps === 'undefined'){
+		if(typeof config.smoothing === 'undefined'){
 			firstTime = true;
-			config.fps = 60;
+			config.smoothing = 0.99;
 		}
-		$("#fps").val(config.fps);
+		$("#smoothing").val(config.smoothing);
 
 		/** Bit Sample */
 		if(typeof config.bitsample === 'undefined'){
@@ -146,8 +146,8 @@ $(()=>{
 			config.sensitivity = $(e.currentTarget).val()
 		});
 
-		$("#fps").on('change', (e)=>{
-			config.fps = $(e.currentTarget).val()
+		$("#smoothing").on('change', (e)=>{
+			config.smoothing = $(e.currentTarget).val()
 		});
 
 		$("#bitsample").on('select-changed', (e)=>{

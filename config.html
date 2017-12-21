@@ -35,7 +35,7 @@
                           Sensitivity
                         </div>
                         <div class="text">
-                            This option increases the sensitivity of the selected audio source. A higher value will make the graphic to react even to low sounds, while lower value will decrease the sensitivity to loud sounds
+                            This option increases the sensitivity of the selected audio source. A higher value will make the graphic to react better to low sound frequencies, while lower value will decrease the sensitivity to loud sounds frequencies.
                         </div>
                       </div>
                   </i>
@@ -50,16 +50,16 @@
                           Smoothing
                         </div>
                         <div class="text">
-                          Smoothing indicates how fluid the graphic will be. A high value increases the framerate to a maximum value of 60 frames per second, while a lower value will decrease such framerate. the minimum value is 1 as 1 frame per second
+                          Smoothing indicates how fluid the graphic will be. leaving smoothing as 0 will make the graphics react quite quickly, while leaving it to 0.99 will decrease the reaction, but also will smooth the changes on the data.
                         </div>
                       </div>
                   </i>
                 </div>
-                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="fps" value="1" min="1" max="60" step="1"></xui-slider></div>
+                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="smoothing" value="0.99" min="0" max="0.99" step="0.01"></xui-slider></div>
               </div>
               <div class="row">
                     <div class="row__item" ><label for="">Bit Sample</label>
-                    <i class="help" smoothing>            
+                    <i class="help" bitsample>            
                      <div class="help-text">
                         <div class="title">
                           Bit Sample
@@ -109,7 +109,7 @@
           <div class="rows">
             <div class="row">
               <div class="row__item" ><label for="">Bar Count</label>
-                <i class="help" smoothing>            
+                <i class="help" barcount>            
                      <div class="help-text">
                         <div class="title">
                           Bar Count
@@ -126,7 +126,7 @@
             </div>
             <div class="row">
               <div class="row__item" ><label for="">Space</label>
-                <i class="help" smoothing>            
+                <i class="help" space>            
                      <div class="help-text">
                         <div class="title">
                           Space
