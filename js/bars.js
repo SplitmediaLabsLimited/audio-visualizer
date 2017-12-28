@@ -8,11 +8,11 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     Math.cos(145*PI/180),
     286.70322,
     974.85043
-  ]
+  ];
   var nearestAxis = 0;
   var angle = 0;
   let returnNearestAxis = function(Angle){
-    var NearestAxis =((((Angle > 45) && (Angle <= 135)) || ((Angle > 225) && (Angle <= 315))) ? 1 : 0)
+    var NearestAxis = (((Angle > 45) && (Angle <= 135)) || ((Angle > 225) && (Angle <= 315))) ? 1 : 0;
     return NearestAxis
   }
   var Width = function(){
@@ -25,13 +25,13 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     return (Math.abs(Math.sin(Angle*PI/180)*Width()))
   }
   var AbsCosWidth = function(Angle){
-    return(Math.abs(Math.cos(#Angle#*PI/180)*Width()))
+    return(Math.abs(Math.cos(Angle*PI/180)*Width()))
   }
   var AbsSinHeight = function(Angle){
-    return(Math.abs(Math.sin(#Angle#*PI/180)*Height()))  
+    return(Math.abs(Math.sin(Angle*PI/180)*Height()))  
   }
   var AbsCosHeight = function(Angle){
-    return(Math.abs(Math.cos(#Angle#*PI/180)*Height()))
+    return(Math.abs(Math.cos(Angle*PI/180)*Height()))
   }
   let MoveX = function(Angle){
     /*IfCondition=(((#Angle# > 0) && (#Angle# <= 45)) || ((#Angle# > 270) && (#Angle# <= 315)))
@@ -60,7 +60,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   /* working visualization starts here */
   let barHeight = (spectrumData) => {
     //max possible value of SpectrumData is 255;
-    var getPercentage = Math.floor((spectrumData/255)*100);
+    var getPercentage = (spectrumData/255)*100;
     var barHeight = (getPercentage * 0.01) * canvas.height;
     if(isNaN(barHeight)) barHeight = 0;
     return barHeight;
@@ -71,7 +71,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   let barcount = defaults.barcount;
   let spacing = defaults.spacing;
   let spectrumSpace = Math.floor(maximumLength/(barcount + spacing));
-  let usableSpace = Math.floor(canvas.width/(barcount - spacing));
+  let usableSpace = canvas.width/(barcount - spacing);
   let _barHeight = null;
   let counter = 0;
   let gradientObject = null;
@@ -92,6 +92,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
       visualizer.fillStyle = defaults.colorcode;
     }
     visualizer.fillRect(counter*(usableSpace+spacing),canvas.height -_barHeight,usableSpace-spacing, +_barHeight);
+    counter++;
   }
 
 }
