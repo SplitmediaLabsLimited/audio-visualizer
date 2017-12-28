@@ -144,6 +144,7 @@ var XBCAudioVisualizer = function(config = {}) {
             if (uuidAudioSourceId[i].label.indexOf('XSplitBroadcaster (DirectShow)') === 0) {
               defaultDeviceId = uuidAudioSourceId[i].deviceId;
               self.defaultDeviceId = defaultDeviceId;
+              self.defaultDeviceIdx = i;
               break;
             }
           }
@@ -174,6 +175,8 @@ var XBCAudioVisualizer = function(config = {}) {
     }
   }
 
+  //this.XBCFFT(smooth)
+
   /**
    * [soundAllowed allows you to prepare and display the wave stream into your graphic.]
    * @param  {Object}   stream   [the audio stream to be processed]
@@ -181,66 +184,650 @@ var XBCAudioVisualizer = function(config = {}) {
    * @return {[type]}            [description]
    */
   this.soundAllowed = (stream) => {
+    'use strict';
     var self = this;
-    var fft;
+    
+
+    window.persistAudioStream = stream;
+    self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
+    self.analyser = window._audioContext.createAnalyser();
+    
+    var freqToFloat = function (fft) {
+      if (fft.freqDomain instanceof Float32Array === false) {
+        fft.freqDomain = new Float32Array(fft.analyser.frequencyBinCount);
+      }
+    };
+    var freqToInt = function (fft) {
+      if (fft.freqDomain instanceof Uint8Array === false) {
+        fft.freqDomain = new Uint8Array(fft.analyser.frequencyBinCount);
+      }
+    };
+    var timeToFloat = function (fft) {
+      if (fft.timeDomain instanceof Float32Array === false) {
+        fft.timeDomain = new Float32Array(fft.analyser.frequencyBinCount);
+      }
+    };
+    var timeToInt = function (fft) {
+      if (fft.timeDomain instanceof Uint8Array === false) {
+        fft.timeDomain = new Uint8Array(fft.analyser.frequencyBinCount);
+      }
+    };
+
+    class xbcfft {
+      constructor(smoothing,bins,stream){
+        var Master = function () {
+          var audiocontext = window._audioContext;
+          this.input = audiocontext.createGain();
+          this.output = audiocontext.createGain();
+          //put a hard limiter on the output
+          this.limiter = audiocontext.createDynamicsCompressor();
+          //this.limiter.threshold.value = 0;
+          //this.limiter.ratio.value = 20;
+          this.audiocontext = audiocontext;
+          this.output.disconnect();
+          // an array of input sources
+          this.inputSources = [];
+          // connect input to limiter
+          this.input.connect(this.limiter);
+          // connect limiter to output
+          this.limiter.connect(this.output);
+          // meter is just for global Amplitude / FFT analysis
+          this.meter = audiocontext.createGain();
+          this.fftMeter = audiocontext.createGain();
+          this.mediaStreamSource = null;
+          this.output.connect(this.meter);
+          this.output.connect(this.fftMeter);
+          // connect output to destination
+          this.output.connect(this.audiocontext.destination);
+          // an array of all sounds in the sketch
+          this.soundArray = [];
+          // an array of all musical parts in the sketch
+          this.parts = [];
+          // file extensions to search for
+          this.extensions = [];
+        };
+
+        this.sound = new Master();
+        this.start(smoothing,bins);
+      }
+
+      start(smoothing,bins,stream){
+        var sound = this.sound;
+        this.input = this.analyser = window._audioContext.createAnalyser();
+        
+
+        Object.defineProperties(this, {
+          'bins': {
+            get: function () {
+              return this.analyser.fftSize;
+            },
+            set: function (b) {
+              this.analyser.fftSize = b;
+            },
+            configurable: true,
+            enumerable: true
+          },
+          'smoothing': {
+            get: function () {
+              return this.analyser.smoothingTimeConstant;
+            },
+            set: function (s) {
+              this.analyser.smoothingTimeConstant = s;
+            },
+            configurable: true,
+            enumerable: true
+          }
+        });
+        //debugger;
+        this.smooth(smoothing);
+        this.bins = bins || 1024;
+        // default connections to p5sound fftMeter
+        sound.fftMeter.connect(this.analyser);
+
+        this.freqDomain = new Uint8Array(this.analyser.frequencyBinCount);
+        this.timeDomain = new Uint8Array(this.analyser.frequencyBinCount);
+        // predefined frequency ranges, these will be tweakable
+        this.bass = [
+          20,
+          140
+        ];
+        this.lowMid = [
+          140,
+          400
+        ];
+        this.mid = [
+          400,
+          2600
+        ];
+        this.highMid = [
+          2600,
+          5200
+        ];
+        this.treble = [
+          5200,
+          14000
+        ];
+        // add this p5.SoundFile to the soundArray
+        sound.soundArray.push(this);
+      }
+
+
+      /**
+       *  Smooth FFT analysis by averaging with the last analysis frame.
+       *
+       *  @method smooth
+       *  @param {Number} smoothing    0.0 < smoothing < 1.0.
+       *                               Defaults to 0.8.
+       */
+      smooth(s) {
+        if (typeof s !== 'undefined') {
+          this.smoothing = s;
+        }
+        return this.smoothing;
+      };
+      /**
+       * Re-maps a number from one range to another.
+       * <br><br>
+       * In the first example above, the number 25 is converted from a value in the
+       * range of 0 to 100 into a value that ranges from the left edge of the
+       * window (0) to the right edge (width).
+       *
+       * @method map
+       * @param  {Number} value  the incoming value to be converted
+       * @param  {Number} start1 lower bound of the value's current range
+       * @param  {Number} stop1  upper bound of the value's current range
+       * @param  {Number} start2 lower bound of the value's target range
+       * @param  {Number} stop2  upper bound of the value's target range
+       * @param  {Boolean} [withinBounds] constrain the value to the newly mapped range
+       * @return {Number}        remapped number
+       * @example
+       *   <div><code>
+       * var value = 25;
+       * var m = map(value, 0, 100, 0, width);
+       * ellipse(m, 50, 10, 10);
+      </code></div>
+       *
+       *   <div><code>
+       * function setup() {
+       *   noStroke();
+       * }
+       *
+       * function draw() {
+       *   background(204);
+       *   var x1 = map(mouseX, 0, width, 25, 75);
+       *   ellipse(x1, 25, 25, 25);
+       *   //This ellipse is constrained to the 0-100 range
+       *   //after setting withinBounds to true
+       *   var x2 = map(mouseX, 0, width, 0, 100, true);
+       *   ellipse(x2, 75, 25, 25);
+       * }
+      </code></div>
+       *
+       * @alt
+       * 10 by 10 white ellipse with in mid left canvas
+       * 2 25 by 25 white ellipses move with mouse x. Bottom has more range from X
+       *
+       */
+      map(n, start1, stop1, start2, stop2, withinBounds) {
+        var newval = (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+        if (!withinBounds) {
+          return newval;
+        }
+        if (start2 < stop2) {
+          return this.constrain(newval, start2, stop2);
+        } else {
+          return this.constrain(newval, stop2, start2);
+        }
+      }
+
+      /**
+       * Constrains a value between a minimum and maximum value.
+       *
+       * @method constrain
+       * @param  {Number} n    number to constrain
+       * @param  {Number} low  minimum limit
+       * @param  {Number} high maximum limit
+       * @return {Number}      constrained number
+       * @example
+       * <div><code>
+       * function draw() {
+       *   background(200);
+       *
+       *   var leftWall = 25;
+       *   var rightWall = 75;
+       *
+       *   // xm is just the mouseX, while
+       *   // xc is the mouseX, but constrained
+       *   // between the leftWall and rightWall!
+       *   var xm = mouseX;
+       *   var xc = constrain(mouseX, leftWall, rightWall);
+       *
+       *   // Draw the walls.
+       *   stroke(150);
+       *   line(leftWall, 0, leftWall, height);
+       *   line(rightWall, 0, rightWall, height);
+       *
+       *   // Draw xm and xc as circles.
+       *   noStroke();
+       *   fill(150);
+       *   ellipse(xm, 33, 9, 9); // Not Constrained
+       *   fill(0);
+       *   ellipse(xc, 66, 9, 9); // Constrained
+       * }
+       * </code></div>
+       *
+       * @alt
+       * 2 vertical lines. 2 ellipses move with mouse X 1 does not move passed lines
+       *
+       */
+
+      constrain(n, low, high) {
+        return Math.max(Math.min(n, high), low);
+      };
+
+      /**
+       *  Returns an array of amplitude values (between -1.0 and +1.0) that represent
+       *  a snapshot of amplitude readings in a single buffer. Length will be
+       *  equal to bins (defaults to 1024). Can be used to draw the waveform
+       *  of a sound.
+       *
+       *  @method waveform
+       *  @param {Number} [bins]    Must be a power of two between
+       *                            16 and 1024. Defaults to 1024.
+       *  @param {String} [precision] If any value is provided, will return results
+       *                              in a Float32 Array which is more precise
+       *                              than a regular array.
+       *  @return {Array}  Array    Array of amplitude values (-1 to 1)
+       *                            over time. Array length = bins.
+       *
+       */
+      waveform() {
+        var bins, mode, normalArray;
+        for (var i = 0; i < arguments.length; i++) {
+          if (typeof arguments[i] === 'number') {
+            bins = arguments[i];
+            this.analyser.fftSize = bins * 2;
+          }
+          if (typeof arguments[i] === 'string') {
+            mode = arguments[i];
+          }
+        }
+       
+        timeToInt(this, this.timeDomain);
+        this.analyser.getByteTimeDomainData(this.timeDomain);
+        var normalArray = new Array();
+        for (var j = 0; j < this.timeDomain.length; j++) {
+          var scaled = this.map(this.timeDomain[j], 0, 255, -1, 1);
+          normalArray.push(scaled);
+        }
+        return normalArray;
+        
+      }
+
+      /**
+       *  Returns an array of amplitude values (between 0 and 255)
+       *  across the frequency spectrum. Length is equal to FFT bins
+       *  (1024 by default). The array indices correspond to frequencies
+       *  (i.e. pitches), from the lowest to the highest that humans can
+       *  hear. Each value represents amplitude at that slice of the
+       *  frequency spectrum. Must be called prior to using
+       *  <code>getEnergy()</code>.
+       *
+       *  @method analyze
+       *  @param {Number} [bins]    Must be a power of two between
+       *                             16 and 1024. Defaults to 1024.
+       *  @param {Number} [scale]    If "dB," returns decibel
+       *                             float measurements between
+       *                             -140 and 0 (max).
+       *                             Otherwise returns integers from 0-255.
+       *  @return {Array} spectrum    Array of energy (amplitude/volume)
+       *                              values across the frequency spectrum.
+       *                              Lowest energy (silence) = 0, highest
+       *                              possible is 255.
+       *  @example
+       *  <div><code>
+       *  var osc;
+       *  var fft;
+       *
+       *  function setup(){
+       *    createCanvas(100,100);
+       *    osc = new p5.Oscillator();
+       *    osc.amp(0);
+       *    osc.start();
+       *    fft = new p5.FFT();
+       *  }
+       *
+       *  function draw(){
+       *    background(0);
+       *
+       *    var freq = map(mouseX, 0, 800, 20, 15000);
+       *    freq = constrain(freq, 1, 20000);
+       *    osc.freq(freq);
+       *
+       *    var spectrum = fft.analyze();
+       *    noStroke();
+       *    fill(0,255,0); // spectrum is green
+       *    for (var i = 0; i< spectrum.length; i++){
+       *      var x = map(i, 0, spectrum.length, 0, width);
+       *      var h = -height + map(spectrum[i], 0, 255, height, 0);
+       *      rect(x, height, width / spectrum.length, h );
+       *    }
+       *
+       *    stroke(255);
+       *    text('Freq: ' + round(freq)+'Hz', 10, 10);
+       *
+       *    isMouseOverCanvas();
+       *  }
+       *
+       *  // only play sound when mouse is over canvas
+       *  function isMouseOverCanvas() {
+       *    var mX = mouseX, mY = mouseY;
+       *    if (mX > 0 && mX < width && mY < height && mY > 0) {
+       *      osc.amp(0.5, 0.2);
+       *    } else {
+       *      osc.amp(0, 0.2);
+       *    }
+       *  }
+       *  </code></div>
+       *
+       *
+       */
+      analyze() {
+        var mode;
+        for (var i = 0; i < arguments.length; i++) {
+          if (typeof arguments[i] === 'number') {
+            this.bins = arguments[i];
+            this.analyser.fftSize = this.bins * 2;
+          }
+          if (typeof arguments[i] === 'string') {
+            mode = arguments[i];
+          }
+        }
+        if (mode && mode.toLowerCase() === 'db') {
+          freqToFloat(this);
+          this.analyser.getFloatFrequencyData(this.freqDomain);
+          return this.freqDomain;
+        } else {
+          freqToInt(this, this.freqDomain);
+          this.analyser.getByteFrequencyData(this.freqDomain);
+          var normalArray = Array.apply([], this.freqDomain);
+          normalArray.length === this.analyser.fftSize;
+          normalArray.constructor === Array;
+          return normalArray;
+        }
+      };
+
+      /**
+       *  Returns an array of average amplitude values for a given number
+       *  of frequency bands split equally. N defaults to 16.
+       *  <em>NOTE: analyze() must be called prior to linAverages(). Analyze()
+       *  tells the FFT to analyze frequency data, and linAverages() uses
+       *  the results to group them into a smaller set of averages.</em></p>
+       *
+       *  @method  linAverages
+       *  @param  {Number}  N                Number of returned frequency groups
+       *  @return {Array}   linearAverages   Array of average amplitude values for each group
+       */
+      linAverages(N) {
+        var N = N || 16;
+        // This prevents undefined, null or 0 values of N
+        var spectrum = this.freqDomain;
+        var spectrumLength = spectrum.length;
+        var spectrumStep = Math.floor(spectrumLength / N);
+        var linearAverages = new Array(N);
+        // Keep a second index for the current average group and place the values accordingly
+        // with only one loop in the spectrum data
+        var groupIndex = 0;
+        for (var specIndex = 0; specIndex < spectrumLength; specIndex++) {
+          linearAverages[groupIndex] = linearAverages[groupIndex] !== undefined ? (linearAverages[groupIndex] + spectrum[specIndex]) / 2 : spectrum[specIndex];
+          // Increase the group index when the last element of the group is processed
+          if (specIndex % spectrumStep === spectrumStep - 1) {
+            groupIndex++;
+          }
+        }
+        return linearAverages;
+      };
+
+      connect(stream){
+        this.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
+        this.mediaStreamSource.connect(this.analyser);
+      }
+    }
+    // self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
+    // self.analyser.fftSize = self._defaults.bitsample;
+    // let bufferLength = self.analyser.frequencyBinCount;
+    // let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
+    // self.mediaStreamSource.connect(self.analyser);
+    // self.analyser.getByteFrequencyData(frequencyArray);
+
+    // function draw(){
+    //   window.requestAnimationFrame(draw)
+    //   console.log(frequencyArray);
+    // }
+    // draw();
+
+    
+    var tmpPath = null;
+    let adjustedLength = 0;
+    let pos = 0;
+    let calc1 = 0;
+    let calc2 = 0;
+    let max = 0;
+
+    //let lineHeightSpectrum = (dataValue,height)
+
+    // var draw = ()=>{
+    //   window.requestAnimationFrame(draw);
+    //   var spectrum = fft.analyze();
+    //   var waveform = fft.waveform();
+    //   console.log('wave',waveform);
+    //   // //draw spectrum
+    //   // for (var i = 0; i < spectrum.length; i++) {
+    //   //   spectrum[i]
+    //   // }
+    // }
+    // draw();
+    
+    let loadUrl = null;
+    let setType = 'script'
+    if(self._defaults.animationElement === "oscilloscope" || self._defaults.animationElement === "bars"){
+      loadUrl = {
+        url:`./js/${self._defaults.animationElement}.js`,
+        dataType: 'text',
+        async:false
+       };
+    } else {
+      loadUrl = {
+        url : `${self._defaults.animationElement}`,
+        dataType: 'text',
+        async:false
+      }
+    }
+
+    // $.getScript(loadUrl, function(data,status,jqxhr){
+
+    // })
+    
+
+
+    $.ajax(loadUrl)
+    .then(data => {
+      // $.when(self.preloadRemoteScript(data))
+      // .then((datas)=>{
+        let strData = data;
+        var animation = null;
+        try{
+          let remoteFn = self.testRemoteFn(strData);
+          var fft = new xbcfft(self._defaults.smoothing,self._defaults.bitsample);
+          fft.connect(stream);
+          let resizeHandler = () => {
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            let cx = w / 2;
+            let cy = h / 2;
+            self.visualizer.canvas.width = w;
+            self.visualizer.canvas.height = h;
+            self.canvas.width = w;
+            self.canvas.height = h
+            $("#visualizer").css({
+              width:w+"px",
+              height:h+"px"
+            })
+          };
+          /**
+           * [we prepare the stream by connecting the audio stream to the needed analyzer]
+           */
+          $(window).on('resize',function(){
+            resizeHandler();  
+          })
+          var draw = ()=>{
+            self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
+            animation = window.requestAnimationFrame(draw);
+            var spectrum = fft.analyze();
+            var waveform = fft.waveform();
+            remoteFn(
+              self.canvas,
+              self.visualizer,
+              spectrum,
+              waveform,
+              self._defaults
+            );
+          }
+          draw();
+        } catch(e){
+          console.error(e.message+'\n'+e.stack);
+          cancelAnimationFrame(animation);        
+        }
+      // })
+      // .fail((msg)=>{
+      //   console.error(msg);
+      // })
+    })
+
+
+
+
+    /**
+    //#region  
+    
+    var fft,audioAnalysis,cnv,sac;
     var p5C = function(p,container,extrajuice){
       console.log(extrajuice);
-      
+      var audioAnalysis = new p5.AudioIn();
       p.setup = ()=>{
-        var sac = window._audioContext.createMediaStreamSource(stream);
-        var cnv = p.createCanvas(1,1);
-        var audioAnalysis = new p5.AudioIn();
-        audioAnalysis.connect(sac);
-        audioAnalysis.start();
-        fft = new p5.FFT(0.99,16);
-        fft.setInput(audioAnalysis);
-
-        // var getAudioIdx = async ()=>{
-        //   var idx = await audioDeviceIdx();
-        //   return idx;
-        // };
-        // var audioDeviceIdx = () =>{
-        //   return new Promise( (resolve,reject) =>{
-        //     audioAnalysis.getSources((sourceList)=>{
-        //       let idx = 0;
-        //       for(let i = 0; i < sourceList.length; i++){
-        //         if(self._defaults.audioDeviceId === sourceList[i].deviceId){
-        //           idx = i;
-        //           break;
-        //         }
-        //       }
-        //       console.log(sourceList[idx].deviceId);
-        //       resolve({idx:idx,device:sourceList[idx]});
-        //     });
-        //   });
-        // };
-        // getAudioIdx().then(data => {
-        //   //fft.setInput(audioAnalysis);
+        cnv = p.createCanvas(1,1);
+        sac = window._audioContext.createMediaStreamSource(stream);
+        var getAudioIdx = async ()=>{
+          var idx = await audioDeviceIdx();
+          return idx;
+        };
+        var audioDeviceIdx = () =>{
+          return new Promise( (resolve,reject) =>{
+            audioAnalysis.getSources((sourceList)=>{
+              let idx = 0;
+              for(let i = 0; i < sourceList.length; i++){
+                if(self._defaults.audioDeviceId === sourceList[i].deviceId){
+                  idx = i;
+                  break;
+                }
+              }
+              console.log(sourceList[idx].deviceId);
+              resolve({idx:idx,device:sourceList[idx]});
+            });
+          });
+        };
+        getAudioIdx().then(data => {
+          
+          
+          //audioAnalysis.setSource(data.idx);
+          audioAnalysis.start();
+          fft = new p5.FFT(0.99,16);
+          
+          //fft.setInput(audioAnalysis);
           
 
-        //   // audioAnalysis.connect();
-        //   // audioAnalysis.start(function(data){
-        //   //   console.log('success',data)
-        //   // },function(error){
-        //   //   console.log('error',error)
-        //   // })
-        //   // console.log('idx',data)
-        //   // console.log(audioAnalysis);
-        // })
-        // .catch(e =>{
-        //   console.log('error',e);
-        // })
+          // // audioAnalysis.connect();
+          // audioAnalysis.start(function(data){
+          //   console.log('success',data)
+          // },function(error){
+          //   console.log('error',error)
+          // })
+          // console.log('idx',data)
+          // console.log(audioAnalysis);
+        })
+        .catch(e =>{
+          console.log('error',e);
+        })
 
       };
 
       p.draw = ()=>{
+        if(fft !== undefined){
+          var spectrum = fft.analyze();
+          console.log('spectrum',spectrum)
+        }
+      }
+      //#endregion
+      **/
+    
+/*    var p5C = function(p,container,extrajuice){
+      var mic, fft;
+
+      p.setup = function () {
+        p.createCanvas(1920,1080);
+        p.noFill();
+        mic = new p5.AudioIn();
+        mic.start();
+        fft = new p5.FFT(0.8);
+        fft.setInput(mic);
+        var getAudioIdx = async ()=>{
+          var idx = await audioDeviceIdx();
+          return idx;
+        };
+        var audioDeviceIdx = () =>{
+          return new Promise( (resolve,reject) =>{
+            mic.getSources((sourceList)=>{
+              let idx = 0;
+              for(let i = 0; i < sourceList.length; i++){
+                if(self._defaults.audioDeviceId === sourceList[i].deviceId){
+                  idx = i;
+                  break;
+                }
+              }
+              console.log(sourceList[idx].deviceId);
+              resolve({idx:idx,device:sourceList[idx]});
+            });
+          });
+        };
+        getAudioIdx().then(data => {
+          
+          mic.setSource(data.idx);
+          
+         
+        })
+        .catch(e =>{
+          console.log('error',e);
+        })
+
+        
+        
+      }
+
+      p.draw = function () {
+        p.background(200);
+
         var spectrum = fft.analyze();
-        console.log('spectrum',spectrum)
+
+        p.beginShape();
+        for (i = 0; i<spectrum.length; i++) {
+          p.vertex(i, p.map(spectrum[i], 0, 255, p.height, 0) );
+        }
+        p.endShape();
       }
       
     };
     
-    var myP5 = new p5(p5C,'dataSource',self._defaults);
+    var myP5 = new p5(p5C,'dataSource',self._defaults);*/
     
     
     
@@ -250,10 +837,8 @@ var XBCAudioVisualizer = function(config = {}) {
     
     //console.log(_audioIdx);
     //audioAnalysis.setSource(idx);
-    window.persistAudioStream = stream;
-    self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
-    self.analyser = window._audioContext.createAnalyser();
-    self.analyser.fftSize = self._defaults.bitsample;
+    
+    //self.analyser.fftSize = self._defaults.bitsample;
 
 
     // var XBC_avz = {
@@ -320,75 +905,9 @@ var XBCAudioVisualizer = function(config = {}) {
     //  */
   
 
-    // let loadUrl = null;
-    // let setType = 'script'
-    // if(self._defaults.animationElement === "oscilloscope" || self._defaults.animationElement === "bars"){
-    //   loadUrl = {
-    //     url:`./js/${self._defaults.animationElement}.js`,
-    //     dataType: 'text'
-    //    };
-    // } else {
-    //   loadUrl = {
-    //     url : `${self._defaults.animationElement}`,
-    //     dataType: 'text'
-    //   }
-    // }
+
     /*
-    $.ajax(loadUrl)
-    .then(data => {
-      $.when(self.preloadRemoteScript(data))
-      .then(()=>{
-        try{
-          eval(data); 
-          var c = self.canvas,
-              a = self.analyser,
-              v = self.visualizer,
-              fa = frequencyArray,
-              bf = bufferLength,
-              fft = new p5.FFT(self._defaults.smoothing,64);
-          window.capYPositionArray = [];
-          const drawGraph = () => {
-            // from here we deduct the wave pattern using p5.js
-            window._requestAnimationFrame = window.requestAnimationFrame(drawGraph);
-            now = Date.now(); elapsed = now - then;
-            if (elapsed > fpsInterval) {
-              self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
-              var delta = (new Date().getTime() - lastRun) / 1000;
-              lastRun = new Date().getTime();
-              fps = 1 / delta;
-              if (self._defaults.displayfps) {
-                showFPS();
-              }
-              c = self.canvas,
-              a = self.analyser,
-              v = self.visualizer,
-              fa = frequencyArray,
-              bf = bufferLength
-              then = now - (elapsed % fpsInterval);
-              
-            }
-            remoteFn(
-              c,
-              a,
-              v,
-              fa,
-              bf,
-              self._defaults
-            );
-            
-          }
-
-          drawGraph();
-
-          self.mediaStreamSource.connect(self.analyser);
-        } catch(e){
-          console.error(e.message+'\n'+e.stack);            
-        }
-      })
-      .fail((msg)=>{
-        console.error(msg);
-      })
-    })
+   
     */
 
     
@@ -485,6 +1004,10 @@ var XBCAudioVisualizer = function(config = {}) {
     }
     $('canvas').remove();
     $('<canvas id="visualizer"></canvas>').appendTo('body');
+    $("#visualizer").css({
+      width:window.innerWidth+"px",
+      height:window.innerHeight+"px"
+    })
     
 
     /**
@@ -500,6 +1023,8 @@ var XBCAudioVisualizer = function(config = {}) {
      * starting up instances...
      */
     self.canvas = document.getElementById(self._defaults.visualizer);
+    self.canvas.width = window.innerWidth;
+    self.canvas.height = window.innerHeight;
     self.visualizer = self.canvas.getContext("2d")
     self.mask = document.getElementById(self._defaults.mask);
 
@@ -529,6 +1054,16 @@ var XBCAudioVisualizer = function(config = {}) {
      * ready to go!
      */
     self.setXBCAudioDeviceAsSource(self._defaults.audioDeviceId)
+  }
+
+  this.testRemoteFn = function(strData){
+    var self = this;
+    eval(strData);
+    if(typeof remoteFn === "undefined"){
+      return this.remoteFn(strData)
+    } else {
+      return remoteFn;
+    }
   }
 
 
