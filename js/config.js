@@ -53,14 +53,14 @@ $(()=>{
 		/** fps */
 		if(typeof config.smoothing === 'undefined'){
 			firstTime = true;
-			config.smoothing = 0.99;
+			config.smoothing = 0.8;
 		}
 		$("#smoothing").val(config.smoothing);
 
 		/** Bit Sample */
 		if(typeof config.bitsample === 'undefined'){
 			firstTime = true;
-			config.bitsample = "512";
+			config.bitsample = "1024";
 		}
 		$("#bitsample").val(config.bitsample);
 

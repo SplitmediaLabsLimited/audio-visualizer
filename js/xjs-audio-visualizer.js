@@ -681,6 +681,10 @@ var XBCAudioVisualizer = function(config = {}) {
             resizeHandler();  
           })
           var draw = ()=>{
+            self._defaults.barcount = parseInt(self._defaults.barcount,10);
+            self._defaults.spacing = parseInt(self._defaults.spacing,10);
+            self._defaults.sensitivity = parseInt(self._defaults.sensitivity,10);
+            self._defaults.smoothing = parseFloat(self._defaults.smoothing);
             self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
             animation = window.requestAnimationFrame(draw);
             var spectrum = fft.analyze();

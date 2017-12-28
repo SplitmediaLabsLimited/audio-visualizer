@@ -3,16 +3,17 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     //max possible value of SpectrumData is 255;
     var getPercentage = Math.floor((spectrumData/255)*100);
     var barHeight = (getPercentage * 0.01) * canvas.height;
+    if(isNaN(barHeight)) barHeight = 0;
     return barHeight;
   }
   debugger;
 
-  let maximumLength = 512;
-
-  let barcount = parseInt(defaults.barcount,10);
-  let space = parseInt(defaults.spacing,10);
-  let spectrumSpace = Math.floor(maximumLength/(barcount+space));
-  let usableSpace = Math.floor(canvas.width/(barcount - space));
+  let maximumLength = spectrum.length;
+  let sensitivity = (defaults.sensitivity*0.01)*2;
+  let barcount = defaults.barcount;
+  let spacing = defaults.spacing;
+  let spectrumSpace = Math.floor(maximumLength/(barcount + spacing));
+  let usableSpace = Math.floor(canvas.width/(barcount - spacing));
   
 
 
@@ -22,8 +23,10 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   let gradientObject = null;
   for (var i = 0; i < maximumLength; i = i + spectrumSpace) {
     _barHeight = barHeight(spectrum[i]);
-
-    
+    _barHeight = _barHeight * sensitivity;
+    if(_barHeight > canvas.height){
+      _barHeight = canvas.height
+    }
 
     if(defaults.visualizationSelect === 'flames'){
       gradientObject = visualizer.createLinearGradient(0,canvas.height - _barHeight,0,canvas.height);
@@ -37,7 +40,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     }
 
     //visualizer.fillStyle = defaults.colorcode;
-    visualizer.fillRect(counter*(usableSpace+space),canvas.height -_barHeight,usableSpace-space, +_barHeight);
+    visualizer.fillRect(counter*(usableSpace+spacing),canvas.height -_barHeight,usableSpace-spacing, +_barHeight);
     counter++;
   }
   
