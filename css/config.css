@@ -4,7 +4,13 @@ body, html{
 	overflow: hidden;
 	background-color: none;
 	width:600px;
+	user-select: none;
+	-webkit-user-select: none !important; 
 }
+html * {
+	-webkit-user-select: none !important;
+}
+
 select{
 	color:#000;
 }

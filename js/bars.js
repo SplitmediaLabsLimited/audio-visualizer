@@ -1,60 +1,107 @@
 function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   /** The following is an attempt to emulate the behavior of the bars in monstercat */
-  const PI = Math.PI;
-  var matrix = [
-    Math.cos(145*PI/180),
-    Math.sin(145*PI/180),
-    Math.sin(145*PI/180),
-    Math.cos(145*PI/180),
-    286.70322,
-    974.85043
-  ];
-  var nearestAxis = 0;
-  var angle = 0;
-  let returnNearestAxis = function(Angle){
-    var NearestAxis = (((Angle > 45) && (Angle <= 135)) || ((Angle > 225) && (Angle <= 315))) ? 1 : 0;
-    return NearestAxis
-  }
-  var Width = function(){
-    return window.innerWidth;
-  }
-  var Height = function(){
-    return window.innerHeight;
-  } 
-  var AbsSinWidth = function(Angle){
-    return (Math.abs(Math.sin(Angle*PI/180)*Width()))
-  }
-  var AbsCosWidth = function(Angle){
-    return(Math.abs(Math.cos(Angle*PI/180)*Width()))
-  }
-  var AbsSinHeight = function(Angle){
-    return(Math.abs(Math.sin(Angle*PI/180)*Height()))  
-  }
-  var AbsCosHeight = function(Angle){
-    return(Math.abs(Math.cos(Angle*PI/180)*Height()))
-  }
-  let MoveX = function(Angle){
-    /*IfCondition=(((#Angle# > 0) && (#Angle# <= 45)) || ((#Angle# > 270) && (#Angle# <= 315)))
-    IfTrueAction=[!SetOption MoveX Formula 0][!UpdateMeasure MoveX]
-    IfCondition2=(((#Angle# > 45) && (#Angle# <= 90)) || ((#Angle# > 315) && (#Angle# < 360)))
-    IfTrueAction2=[!SetOption MoveX Formula (AbsSinHeight)][!UpdateMeasure MoveX]
-    IfCondition3=(((#Angle# > 90) && (#Angle# <= 135)) || ((#Angle# > 180) && (#Angle# <= 225)))
-    IfTrueAction3=[!SetOption MoveX Formula (AbsSinHeight+AbsCosWidth)][!UpdateMeasure MoveX]
-    IfCondition4=(((#Angle# > 135) && (#Angle# <= 180)) || ((#Angle# > 225) && (#Angle# <= 270)))
-    IfTrueAction4=[!SetOption MoveX Formula (AbsCosWidth)][!UpdateMeasure MoveX]*/
+  
+  class MonsterCatAdapter {
+    constructor(spectrumData){
+      this.PI = Math.PI
+      this.MoveX = null
+      this.MoveY = null,
+      this.matrix = [
+        Math.cos(145*PI/180),
+        Math.sin(145*PI/180),
+        Math.sin(145*PI/180),
+        Math.cos(145*PI/180),
+        286.70322,
+        974.85043
+      ];
+      this.nearestAxis = 0;
+      this.Angle = 0;
+      this.FTTAttack = 100;
+      this.FTTDecay = 60;
+      this.minFreq = 10;
+      this.scale = 1;
+      this.barHeight = window.innerHeight;
+      this.barWidth = null;
+      this.lowerLimit = 0;
+      this.upperLimit = spectrumData.length;
+      this.spectrumData = spectrumData;
+    }
+
+    returnNearestAxis(Angle){
+      var NearestAxis = (((Angle > 45) && (Angle <= 135)) || ((Angle > 225) && (Angle <= 315))) ? 1 : 0;
+      return NearestAxis
+    }
+
+    Width(){
+      return window.innerWidth;
+    }
+
+    Height(){
+      return window.innerHeight;
+    }
+
+    AbsSinWidth(Angle){
+      return (Math.abs(Math.sin(Angle*PI/180)*Width()))
+    }
+
+    AbsCosWidth(Angle){
+      return(Math.abs(Math.cos(Angle*PI/180)*Width()))
+    }
+
+    AbsSinHeight(Angle){
+      return(Math.abs(Math.sin(Angle*PI/180)*Height()))  
+    }
+
+    AbsCosHeight(Angle){
+      return(Math.abs(Math.cos(Angle*PI/180)*Height()))
+    }
+
+    MoveX(Angle){
+      if(((Angle > 0) && (Angle <= 45)) || ((Angle > 270) && (Angle <= 315))){
+        return 0;
+      }
+      if(((Angle > 45) && (Angle <= 90)) || ((Angle > 315) && (Angle < 360))){
+        return AbsSinHeight(Angle);
+      }
+      if(((Angle > 90) && (Angle <= 135)) || ((Angle > 180) && (Angle <= 225))){
+        return AbsSinHeight(Angle)+AbsCosWidth(Angle);
+      }
+
+      if(((Angle > 135) && (Angle <= 180)) || ((Angle > 225) && (Angle <= 270))){
+        return AbsCosWidth(Angle);
+      }
+    }
+
+    MoveY(Angle){
+      if(((Angle > 0) && (Angle <= 45)) || ((Angle > 90) && (Angle <= 135))){
+        return AbsSinWidth(Angle);
+      }
+      if(((Angle > 45) && (Angle <= 90)) || ((Angle > 135) && (Angle <= 180))){
+        return AbsSinWidth(Angle)+AbsCosHeight(Angle);
+      }
+
+      if(((Angle > 180) && (Angle <= 225)) || ((Angle > 270) && (Angle <= 315))){
+        return AbsCosHeight(Angle);
+      }
+
+      if((((Angle > 225) && (Angle <= 270)) || ((Angle > 315) && (Angle < 360)))){
+        return 0
+      }
+    }
+
+    start(){
+      if(this.nearestAxis !== 0){
+
+      } else {
+        for (var i = lowerLimit; i < upperLimit; i++) {
+          this.spectrumData[i]
+        }
+      }
+    }
+
   }
 
-  let MoveY = function(Angle){
-    /*Measure=Calc
-    IfCondition=(((#Angle# > 0) && (#Angle# <= 45)) || ((#Angle# > 90) && (#Angle# <= 135)))
-    IfTrueAction=[!SetOption MoveY Formula (AbsSinWidth)][!UpdateMeasure MoveY]
-    IfCondition2=(((#Angle# > 45) && (#Angle# <= 90)) || ((#Angle# > 135) && (#Angle# <= 180)))
-    IfTrueAction2=[!SetOption MoveY Formula (AbsSinWidth+AbsCosHeight)][!UpdateMeasure MoveY]
-    IfCondition3=(((#Angle# > 180) && (#Angle# <= 225)) || ((#Angle# > 270) && (#Angle# <= 315)))
-    IfTrueAction3=[!SetOption MoveY Formula (AbsCosHeight)][!UpdateMeasure MoveY]
-    IfCondition4=(((#Angle# > 225) && (#Angle# <= 270)) || ((#Angle# > 315) && (#Angle# < 360)))
-    IfTrueAction4=[!SetOption MoveY Formula 0][!UpdateMeasure MoveY]*/
-  }
+  
   
 
   /* working visualization starts here */
@@ -63,20 +110,27 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     var getPercentage = (spectrumData/255)*100;
     var barHeight = (getPercentage * 0.01) * canvas.height;
     if(isNaN(barHeight)) barHeight = 0;
+    
     return barHeight;
   }
 
-  let maximumLength = spectrum.length;
+  let dataset = spectrum;
+  let maximumLength = dataset.length;
   let sensitivity = (defaults.sensitivity*0.01)*2;
-  let barcount = defaults.barcount;
+  let barcount = defaults.barcount+1;
   let spacing = defaults.spacing;
-  let spectrumSpace = Math.floor(maximumLength/(barcount + spacing));
-  let usableSpace = canvas.width/(barcount - spacing);
+  let datasetSpace = Math.floor((maximumLength)/(barcount + spacing));
+  console.log('datasetSpace',datasetSpace)
+  console.log('datasetSpace',datasetSpace)
+  let usableSpace = canvas.width/(barcount+spacing);
   let _barHeight = null;
   let counter = 0;
   let gradientObject = null;
-  for (var i = 0; i < maximumLength; i = i + spectrumSpace) {
-    _barHeight = barHeight(spectrum[i]);
+  let max = 0;
+
+  let compare = 0;
+  for (var i = 0; i < maximumLength; i = i + datasetSpace) {
+    _barHeight = barHeight(dataset[i]);
     _barHeight = _barHeight * sensitivity;
     if(_barHeight > canvas.height){
       _barHeight = canvas.height
@@ -96,4 +150,3 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   }
 
 }
-  

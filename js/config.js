@@ -12,6 +12,14 @@
  * then you have no right to use this file or any part hereof.
  * Please delete all traces of the file from your system and notify Split Media Labs immediately.
  */
+(function($){
+    $.fn.disableSelection = function() {
+        return this
+                 .attr('unselectable', 'on')
+                 .css('user-select', 'none')
+                 .on('selectstart', false);
+    };
+})(jQuery);
 $(()=>{
 	/**
 	 * [config stores the configuration previous to be sent to the plugin]
@@ -42,6 +50,7 @@ $(()=>{
 			config.audioDeviceId = XBCMixerId;
 		}
 		$('#selectAudioSource').val(config.audioDeviceId);
+		$('#selectAudioSource').disableSelection();
 
 		/** sensitivity */
 		if(typeof config.sensitivity === 'undefined'){
@@ -137,59 +146,6 @@ $(()=>{
 	 * @return {[type]} [description]
 	 */
 	setGUILogic = () => {
-
-		$("#selectAudioSource").on('select-changed', (e)=>{
-			config.audioDeviceId = e.detail.value;
-		});
-
-		$("#sensitivity").on('change', (e)=>{
-			config.sensitivity = $(e.currentTarget).val()
-		});
-
-		$("#smoothing").on('change', (e)=>{
-			config.smoothing = $(e.currentTarget).val()
-		});
-
-		$("#bitsample").on('select-changed', (e)=>{
-			config.bitsample = parseInt(e.detail.value);
-			let barcount = parseInt($("#barCount").val());
-			if (barcount > (config.bitsample/2)){
-				$("#barCount").attr("max",(config.bitsample/2));
-				$("#barCount").val(config.bitsample/2);
-				config.barcount = config.bitsample/2;
-			}
-		});
-
-		$("#animationElement").on('select-changed',(e)=>{
-			config.animationElement = e.detail.value;
-		})
-
-		$("#barCount").on('change', (e)=>{
-			config.barcount = parseInt($(e.currentTarget).val());
-			let bitsample = parseInt($("#bitsample").val());
-			if (config.barcount > (bitsample/2)){
-				$("#barCount").val(bitsample/2);
-				config.barcount = bitsample/2;
-			}
-		});
-
-		$("#visualizationSelect").on('select-changed',(e)=>{
-			config.visualizationSelect = e.detail.value;
-			if(config.visualizationSelect !== 'solid'){
-				$("#solidOption").hide();
-			} else {
-				$("#solidOption").show();
-			}
-		})
-
-		$("#solidOption").on('change',(e)=>{
-			config.colorcode = $(e.currentTarget).val();
-		})
-
-		$("#spacing").on('change',(e)=>{
-			config.spacing = parseInt($(e.currentTarget).val());
-		})
-
 		$("#saveSettings").on('click', (e) => {
 			updateConfig(currentSource);
 		})
@@ -280,6 +236,74 @@ $(()=>{
 		config = cfg;
 		updateElements(cfg);
 		setGUILogic();
+	})
+	.then(data =>{
+		$("#selectAudioSource").on('select-changed', (e)=>{
+			config.audioDeviceId = e.detail.value;
+			updateConfig(currentSource);
+		});
+
+		$("#sensitivity").on('change', (e)=>{
+			config.sensitivity = $(e.currentTarget).val()
+			updateConfig(currentSource);
+		});
+
+		$("#smoothing").on('change', (e)=>{
+			let s = $(e.currentTarget).val();
+			s = s.toString().split('');
+			s = s[0]+s[1]+s[2]+s[3]+s[4];
+			s = parseFloat(s);
+			config.smoothing = s;
+			$("#smoothing::shadow #inputText").val(s)
+			console.log(config.smoothing);
+			updateConfig(currentSource);
+		});
+
+		$("#bitsample").on('select-changed', (e)=>{
+			config.bitsample = parseInt(e.detail.value);
+			let barcount = parseInt($("#barCount").val());
+			if (barcount > (config.bitsample/2)){
+				$("#barCount").attr("max",(config.bitsample/2));
+				$("#barCount").val(config.bitsample/2);
+				config.barcount = config.bitsample/2;
+			}
+			updateConfig(currentSource);
+		});
+
+		$("#animationElement").on('select-changed',(e)=>{
+			config.animationElement = e.detail.value;
+			updateConfig(currentSource);
+		})
+
+		$("#barCount").on('change', (e)=>{
+			config.barcount = parseInt($(e.currentTarget).val());
+			let bitsample = parseInt($("#bitsample").val());
+			if (config.barcount > (bitsample/2)){
+				$("#barCount").val(bitsample/2);
+				config.barcount = bitsample/2;
+			}
+			updateConfig(currentSource);
+		});
+
+		$("#visualizationSelect").on('select-changed',(e)=>{
+			config.visualizationSelect = e.detail.value;
+			if(config.visualizationSelect !== 'solid'){
+				$("#solidOption").hide();
+			} else {
+				$("#solidOption").show();
+			}
+			updateConfig(currentSource);
+		})
+
+		$("#solidOption").on('change',(e)=>{
+			config.colorcode = $(e.currentTarget).val();
+			updateConfig(currentSource);
+		})
+
+		$("#spacing").on('change',(e)=>{
+			config.spacing = parseInt($(e.currentTarget).val());
+			updateConfig(currentSource);
+		})
 	});
 });
 

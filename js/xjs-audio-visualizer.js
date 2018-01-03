@@ -254,8 +254,6 @@ var XBCAudioVisualizer = function(config = {}) {
       start(smoothing,bins,stream){
         var sound = this.sound;
         this.input = this.analyser = window._audioContext.createAnalyser();
-        
-
         Object.defineProperties(this, {
           'bins': {
             get: function () {
@@ -593,18 +591,7 @@ var XBCAudioVisualizer = function(config = {}) {
         this.mediaStreamSource.connect(this.analyser);
       }
     }
-    // self.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
-    // self.analyser.fftSize = self._defaults.bitsample;
-    // let bufferLength = self.analyser.frequencyBinCount;
-    // let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
-    // self.mediaStreamSource.connect(self.analyser);
-    // self.analyser.getByteFrequencyData(frequencyArray);
 
-    // function draw(){
-    //   window.requestAnimationFrame(draw)
-    //   console.log(frequencyArray);
-    // }
-    // draw();
 
     
     var tmpPath = null;
@@ -614,19 +601,6 @@ var XBCAudioVisualizer = function(config = {}) {
     let calc2 = 0;
     let max = 0;
 
-    //let lineHeightSpectrum = (dataValue,height)
-
-    // var draw = ()=>{
-    //   window.requestAnimationFrame(draw);
-    //   var spectrum = fft.analyze();
-    //   var waveform = fft.waveform();
-    //   console.log('wave',waveform);
-    //   // //draw spectrum
-    //   // for (var i = 0; i < spectrum.length; i++) {
-    //   //   spectrum[i]
-    //   // }
-    // }
-    // draw();
     
     let loadUrl = null;
     let setType = 'script'
@@ -643,12 +617,6 @@ var XBCAudioVisualizer = function(config = {}) {
         async:false
       }
     }
-
-    // $.getScript(loadUrl, function(data,status,jqxhr){
-
-    // })
-    
-
 
     $.ajax(loadUrl)
     .then(data => {
