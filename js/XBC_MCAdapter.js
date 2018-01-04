@@ -12,38 +12,43 @@ class XBCMC_addapter {
     /* * Basic spectrum settings * */
     /* *************************** */
     // BASIC ATTRIBUTES
-    this.this.spectrumSize            = obj.spectrumSize            ==! undefined ? obj.spectrumSize            : 63; // number of bars in the spectrum
-    this.this.spectrumDimensionScalar = obj.spectrumDimensionScalar ==! undefined ? obj.spectrumDimensionScalar : 4.5; // the ratio of the spectrum width to its height
+    this.barLength            = obj.barLength            ==! undefined ? obj.barLength            : 63; // number of bars in the spectrum
+    this.spectrumRatioHeight = obj.spectrumRatioHeight ==! undefined ? obj.spectrumRatioHeight : 4.5; // the ratio of the spectrum width to its height
     this.spectrumSpacing              = obj.spectrumSpacing         ==! undefined ? obj.spectrumSpacing         : 7; // the separation of each spectrum bar in pixels at width=1920
-    this.this.maxFftSize              = obj.maxFftSize              ==! undefined ? obj.maxFftSize              : 16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
-    this.this.audioDelay              = obj.audioDelay              ==! undefined ? obj.audioDelay              : 0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
+    this.maxFftSize              = obj.maxFftSize              ==! undefined ? obj.maxFftSize              : 16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
+    this.audioDelay              = obj.audioDelay              ==! undefined ? obj.audioDelay              : 0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
+    this.spectrumWidth = (this.barWidth + this.spectrumSpacing) * spectrumSize - this.spectrumSpacing;
+    this.barWidth = (this.spectrumWidth + this.spectrumSpacing) / spectrumSize - this.spectrumSpacing;
     // BASIC TRANSFORMATION
-    this.this.spectrumStart           = obj.spectrumStart           ==! undefined ? obj.spectrumStart           : 4; // the first bin rendered in the spectrum
-    this.this.spectrumEnd             = obj.spectrumEnd             ==! undefined ? obj.spectrumEnd             : 1200; // the last bin rendered in the spectrum
-    this.this.spectrumScale           = obj.spectrumScale           ==! undefined ? obj.spectrumScale           : 2.5; // the logarithmic scale to adjust spectrum values to
+    this.spectrumStart           = obj.spectrumStart           ==! undefined ? obj.spectrumStart           : 4; // the first bin rendered in the spectrum
+    this.spectrumEnd             = obj.spectrumEnd             ==! undefined ? obj.spectrumEnd             : 1200; // the last bin rendered in the spectrum
+    this.spectrumScale           = obj.spectrumScale           ==! undefined ? obj.spectrumScale           : 2.5; // the logarithmic scale to adjust spectrum values to
     // EXPONENTIAL TRANSFORMATION
-    this.this.spectrumMaxExponent     = obj.spectrumMaxExponent     ==! undefined ? obj.spectrumMaxExponent     : 6; // the max exponent to raise spectrum values to
-    this.this.spectrumMinExponent     = obj.spectrumMinExponent     ==! undefined ? obj.spectrumMinExponent     : 3; // the min exponent to raise spectrum values to
-    this.this.spectrumExponentScale   = obj.spectrumExponentScale   ==! undefined ? obj.spectrumExponentScale   : 2; // the scale for spectrum exponents
+    this.spectrumMaxExponent     = obj.spectrumMaxExponent     ==! undefined ? obj.spectrumMaxExponent     : 6; // the max exponent to raise spectrum values to
+    this.spectrumMinExponent     = obj.spectrumMinExponent     ==! undefined ? obj.spectrumMinExponent     : 3; // the min exponent to raise spectrum values to
+    this.spectrumExponentScale   = obj.spectrumExponentScale   ==! undefined ? obj.spectrumExponentScale   : 2; // the scale for spectrum exponents
     // DROP SHADOW
 
     /* ********************** */
     /* * Smoothing settings * */
     /* ********************** */
-    this.this.smoothingPoints         = obj.smoothingPoints         ==! undefined ? obj.smoothingPoints         : 3; // points to use for algorithmic smoothing. Must be an odd number.
-    this.this.smoothingPasses         = obj.smoothingPasses         ==! undefined ? obj.smoothingPasses         : 1; // number of smoothing passes to execute
-    this.this.temporalSmoothing       = obj.temporalSmoothing       ==! undefined ? obj.temporalSmoothing       : 0.2; // passed directly to the JS analyzer node
-
+    this.smootPoints         = obj.smootPoints         ==! undefined ? obj.smootPoints         : 3; // points to use for algorithmic smoothing. Must be an odd number.
+    this.smoothSteps         = obj.smoothSteps         ==! undefined ? obj.smoothSteps         : 1; // number of smoothing passes to execute
+    this.temporalSmoothing       = obj.temporalSmoothing       ==! undefined ? obj.temporalSmoothing       : 0.2; // passed directly to the JS analyzer node
+    this.minProcessPeriod = 18; // ms between calls to the process function
     /* ************************************ */
     /* * Spectrum margin dropoff settings * */
     /* ************************************ */
     this.headMargin                   = obj.headMargin              ==! undefined ? obj.headMargin              : 7; // the size of the head margin dropoff zone
-    this.this.tailMargin              = obj.tailMargin              ==! undefined ? obj.tailMargin              : 0; // the size of the tail margin dropoff zone
-    this.this.minMarginWeight         = obj.minMarginWeight         ==! undefined ? obj.minMarginWeight         : 0.7; // the minimum weight applied to bars in the dropoff zone
+    this.tailMargin              = obj.tailMargin              ==! undefined ? obj.tailMargin              : 0; // the size of the tail margin dropoff zone
+    this.minMarginWeight         = obj.minMarginWeight         ==! undefined ? obj.minMarginWeight         : 0.7; // the minimum weight applied to bars in the dropoff zone
 
     this.resRatio                     = obj.resRatio                ==! undefined ? obj.resRatio                : $(window).width() / 1920;
+    this.blockTopPadding = 50 * this.resRatio;
     this.spectrumWidth                = obj.spectrumWidth           ==! undefined ? obj.spectrumWidth           : 1568 * this.resRatio
-    this.spectrumHeight               = obj.spectrumHeight          ==! undefined ? obj.spectrumHeight          : this.spectrumWidth / this.spectrumDimensionScalar;
+    this.spectrumHeight               = obj.spectrumHeight          ==! undefined ? obj.spectrumHeight          : this.spectrumWidth / this.spectrumRatioHeight;
+    this.lastProcess = Date.now();
+    this.lastSpectrum = [];
 
     /* *************************** */
     /* * Basic particle settings * */
@@ -69,11 +74,33 @@ class XBCMC_addapter {
     this.audioBuffer;
     this.bufferSource;
     this.dispBufferSource;
-    this.analyzer;
+    this.analyser;
     this.dispScriptProcessor;
     this.scriptProcessor;
-
+    this.bufferLoader;
+    this.bufferSource;
   }
+
+  connectStream(stream){
+    this.mediaStreamSource = this.context.createMediaStreamSource(stream);
+    this.mediaStreamSource.connect(this.analyser)
+  }
+
+  connectAudioStream(url){
+    this.bufferLoader = new BufferLoader(
+      this.context,
+      [url],
+      this.connectBuffer)
+  }
+
+  connectBuffer(bufferList){
+    this.mediaStreamSource = this.context.createBufferSource()
+    this.bufferSource =  bufferList[0];
+    this.bufferSource.connect(this.context.destination);
+    this.bufferSource.start(0)
+  }
+
+
 
   /**
    *             ##################### SPECTRUM ALGORYTHMS #################################
@@ -95,8 +122,8 @@ class XBCMC_addapter {
    */
   savitskyGolaySmooth(array) {
     var lastArray = array;
-    for (var pass = 0; pass < this.smoothingPasses; pass++) {
-      var sidePoints = Math.floor(this.smoothingPoints / 2);
+    for (var pass = 0; pass < this.smoothSteps; pass++) {
+      var sidePoints = Math.floor(this.smootPoints / 2);
       var cn = 1 / (2 * sidePoints + 1);
       var newArr = [];
       for (var i = 0; i < sidePoints; i++) {
@@ -116,9 +143,9 @@ class XBCMC_addapter {
   }
 
   transformToVisualBins(array) {
-    var newArray = new Uint8Array(this.spectrumSize);
-    for (var i = 0; i < this.spectrumSize; i++) {
-      var bin = Math.pow(i / this.spectrumSize, this.spectrumScale) * (this.spectrumEnd - this.spectrumStart) + this.spectrumStart;
+    var newArray = new Uint8Array(this.barLength);
+    for (var i = 0; i < this.barLength; i++) {
+      var bin = Math.pow(i / this.barLength, this.spectrumScale) * (this.spectrumEnd - this.spectrumStart) + this.spectrumStart;
       newArray[i] = array[Math.floor(bin) + this.spectrumStart] * (bin % 1) +
         array[Math.floor(bin + 1) + this.spectrumStart] * (1 - (bin % 1))
     }
@@ -127,7 +154,7 @@ class XBCMC_addapter {
 
   normalizeAmplitude(array) {
     var values = [];
-    for (var i = 0; i < this.spectrumSize; i++) {
+    for (var i = 0; i < this.barLength; i++) {
       if (begun) {
         values[i] = array[i] / 255 * this.spectrumHeight;
       } else {
@@ -184,12 +211,12 @@ class XBCMC_addapter {
 
   tailTransform(array) {
     var values = [];
-    for (var i = 0; i < this.spectrumSize; i++) {
+    for (var i = 0; i < this.barLength; i++) {
       var value = array[i];
       if (i < this.headMargin) {
         value *= this.headMarginSlope * Math.pow(i + 1, this.marginDecay) + this.minMarginWeight;
-      } else if (this.spectrumSize - i <= this.tailMargin) {
-        value *= this.tailMarginSlope * Math.pow(this.spectrumSize - i, this.marginDecay) + this.minMarginWeight;
+      } else if (this.barLength - i <= this.tailMargin) {
+        value *= this.tailMarginSlope * Math.pow(this.barLength - i, this.marginDecay) + this.minMarginWeight;
       }
       values[i] = value;
     }
@@ -199,7 +226,7 @@ class XBCMC_addapter {
   exponentialTransform(array) {
     var newArr = [];
     for (var i = 0; i < array.length; i++) {
-      var exp = (this.spectrumMaxExponent - this.spectrumMinExponent) * (1 - Math.pow(i / this.spectrumSize, this.spectrumExponentScale)) + this.spectrumMinExponent;
+      var exp = (this.spectrumMaxExponent - this.spectrumMinExponent) * (1 - Math.pow(i / this.barLength, this.spectrumExponentScale)) + this.spectrumMinExponent;
       newArr[i] = Math.max(Math.pow(array[i] / this.spectrumHeight, exp) * this.spectrumHeight, 1);
     }
     return newArr;
@@ -322,7 +349,7 @@ class XBCMC_addapter {
    *                            over time. Array length = bins.
    *
    */
-  waveform() {
+  getWaveform() {
     var bins, mode, normalArray;
     for (var i = 0; i < arguments.length; i++) {
       if (typeof arguments[i] === 'number') {
@@ -345,7 +372,7 @@ class XBCMC_addapter {
   }
 
   /**getTransformedSpectrum**/
-  spectrum(array) {
+  getSpectrum(array) {
     var newArr = normalizeAmplitude(array);
     newArr = averageTransform(newArr);
     newArr = tailTransform(newArr);
@@ -353,6 +380,103 @@ class XBCMC_addapter {
     newArr = exponentialTransform(newArr);
     return newArr;
   }
+
+  initSpectrumHandler() {
+    scriptProcessor.onaudioprocess = handleAudio;
+  }
+
+  handleAudio() {
+      // don't do anything if the audio is paused
+      if (!isPlaying) {
+          return;
+      }
+
+      var now = Date.now();
+      do { now = Date.now(); } while (now - this.lastProcess < this.minProcessPeriod);
+      this.lastProcess = Date.now();
+
+      checkHideableText();
+
+      var initialArray =  new Uint8Array(analyzer.frequencyBinCount);
+      analyzer.getByteFrequencyData(initialArray);
+      var array = transformToVisualBins(initialArray);
+      ctx.clearRect(-ctx.shadowBlur, -ctx.shadowBlur, this.spectrumWidth + ctx.shadowBlur, this.spectrumHeight + ctx.shadowBlur);
+      if (song.getGenre() == 'ayy lmao') {
+          handleRainbowSpectrum();
+      }
+      ctx.fillStyle = color; // bar color
+
+      drawSpectrum(array);
+  }
+
+  var spectrumAnimation = "phase_1";
+  var spectrumAnimationStart = 0;
+
+  drawSpectrum(array) {
+      if (isPlaying) {
+          updateParticleAttributes(array);
+
+          if (this.lastSpectrum.length == 1) {
+              this.lastSpectrum = array;
+          }
+      }
+
+      var drawArray = isPlaying ? array : this.lastSpectrum;
+      array = this.getSpectrum(array);
+
+      var now = Date.now();
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = spectrumShadowBlur;
+      ctx.shadowOffsetX = spectrumShadowOffsetX;
+      ctx.shadowOffsetY = spectrumShadowOffsetY;
+
+      if (spectrumAnimation == "phase_1") {
+          var ratio = (now - started) / 500;
+
+          ctx.fillRect(0, this.spectrumHeight - 2 * this.resRatio, (this.spectrumWidth/2) * ratio, 2 * this.resRatio);
+          ctx.fillRect(this.spectrumWidth - (this.spectrumWidth/2) * ratio, this.spectrumHeight - 2 * this.resRatio, (this.spectrumWidth/2) * ratio, 2 * this.resRatio);
+
+          if (ratio > 1) {
+              spectrumAnimation = "phase_2";
+              spectrumAnimationStart = now;
+          }
+      } else if (spectrumAnimation == "phase_2") {
+          var ratio = (now - spectrumAnimationStart) / 500;
+
+          ctx.globalAlpha = Math.abs(Math.cos(ratio*10));
+
+          ctx.fillRect(0, this.spectrumHeight - 2 * this.resRatio, this.spectrumWidth, 2 * this.resRatio);
+
+          ctx.globalAlpha = 1;
+
+          if (ratio > 1) {
+              spectrumAnimation = "phase_3";
+              spectrumAnimationStart = now;
+          }
+      } else if (spectrumAnimation == "phase_3") {
+          var ratio = (now - spectrumAnimationStart) / 1000;
+
+          // drawing pass
+          for (var i = 0; i < this.barLength; i++) {
+              var value = array[i];
+
+              // Used to smooth transiton between bar & full spectrum (lasts 1 sec)
+              if (ratio < 1) {
+                  value = value / (1 + 9 - 9 * ratio); 
+              }
+
+              if (value < 2 * this.resRatio) {
+                  value = 2 * this.resRatio;
+              }
+
+              ctx.fillRect(i * (this.barWidth + this.spectrumSpacing), this.spectrumHeight - value, this.barWidth, value, value);
+          }
+      }
+
+      ctx.clearRect(0, this.spectrumHeight, this.spectrumWidth, this.blockTopPadding);
+  }
+
 
 }
 
