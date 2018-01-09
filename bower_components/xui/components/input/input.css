@@ -32,7 +32,8 @@ input
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button
 { 
-	margin-top: 1px;
-	margin-right: 1px;
+	margin-top: -3px;
+	margin-bottom: -3px;
+	margin-right: 0px;
     cursor:pointer;
 }
