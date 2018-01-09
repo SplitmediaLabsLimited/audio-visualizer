@@ -1,9 +1,7 @@
-class XBCMC_addapter {
-  constructor(FFTArray) {
 
-  }
-
-  setup(obj){
+'use strict';
+class XBCMC_adapter {
+  constructor(obj){
     /* * Audio node settings * */
     /* *********************** */
     this.volumeStep = 0.05; // the step for each volume notch as a fraction of 1
@@ -12,73 +10,66 @@ class XBCMC_addapter {
     /* * Basic spectrum settings * */
     /* *************************** */
     // BASIC ATTRIBUTES
-    this.barLength            = obj.barLength            ==! undefined ? obj.barLength            : 63; // number of bars in the spectrum
-    this.spectrumRatioHeight = obj.spectrumRatioHeight ==! undefined ? obj.spectrumRatioHeight : 4.5; // the ratio of the spectrum width to its height
-    this.spectrumSpacing              = obj.spectrumSpacing         ==! undefined ? obj.spectrumSpacing         : 7; // the separation of each spectrum bar in pixels at width=1920
-    this.maxFftSize              = obj.maxFftSize              ==! undefined ? obj.maxFftSize              : 16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
-    this.audioDelay              = obj.audioDelay              ==! undefined ? obj.audioDelay              : 0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
-    this.spectrumWidth = (this.barWidth + this.spectrumSpacing) * spectrumSize - this.spectrumSpacing;
-    this.barWidth = (this.spectrumWidth + this.spectrumSpacing) / spectrumSize - this.spectrumSpacing;
-    // BASIC TRANSFORMATION
-    this.spectrumStart           = obj.spectrumStart           ==! undefined ? obj.spectrumStart           : 4; // the first bin rendered in the spectrum
-    this.spectrumEnd             = obj.spectrumEnd             ==! undefined ? obj.spectrumEnd             : 1200; // the last bin rendered in the spectrum
-    this.spectrumScale           = obj.spectrumScale           ==! undefined ? obj.spectrumScale           : 2.5; // the logarithmic scale to adjust spectrum values to
+    this.barLength                    = typeof obj.barLength             != "undefined" ? obj.barLength            : 63; // number of bars in the spectrum
+    this.spectrumRatioHeight          = typeof obj.spectrumRatioHeight   != "undefined" ? obj.spectrumRatioHeight  : 4.5; // the ratio of the spectrum width to its height
+    this.spectrumSpacing              = typeof obj.spectrumSpacing       != "undefined" ? obj.spectrumSpacing      : 7; // the separation of each spectrum bar in pixels at width=1920
+    this.maxFftSize                   = typeof obj.maxFftSize            != "undefined" ? obj.maxFftSize           : 16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
+    this.audioDelay                   = typeof obj.audioDelay            != "undefined" ? obj.audioDelay           : 0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
+    this.spectrumStart                = typeof obj.spectrumStart         != "undefined" ? obj.spectrumStart        : 4; // the first bin rendered in the spectrum
+    this.spectrumEnd                  = typeof obj.spectrumEnd           != "undefined" ? obj.spectrumEnd          : 1200; // the last bin rendered in the spectrum
+    this.spectrumScale                = typeof obj.spectrumScale         != "undefined" ? obj.spectrumScale        : 2.5; // the logarithmic scale to adjust spectrum values to
     // EXPONENTIAL TRANSFORMATION
-    this.spectrumMaxExponent     = obj.spectrumMaxExponent     ==! undefined ? obj.spectrumMaxExponent     : 6; // the max exponent to raise spectrum values to
-    this.spectrumMinExponent     = obj.spectrumMinExponent     ==! undefined ? obj.spectrumMinExponent     : 3; // the min exponent to raise spectrum values to
-    this.spectrumExponentScale   = obj.spectrumExponentScale   ==! undefined ? obj.spectrumExponentScale   : 2; // the scale for spectrum exponents
+    this.spectrumMaxExponent          = typeof obj.spectrumMaxExponent   != "undefined" ? obj.spectrumMaxExponent  : 6; // the max exponent to raise spectrum values to
+    this.spectrumMinExponent          = typeof obj.spectrumMinExponent   != "undefined" ? obj.spectrumMinExponent  : 3; // the min exponent to raise spectrum values to
+    this.spectrumExponentScale        = typeof obj.spectrumExponentScale != "undefined" ? obj.spectrumExponentScale: 2; // the scale for spectrum exponents
     // DROP SHADOW
 
     /* ********************** */
     /* * Smoothing settings * */
     /* ********************** */
-    this.smootPoints         = obj.smootPoints         ==! undefined ? obj.smootPoints         : 3; // points to use for algorithmic smoothing. Must be an odd number.
-    this.smoothSteps         = obj.smoothSteps         ==! undefined ? obj.smoothSteps         : 1; // number of smoothing passes to execute
-    this.temporalSmoothing       = obj.temporalSmoothing       ==! undefined ? obj.temporalSmoothing       : 0.2; // passed directly to the JS analyzer node
-    this.minProcessPeriod = 18; // ms between calls to the process function
+    this.smoothSteps                  = typeof obj.smoothSteps           != "undefined" ? obj.smoothSteps          : 1; // number of smoothing passes to execute
+    this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.2; // passed directly to the JS analyser node
+    this.smootPoints                  = typeof obj.smootPoints           != "undefined" ? obj.smootPoints          : 3; // points to use for algorithmic smoothing. Must be an odd number.
     /* ************************************ */
     /* * Spectrum margin dropoff settings * */
     /* ************************************ */
-    this.headMargin                   = obj.headMargin              ==! undefined ? obj.headMargin              : 7; // the size of the head margin dropoff zone
-    this.tailMargin              = obj.tailMargin              ==! undefined ? obj.tailMargin              : 0; // the size of the tail margin dropoff zone
-    this.minMarginWeight         = obj.minMarginWeight         ==! undefined ? obj.minMarginWeight         : 0.7; // the minimum weight applied to bars in the dropoff zone
-
-    this.resRatio                     = obj.resRatio                ==! undefined ? obj.resRatio                : $(window).width() / 1920;
-    this.blockTopPadding = 50 * this.resRatio;
-    this.spectrumWidth                = obj.spectrumWidth           ==! undefined ? obj.spectrumWidth           : 1568 * this.resRatio
-    this.spectrumHeight               = obj.spectrumHeight          ==! undefined ? obj.spectrumHeight          : this.spectrumWidth / this.spectrumRatioHeight;
-    this.lastProcess = Date.now();
-    this.lastSpectrum = [];
-
-    /* *************************** */
-    /* * Basic particle settings * */
-    /* *************************** */
-
-    /* ****************************** */
-    /* * Particle analysis settings * */
-    /* ****************************** */
-
+    this.headMargin                   = typeof obj.headMargin            != "undefined" ? obj.headMargin           : 7; // the size of the head margin dropoff zone
+    this.tailMargin                   = typeof obj.tailMargin            != "undefined" ? obj.tailMargin           : 0; // the size of the tail margin dropoff zone
+    this.minMarginWeight              = typeof obj.minMarginWeight       != "undefined" ? obj.minMarginWeight      : 1; // the minimum weight applied to bars in the dropoff zone
+    this.resRatio                     = typeof obj.resRatio              != "undefined" ? obj.resRatio             : 1;//window.innerWidth / 1920;
+    this.spectrumWidth                = typeof obj.spectrumWidth         != "undefined" ? obj.spectrumWidth        : window.innerWidth * this.resRatio
+    this.spectrumHeight               = typeof obj.spectrumHeight        != "undefined" ? obj.spectrumHeight       : window.innerHeight;//this.spectrumWidth / this.spectrumRatioHeight;
     /* ***************** */
-    /* * Misc settings * */
-    /* ***************** */
-    this.marginDecay = 1.6
-    this.headMarginSlope = (1 - this.minMarginWeight) / Math.pow(this.headMargin, this.marginDecay);
     
 
     /*************** 
      * Audio nodes *
      ***************/
-    this.context                      = obj.context                 ==! undefined ? obj.context                 : new AudioContext();
-    this.dispContext                  = obj.dispContext             ==! undefined ? obj.dispContext             : new AudioContext();
-    this.gainNode;
-    this.audioBuffer;
-    this.bufferSource;
-    this.dispBufferSource;
-    this.analyser;
-    this.dispScriptProcessor;
-    this.scriptProcessor;
-    this.bufferLoader;
-    this.bufferSource;
+    this.context                      = typeof obj.context               ==! "undefined" ? obj.context                 : new AudioContext();
+    this.dispContext                  = typeof obj.dispContext           ==! "undefined" ? obj.dispContext             : new AudioContext();
+    this.spectrumWidth                = (this.barWidth + this.spectrumSpacing) * this.spectrumSize - this.spectrumSpacing;
+    this.barWidth                     = (this.spectrumWidth + this.spectrumSpacing) / this.spectrumSize - this.spectrumSpacing;
+    this.minProcessPeriod             = 18; // ms between calls to the process function
+    this.blockTopPadding              = 50 * this.resRatio;
+    this.marginDecay                  = 1.6
+    this.headMarginSlope              = (1 - this.minMarginWeight) / Math.pow(this.headMargin, this.marginDecay);
+    this.lastProcess                  = [Date.now()];
+    this.bufferInterval               = 1024
+    this.gainNode                     = null;
+    this.audioBuffer                  = null;
+    this.bufferSource                 = null;
+    this.dispBufferSource             = null;
+    this.analyser                     = this.context.createAnalyser();
+    this.dispScriptProcessor          = null;
+    this.scriptProcessor              = null;
+    this.bufferLoader                 = null;
+    this.bufferSource                 = null;
+    this.freqDomain                   = null; //used for bars mainly
+    this.timeDomain                   = null; //used mostly for oscilloscopes
+    this.spectrumAnimation            = "phase_1";
+    this.spectrumAnimationStart       = 0;
+    this.ctx
+
   }
 
   connectStream(stream){
@@ -97,6 +88,7 @@ class XBCMC_addapter {
     this.mediaStreamSource = this.context.createBufferSource()
     this.bufferSource =  bufferList[0];
     this.bufferSource.connect(this.context.destination);
+    this.bufferSource.connect(this.analyser);
     this.bufferSource.start(0)
   }
 
@@ -107,7 +99,14 @@ class XBCMC_addapter {
    */
 
   smooth(array) {
-    return savitskyGolaySmooth(array);
+    return this.savitskyGolaySmooth(array);
+  }
+
+  refreshLastProcess(){
+    this.lastProcess.unshift(Date.now());
+    if(this.lastProcess.length > 2){
+      this.lastProcess.pop();
+    }
   }
 
   /**
@@ -155,11 +154,11 @@ class XBCMC_addapter {
   normalizeAmplitude(array) {
     var values = [];
     for (var i = 0; i < this.barLength; i++) {
-      if (begun) {
+      //if (begun) {
         values[i] = array[i] / 255 * this.spectrumHeight;
-      } else {
-        value = 1;
-      }
+      //} else {
+        // value = 1;
+      //}
     }
     return values;
   }
@@ -268,8 +267,41 @@ class XBCMC_addapter {
   }
 
   connect(buffer) {
-    this.mediaStreamSource = window._audioContext.createMediaStreamSource(stream);
-    this.mediaStreamSource.connect(this.analyser);
+    this.bufferSource = this.context.createMediaStreamSource(buffer);
+    this.bufferSource.connect(this.context.destination);
+    this.muteGainNode = this.context.createGain();
+    this.muteGainNode.gain.value = -1;
+    this.bufferSource.connect(this.muteGainNode);
+    this.muteGainNode.connect(this.context.destination);
+
+    this.gainNode = this.context.createGain();
+    this.gainNode.gain.value = 0;
+    this.delayNode = this.context.createDelay(1);
+    this.delayNode.delayTime.value = this.audioDelay;
+    this.bufferSource.connect(this.gainNode);
+    this.gainNode.connect(this.delayNode);
+    this.bufferSource.connect(this.delayNode);
+    this.delayNode.connect(this.context.destination);
+
+    this.scriptProcessor = this.context.createScriptProcessor(this.bufferInterval, 1, 1);
+    this.scriptProcessor.connect(this.context.destination);
+
+    this.analyser = this.context.createAnalyser();
+    this.analyser.connect(this.scriptProcessor);
+    this.analyser.smoothingTimeConstant = this.temporalSmoothing;
+    this.analyser.minDecibels = -100;
+    this.analyser.maxDecibels = -33;
+    try {
+        this.analyser.fftSize = this.maxFftSize; // ideal bin count
+        console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
+    } catch (ex) {
+        this.analyser.fftSize = 2048; // this will work for most if not all systems
+        console.log('Using fftSize of ' + this.analyser.fftSize);
+        alert('Could not set optimal fftSize! This may look a bit weird...');
+    }
+    this.bufferSource.connect(this.analyser);
+    this.initSpectrumHandler();
+
     /*
     bufferSource.buffer = buffer;
     bufferSource.start(0);
@@ -295,10 +327,10 @@ class XBCMC_addapter {
     setOnEnded();
     bufferSource.connect(context.destination);
 
-    muteGainNode = context.createGain();
-    muteGainNode.gain.value = -1;
-    bufferSource.connect(muteGainNode);
-    muteGainNode.connect(context.destination);
+    this.muteGainNode = context.createGain();
+    this.muteGainNode.gain.value = -1;
+    bufferSource.connect(this.muteGainNode);
+    this.muteGainNode.connect(context.destination);
 
     gainNode = context.createGain();
     gainNode.gain.value = 0;
@@ -314,43 +346,83 @@ class XBCMC_addapter {
     bufferSource.connect(delayNode);
     delayNode.connect(context.destination);
 
-    scriptProcessor = context.createScriptProcessor(bufferInterval, 1, 1);
+    scriptProcessor = context.createScriptProcessor(this.bufferInterval, 1, 1);
     scriptProcessor.connect(context.destination);
 
-    analyzer = context.createAnalyser();
-    analyzer.connect(scriptProcessor);
-    analyzer.smoothingTimeConstant = this.temporalSmoothing;
-    analyzer.minDecibels = -100;
-    analyzer.maxDecibels = -33;
+    analyser = context.createAnalyser();
+    analyser.connect(scriptProcessor);
+    analyser.smoothingTimeConstant = this.temporalSmoothing;
+    analyser.minDecibels = -100;
+    analyser.maxDecibels = -33;
     try {
-        analyzer.fftSize = this.maxFftSize; // ideal bin count
-        console.log('Using fftSize of ' + analyzer.fftSize + ' (woot!)');
+        analyser.fftSize = this.maxFftSize; // ideal bin count
+        console.log('Using fftSize of ' + analyser.fftSize + ' (woot!)');
     } catch (ex) {
-        analyzer.fftSize = 2048; // this will work for most if not all systems
-        console.log('Using fftSize of ' + analyzer.fftSize);
+        analyser.fftSize = 2048; // this will work for most if not all systems
+        console.log('Using fftSize of ' + analyser.fftSize);
         alert('Could not set optimal fftSize! This may look a bit weird...');
     }
-    bufferSource.connect(analyzer);
+    bufferSource.connect(analyser);
   }
 
-  /**
-   *  Returns an array of amplitude values (between -1.0 and +1.0) that represent
-   *  a snapshot of amplitude readings in a single buffer. Length will be
-   *  equal to bins (defaults to 1024). Can be used to draw the waveform
-   *  of a sound.
-   *
-   *  @method waveform
-   *  @param {Number} [bins]    Must be a power of two between
-   *                            16 and 1024. Defaults to 1024.
-   *  @param {String} [precision] If any value is provided, will return results
-   *                              in a Float32 Array which is more precise
-   *                              than a regular array.
-   *  @return {Array}  Array    Array of amplitude values (-1 to 1)
-   *                            over time. Array length = bins.
-   *
-   */
+  
+
+  timeToInt() {
+    if (this.timeDomain instanceof Uint8Array === false) {
+      this.timeDomain = new Uint8Array(this.analyser.frequencyBinCount);
+    }
+  }
+
+  /**getTransformedSpectrum**/
+  getSpectrum(array) {
+    var newArr = array;
+    newArr = this.normalizeAmplitude(array);
+    // console.log('normalizeAmplitude',newArr);
+    newArr = this.averageTransform(newArr);
+    // console.log('averageTransform',newArr);
+    newArr = this.tailTransform(newArr);
+    // console.log('tailTransform',newArr);
+    newArr = this.smooth(newArr);
+    // console.log('smooth',newArr);
+    newArr = this.exponentialTransform(newArr);
+    // console.log('exponentialTransform',newArr);
+    return newArr;
+  }
+
+  initSpectrumHandler() {
+    this.scriptProcessor.onaudioprocess = this.fetchSpectrum;
+  }
+
+  fetchSpectrum() {
+      this.refreshLastProcess();
+      var now = Date.now();
+      do { now = Date.now(); } while (now - this.lastProcess[0] < this.minProcessPeriod);
+      this.refreshLastProcess();
+      this.freqDomain =  new Uint8Array(this.analyser.frequencyBinCount);
+      this.analyser.getByteFrequencyData(this.freqDomain);
+      var array = this.transformToVisualBins(this.freqDomain);
+      this.freqDomain = array;
+      return this.drawSpectrum(this.freqDomain)
+  }
+
+  fetchWaveform() {
+      this.refreshLastProcess();
+      var now = Date.now();
+      do { now = Date.now(); } while (now - this.lastProcess[0] < this.minProcessPeriod);
+      this.refreshLastProcess();
+      this.freqDomain =  new Uint8Array(this.analyser.frequencyBinCount);
+      this.analyser.getByteFrequencyData(freqDomain);
+      var array = this.transformToVisualBins(freqDomain);
+      this.freqDomain = array;
+      return this.drawWaveform(array);
+  }
+
   getWaveform() {
     var bins, mode, normalArray;
+    this.refreshLastProcess();
+    var now = Date.now();
+    do { now = Date.now(); } while (now - this.lastProcess[0] < this.minProcessPeriod);
+
     for (var i = 0; i < arguments.length; i++) {
       if (typeof arguments[i] === 'number') {
         bins = arguments[i];
@@ -360,8 +432,7 @@ class XBCMC_addapter {
         mode = arguments[i];
       }
     }
-   
-    timeToInt(this, this.timeDomain);
+    this.timeToInt();
     this.analyser.getByteTimeDomainData(this.timeDomain);
     var normalArray = new Array();
     for (var j = 0; j < this.timeDomain.length; j++) {
@@ -371,114 +442,50 @@ class XBCMC_addapter {
     return normalArray;
   }
 
-  /**getTransformedSpectrum**/
-  getSpectrum(array) {
-    var newArr = normalizeAmplitude(array);
-    newArr = averageTransform(newArr);
-    newArr = tailTransform(newArr);
-    newArr = smooth(newArr);
-    newArr = exponentialTransform(newArr);
-    return newArr;
-  }
-
-  initSpectrumHandler() {
-    scriptProcessor.onaudioprocess = handleAudio;
-  }
-
-  handleAudio() {
-      // don't do anything if the audio is paused
-      if (!isPlaying) {
-          return;
-      }
-
-      var now = Date.now();
-      do { now = Date.now(); } while (now - this.lastProcess < this.minProcessPeriod);
-      this.lastProcess = Date.now();
-
-      checkHideableText();
-
-      var initialArray =  new Uint8Array(analyzer.frequencyBinCount);
-      analyzer.getByteFrequencyData(initialArray);
-      var array = transformToVisualBins(initialArray);
-      ctx.clearRect(-ctx.shadowBlur, -ctx.shadowBlur, this.spectrumWidth + ctx.shadowBlur, this.spectrumHeight + ctx.shadowBlur);
-      if (song.getGenre() == 'ayy lmao') {
-          handleRainbowSpectrum();
-      }
-      ctx.fillStyle = color; // bar color
-
-      drawSpectrum(array);
-  }
-
-  var spectrumAnimation = "phase_1";
-  var spectrumAnimationStart = 0;
 
   drawSpectrum(array) {
-      if (isPlaying) {
-          updateParticleAttributes(array);
-
-          if (this.lastSpectrum.length == 1) {
-              this.lastSpectrum = array;
-          }
-      }
-
-      var drawArray = isPlaying ? array : this.lastSpectrum;
-      array = this.getSpectrum(array);
-
+      var array = this.getSpectrum(array);
       var now = Date.now();
+      var rArray = [];
+      var ratio = null;
 
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-      ctx.shadowBlur = spectrumShadowBlur;
-      ctx.shadowOffsetX = spectrumShadowOffsetX;
-      ctx.shadowOffsetY = spectrumShadowOffsetY;
 
-      if (spectrumAnimation == "phase_1") {
-          var ratio = (now - started) / 500;
-
-          ctx.fillRect(0, this.spectrumHeight - 2 * this.resRatio, (this.spectrumWidth/2) * ratio, 2 * this.resRatio);
-          ctx.fillRect(this.spectrumWidth - (this.spectrumWidth/2) * ratio, this.spectrumHeight - 2 * this.resRatio, (this.spectrumWidth/2) * ratio, 2 * this.resRatio);
-
+      if (this.spectrumAnimation == "phase_1") {
+          ratio = (now - this.lastProcess[0]) / 500;
           if (ratio > 1) {
-              spectrumAnimation = "phase_2";
-              spectrumAnimationStart = now;
+              this.spectrumAnimation = "phase_2";
+              this.spectrumAnimationStart = now;
           }
-      } else if (spectrumAnimation == "phase_2") {
-          var ratio = (now - spectrumAnimationStart) / 500;
-
-          ctx.globalAlpha = Math.abs(Math.cos(ratio*10));
-
-          ctx.fillRect(0, this.spectrumHeight - 2 * this.resRatio, this.spectrumWidth, 2 * this.resRatio);
-
-          ctx.globalAlpha = 1;
-
+      } else if (this.spectrumAnimation == "phase_2") {
+          ratio = (now - this.spectrumAnimationStart) / 500;
           if (ratio > 1) {
-              spectrumAnimation = "phase_3";
-              spectrumAnimationStart = now;
+              this.spectrumAnimation = "phase_3";
+              this.spectrumAnimationStart = now;
           }
-      } else if (spectrumAnimation == "phase_3") {
-          var ratio = (now - spectrumAnimationStart) / 1000;
+      } else if (this.spectrumAnimation == "phase_3") {
+          ratio = (now - this.spectrumAnimationStart) / 1000;
 
           // drawing pass
           for (var i = 0; i < this.barLength; i++) {
-              var value = array[i];
+              rArray[i] = array[i];
 
               // Used to smooth transiton between bar & full spectrum (lasts 1 sec)
               if (ratio < 1) {
-                  value = value / (1 + 9 - 9 * ratio); 
+                  rArray[i] = rArray[i] / (1 + 9 - 9 * ratio); 
               }
 
-              if (value < 2 * this.resRatio) {
-                  value = 2 * this.resRatio;
+              if (rArray[i] < 2 * this.resRatio) {
+                  rArray[i] = 2 * this.resRatio;
               }
 
-              ctx.fillRect(i * (this.barWidth + this.spectrumSpacing), this.spectrumHeight - value, this.barWidth, value, value);
+              //ctx.fillRect(i * (this.barWidth + this.spectrumSpacing), this.spectrumHeight - value, this.barWidth, value, value);
           }
+          
       }
-
-      ctx.clearRect(0, this.spectrumHeight, this.spectrumWidth, this.blockTopPadding);
+      if(!rArray.length){
+        rArray = array;
+      }
+      return rArray;
+      // ctx.clearRect(0, this.spectrumHeight, this.spectrumWidth, this.blockTopPadding);
   }
-
-
 }
-
-
-initGui(song);
