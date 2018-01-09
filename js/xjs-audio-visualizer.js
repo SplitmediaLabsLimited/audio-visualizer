@@ -255,12 +255,15 @@ var XBCAudioVisualizer = function(config = {}) {
           self._defaults.spacing = parseInt(self._defaults.spacing,10);
           self._defaults.sensitivity = parseInt(self._defaults.sensitivity,10);
           self._defaults.smoothing = parseFloat(self._defaults.smoothing);
+          
           var mca = new XBCMC_adapter({
-            context : new AudioContext(),
-            smoothing : self._defaults.smoothing,
+            context : window._audioContext,
+            temporalSmoothing : self._defaults.smoothing,
             maxFftSize : self._defaults.bitsample,
             barLength : self._defaults.barcount,
             spectrumSpacing : self._defaults.spacing,
+            sensitivity : self._defaults.sensitivity / 100,
+            smoothPoints : self._defaults.smoothPoints
           });
           mca.connectStream(stream);
           let resizeHandler = () => {
@@ -309,272 +312,7 @@ var XBCAudioVisualizer = function(config = {}) {
           console.error(e.message+'\n'+e.stack);
           cancelAnimationFrame(animation);        
         }
-
-
-
-
-
-
-        /*try{
-          let remoteFn = self.testRemoteFn(strData);
-          var fft = new xbcfft(self._defaults.smoothing,self._defaults.bitsample);
-          fft.connect(stream);
-          let resizeHandler = () => {
-            let w = window.innerWidth;
-            let h = window.innerHeight;
-            let cx = w / 2;
-            let cy = h / 2;
-            self.visualizer.canvas.width = w;
-            self.visualizer.canvas.height = h;
-            self.canvas.width = w;
-            self.canvas.height = h
-            $("#visualizer").css({
-              width:w+"px",
-              height:h+"px"
-            })
-          };
-
-          $(window).on('resize',function(){
-            resizeHandler();  
-          })
-          var draw = ()=>{
-            self._defaults.barcount = parseInt(self._defaults.barcount,10);
-            self._defaults.spacing = parseInt(self._defaults.spacing,10);
-            self._defaults.sensitivity = parseInt(self._defaults.sensitivity,10);
-            self._defaults.smoothing = parseFloat(self._defaults.smoothing);
-            self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
-            animation = window.requestAnimationFrame(draw);
-            var spectrum = fft.analyze();
-            var waveform = fft.waveform();
-            remoteFn(
-              self.canvas,
-              self.visualizer,
-              spectrum,
-              waveform,
-              self._defaults
-            );
-          }
-          draw();
-        } catch(e){
-          console.error(e.message+'\n'+e.stack);
-          cancelAnimationFrame(animation);        
-        }*/
-      // })
-      // .fail((msg)=>{
-      //   console.error(msg);
-      // })
     })
-
-
-
-
-    /**
-    //#region  
-    
-    var fft,audioAnalysis,cnv,sac;
-    var p5C = function(p,container,extrajuice){
-      console.log(extrajuice);
-      var audioAnalysis = new p5.AudioIn();
-      p.setup = ()=>{
-        cnv = p.createCanvas(1,1);
-        sac = window._audioContext.createMediaStreamSource(stream);
-        var getAudioIdx = async ()=>{
-          var idx = await audioDeviceIdx();
-          return idx;
-        };
-        var audioDeviceIdx = () =>{
-          return new Promise( (resolve,reject) =>{
-            audioAnalysis.getSources((sourceList)=>{
-              let idx = 0;
-              for(let i = 0; i < sourceList.length; i++){
-                if(self._defaults.audioDeviceId === sourceList[i].deviceId){
-                  idx = i;
-                  break;
-                }
-              }
-              console.log(sourceList[idx].deviceId);
-              resolve({idx:idx,device:sourceList[idx]});
-            });
-          });
-        };
-        getAudioIdx().then(data => {
-          
-          
-          //audioAnalysis.setSource(data.idx);
-          audioAnalysis.start();
-          fft = new p5.FFT(0.99,16);
-          
-          //fft.setInput(audioAnalysis);
-          
-
-          // // audioAnalysis.connect();
-          // audioAnalysis.start(function(data){
-          //   console.log('success',data)
-          // },function(error){
-          //   console.log('error',error)
-          // })
-          // console.log('idx',data)
-          // console.log(audioAnalysis);
-        })
-        .catch(e =>{
-          console.log('error',e);
-        })
-
-      };
-
-      p.draw = ()=>{
-        if(fft !== undefined){
-          var spectrum = fft.analyze();
-          console.log('spectrum',spectrum)
-        }
-      }
-      //#endregion
-      **/
-    
-/*    var p5C = function(p,container,extrajuice){
-      var mic, fft;
-
-      p.setup = function () {
-        p.createCanvas(1920,1080);
-        p.noFill();
-        mic = new p5.AudioIn();
-        mic.start();
-        fft = new p5.FFT(0.8);
-        fft.setInput(mic);
-        var getAudioIdx = async ()=>{
-          var idx = await audioDeviceIdx();
-          return idx;
-        };
-        var audioDeviceIdx = () =>{
-          return new Promise( (resolve,reject) =>{
-            mic.getSources((sourceList)=>{
-              let idx = 0;
-              for(let i = 0; i < sourceList.length; i++){
-                if(self._defaults.audioDeviceId === sourceList[i].deviceId){
-                  idx = i;
-                  break;
-                }
-              }
-              console.log(sourceList[idx].deviceId);
-              resolve({idx:idx,device:sourceList[idx]});
-            });
-          });
-        };
-        getAudioIdx().then(data => {
-          
-          mic.setSource(data.idx);
-          
-         
-        })
-        .catch(e =>{
-          console.log('error',e);
-        })
-
-        
-        
-      }
-
-      p.draw = function () {
-        p.background(200);
-
-        var spectrum = fft.analyze();
-
-        p.beginShape();
-        for (i = 0; i<spectrum.length; i++) {
-          p.vertex(i, p.map(spectrum[i], 0, 255, p.height, 0) );
-        }
-        p.endShape();
-      }
-      
-    };
-    
-    var myP5 = new p5(p5C,'dataSource',self._defaults);*/
-    
-    
-    
-    
-    
-
-    
-    //console.log(_audioIdx);
-    //audioAnalysis.setSource(idx);
-    
-    //self.analyser.fftSize = self._defaults.bitsample;
-
-
-    // var XBC_avz = {
-    //   canvas: self.canvas,
-    //   visualizer: self.visualizer,
-    //   analyser: self.analyser,
-    //   fftsize: self._defaults.bitsample,
-    //   stream: stream,
-    //   mediaStreamSource: self.mediaStreamSource,
-    //   fps: self._defaults.fps,
-    //   displayfps: self._defaults.displayfps
-    // }
-  
-    // let resizeHandler = () => {
-    //   let w = window.innerWidth;
-    //   let h = window.innerHeight;
-    //   let cx = w / 2;
-    //   let cy = h / 2;
-    //   self.visualizer.canvas.width = w;
-    //   self.visualizer.canvas.height = h;
-    //   self.canvas.width = w;
-    //   self.canvas.height = h
-    // };
-
-    // /**
-    //  * [we prepare the stream by connecting the audio stream to the needed analyzer]
-    //  */
-
-    // resizeHandler();
-
-    // /**
-    //  * we clear the frame
-    //  */
-    // self.clearCanvas();
-
-    // /**
-    //  * [then we prepare a audioprocessor to fetch the frequencyArray to be drawn]
-    //  */
-    // let bufferLength = self.analyser.frequencyBinCount;
-    // let frequencyArray = new Uint8Array(self.analyser.frequencyBinCount);
-
-
-    // window.addEventListener('resize', resizeHandler, false)
-
-    // /**
-    //  * [and we draw what comes in the audio process]
-    //  */
-
-    // let fps = 0;
-    // let lastRun;
-    // let fpInterval, startTime, now, then, elapsed;
-
-    // function showFPS() {
-    //   self.visualizer.fillStyle = "red";
-    //   self.visualizer.font = "normal 16pt Arial";
-    //   self.visualizer.fillText(Math.floor(fps) + " fps", 10, 26);
-    // }
-    // fpsInterval = 1000 / self._defaults.fps;
-    // then = Date.now();
-    // startTime = then;
-
-    // /**
-    //  * [draw is a function that renders in the canvas the data to be visualized]
-    //  */
-  
-
-
-    /*
-   
-    */
-
-    
-
-  
-    
   }
   /**
    * [soundNotAllowed throws an exception when the audio is not being handled properly (wrong device, system error, etc)]
@@ -675,7 +413,6 @@ var XBCAudioVisualizer = function(config = {}) {
      * then we pass the arguments to the _default attribute to be shared on the class...
      */
     self._defaults = $.extend({}, defaults, self.config);
-    console.log('defaults',self._defaults);
 
     var self = this;
     if (document.getElementById(self._defaults.visualizer) === null) console.error('The visualizer container was not found into the HTML DOM');

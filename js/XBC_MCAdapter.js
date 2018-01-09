@@ -10,6 +10,7 @@ class XBCMC_adapter {
     /* * Basic spectrum settings * */
     /* *************************** */
     // BASIC ATTRIBUTES
+    this.sensitivity                  = typeof obj.sensitivity           != "undefined" ? obj.sensitivity          : 0.5; //amplifies the signal making low frequencies to be more visible
     this.barLength                    = typeof obj.barLength             != "undefined" ? obj.barLength            : 50;//63; // number of bars in the spectrum
     this.spectrumRatioHeight          = typeof obj.spectrumRatioHeight   != "undefined" ? obj.spectrumRatioHeight  : 4.5;//4.5; // the ratio of the spectrum width to its height
     this.spectrumSpacing              = typeof obj.spectrumSpacing       != "undefined" ? obj.spectrumSpacing      : 7;//7; // the separation of each spectrum bar in pixels at width=1920
@@ -28,8 +29,8 @@ class XBCMC_adapter {
     /* * Smoothing settings * */
     /* ********************** */
     this.smoothSteps                  = typeof obj.smoothSteps           != "undefined" ? obj.smoothSteps          : 2;//1; // number of smoothing passes to execute
-    this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.2;//0.2; // passed directly to the JS analyser node
-    this.smootPoints                  = typeof obj.smootPoints           != "undefined" ? obj.smootPoints          : 1.5;//3; // points to use for algorithmic smoothing. Must be an odd number.
+    this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.7;//0.2; // passed directly to the JS analyser node
+    this.smoothPoints                 = typeof obj.smoothPoints          != "undefined" ? obj.smoothPoints         : 10;//3; // points to use for algorithmic smoothing. Must be an odd number.
     /* ************************************ */
     /* * Spectrum margin dropoff settings * */
     /* ************************************ */
@@ -39,17 +40,11 @@ class XBCMC_adapter {
     this.resRatio                     = typeof obj.resRatio              != "undefined" ? obj.resRatio             : 1; // 1;//window.innerWidth / 1920;
     this.spectrumWidth                = typeof obj.spectrumWidth         != "undefined" ? obj.spectrumWidth        : window.innerWidth * this.resRatio
     this.spectrumHeight               = typeof obj.spectrumHeight        != "undefined" ? obj.spectrumHeight       : window.innerHeight;//this.spectrumWidth / this.spectrumRatioHeight;
-    /* ***************** */
-    
-
-    /*************** 
-     * Audio nodes *
-     ***************/
-    this.context                      = typeof obj.context               ==! "undefined" ? obj.context                 : new AudioContext();
-    this.dispContext                  = typeof obj.dispContext           ==! "undefined" ? obj.dispContext             : new AudioContext();
+    this.context                      = typeof obj.context               != "undefined" ? obj.context              : window._audioContext;
+    this.dispContext                  = typeof obj.dispContext           != "undefined" ? obj.dispContext          : window._audioContext;
     this.spectrumWidth                = (this.barWidth + this.spectrumSpacing) * this.spectrumSize - this.spectrumSpacing;
     this.barWidth                     = (this.spectrumWidth + this.spectrumSpacing) / this.spectrumSize - this.spectrumSpacing;
-    this.minProcessPeriod             = 18; // ms between calls to the process function
+    this.minProcessPeriod             = 0; // ms between calls to the process function
     this.marginDecay                  = 100
     this.headMarginSlope              = (1 - this.minMarginWeight) / Math.pow(this.headMargin, this.marginDecay);
     this.lastProcess                  = [Date.now()];
@@ -69,11 +64,86 @@ class XBCMC_adapter {
     this.spectrumAnimationStart       = 0;
     this.ctx
 
+
   }
 
   connectStream(stream){
+    /* 
     this.mediaStreamSource = this.context.createMediaStreamSource(stream);
-    this.mediaStreamSource.connect(this.analyser)
+    this.mediaStreamSource.connect(this.context.destination);
+    */
+    this.bufferSource = this.context.createMediaStreamSource(stream);
+    this.analyser.smoothingTimeConstant = this.temporalSmoothing;
+    this.analyser.minDecibels = -100;
+    this.analyser.maxDecibels = -33;
+    this.bufferSource.connect(this.analyser);
+    //this.muteGainNode = this.context.createGain();
+    //this.muteGainNode.gain.value = -1;
+    // this.scriptProcessor = this.context.createScriptProcessor(stream);
+    // this.scriptProcessor.connect(this.context.destination);
+    // this.analyser = this.context.createAnalyser();
+    // this.analyser.connect(this.scriptProcessor);
+    // this.analyser.smoothingTimeConstant = 0.85;
+    // this.analyser.minDecibels = -100;
+    // this.analyser.maxDecibels = -33;
+    // try {
+    //     this.analyser.fftSize = this.maxFftSize; // ideal bin count
+    //     console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
+    // } catch (ex) {
+    //     this.analyser.fftSize = 2048; // this will work for most if not all systems
+    //     console.log('Using fftSize of ' + this.analyser.fftSize);
+    //     alert('Could not set optimal fftSize! This may look a bit weird...');
+    // }
+    this.bufferSource.connect(this.analyser);
+  }
+  connect(buffer) {
+    this.bufferSource = this.context.createMediaStreamSource(buffer);
+    this.bufferSource.connect(this.context.destination);
+    this.muteGainNode = this.context.createGain();
+    this.muteGainNode.gain.value = -1;
+    this.bufferSource.connect(this.muteGainNode);
+    this.muteGainNode.connect(this.context.destination);
+
+    this.gainNode = this.context.createGain();
+    this.gainNode.gain.value = 0;
+    this.delayNode = this.context.createDelay(1);
+    this.delayNode.delayTime.value = this.audioDelay;
+    this.bufferSource.connect(this.gainNode);
+    this.gainNode.connect(this.delayNode);
+    this.bufferSource.connect(this.delayNode);
+    this.delayNode.connect(this.context.destination);
+
+    this.scriptProcessor = this.context.createScriptProcessor(this.bufferInterval, 1, 1);
+    this.scriptProcessor.connect(this.context.destination);
+
+    this.analyser = this.context.createAnalyser();
+    this.analyser.connect(this.scriptProcessor);
+    this.analyser.smoothingTimeConstant = 0.85;
+    this.analyser.minDecibels = -100;
+    this.analyser.maxDecibels = -33;
+    try {
+        this.analyser.fftSize = this.maxFftSize; // ideal bin count
+        console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
+    } catch (ex) {
+        this.analyser.fftSize = 2048; // this will work for most if not all systems
+        console.log('Using fftSize of ' + this.analyser.fftSize);
+        alert('Could not set optimal fftSize! This may look a bit weird...');
+    }
+    this.bufferSource.connect(this.analyser);
+    this.initSpectrumHandler();
+
+    /*
+    bufferSource.buffer = buffer;
+    bufferSource.start(0);
+    $('#status').fadeOut(); // will first fade out the loading animation
+    $('#preloader').fadeOut('slow'); // will fade out the grey DIV that covers the website.
+    $("body").addClass("playing");
+    $('#spectrum_preloader').hide();
+    $('#loading-info').fadeOut(); // fades out the loading text
+      isPlaying = true;
+      begun = true;
+      started = Date.now();
+    */
   }
 
   connectAudioStream(url){
@@ -121,7 +191,7 @@ class XBCMC_adapter {
   savitskyGolaySmooth(array) {
     var lastArray = array;
     for (var pass = 0; pass < this.smoothSteps; pass++) {
-      var sidePoints = Math.floor(this.smootPoints / 2);
+      var sidePoints = Math.floor(this.smoothPoints / 2);
       var cn = 1 / (2 * sidePoints + 1);
       var newArr = [];
       for (var i = 0; i < sidePoints; i++) {
@@ -265,55 +335,7 @@ class XBCMC_adapter {
       return (range - Math.pow(Math.random() * Math.pow(range, bias), 1 / bias));
   }
 
-  connect(buffer) {
-    this.bufferSource = this.context.createMediaStreamSource(buffer);
-    this.bufferSource.connect(this.context.destination);
-    this.muteGainNode = this.context.createGain();
-    this.muteGainNode.gain.value = -1;
-    this.bufferSource.connect(this.muteGainNode);
-    this.muteGainNode.connect(this.context.destination);
 
-    this.gainNode = this.context.createGain();
-    this.gainNode.gain.value = 0;
-    this.delayNode = this.context.createDelay(1);
-    this.delayNode.delayTime.value = this.audioDelay;
-    this.bufferSource.connect(this.gainNode);
-    this.gainNode.connect(this.delayNode);
-    this.bufferSource.connect(this.delayNode);
-    this.delayNode.connect(this.context.destination);
-
-    this.scriptProcessor = this.context.createScriptProcessor(this.bufferInterval, 1, 1);
-    this.scriptProcessor.connect(this.context.destination);
-
-    this.analyser = this.context.createAnalyser();
-    this.analyser.connect(this.scriptProcessor);
-    this.analyser.smoothingTimeConstant = this.temporalSmoothing;
-    this.analyser.minDecibels = -100;
-    this.analyser.maxDecibels = -33;
-    try {
-        this.analyser.fftSize = this.maxFftSize; // ideal bin count
-        console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
-    } catch (ex) {
-        this.analyser.fftSize = 2048; // this will work for most if not all systems
-        console.log('Using fftSize of ' + this.analyser.fftSize);
-        alert('Could not set optimal fftSize! This may look a bit weird...');
-    }
-    this.bufferSource.connect(this.analyser);
-    this.initSpectrumHandler();
-
-    /*
-    bufferSource.buffer = buffer;
-    bufferSource.start(0);
-    $('#status').fadeOut(); // will first fade out the loading animation
-    $('#preloader').fadeOut('slow'); // will fade out the grey DIV that covers the website.
-    $("body").addClass("playing");
-    $('#spectrum_preloader').hide();
-    $('#loading-info').fadeOut(); // fades out the loading text
-      isPlaying = true;
-      begun = true;
-      started = Date.now();
-    */
-  }
 
 
   /**
@@ -375,6 +397,8 @@ class XBCMC_adapter {
   /**getTransformedSpectrum**/
   getSpectrum(array) {
     var newArr = array;
+    newArr = this.amplify(newArr);
+
     newArr = this.normalizeAmplitude(array);
     // console.log('normalizeAmplitude',newArr);
     newArr = this.averageTransform(newArr);
@@ -386,6 +410,13 @@ class XBCMC_adapter {
     newArr = this.exponentialTransform(newArr);
     // console.log('exponentialTransform',newArr);
     return newArr;
+  }
+
+  amplify(array){
+    for(let i = 0; i < array.length; i++){
+      array[i] = array[i] * (this.sensitivity * 2);
+    }
+    return array;
   }
 
   initSpectrumHandler() {

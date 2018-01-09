@@ -2,7 +2,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   /** The following is an attempt to emulate the behavior of the bars in monstercat */
   let dataset = spectrum;
   let maximumLength = dataset.length;
-  let sensitivity = (defaults.sensitivity*0.01)*2;
+  let sensitivity = defaults.sensitivity;
   let barcount = defaults.barcount+1;
   let spacing = defaults.spacing;
   
@@ -13,7 +13,6 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
   let max = 0;
 
   let compare = 0;
-  console.log(dataset.length);
   for (var i = 0; i < dataset.length; i++) {
     ///dataset[i] = dataset[i] * ((defaults.sensitivity / 100)*2);
     if(dataset[i] > window.innerHeight){
@@ -32,8 +31,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
     } else {
       visualizer.fillStyle = defaults.colorcode;
     }
-    visualizer.fillRect(counter*(usableSpace+spacing),canvas.height - dataset[i],usableSpace, dataset[i]);
+    visualizer.fillRect(counter*(usableSpace+spacing),canvas.height - dataset[i],usableSpace-spacing, dataset[i]);
     counter++;
   }
-
 }

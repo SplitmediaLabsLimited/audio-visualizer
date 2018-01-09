@@ -66,6 +66,12 @@ $(()=>{
 		}
 		$("#smoothing").val(config.smoothing);
 
+    if(typeof config.smoothPoints === 'undefined'){
+      firstTime = true;
+      config.smoothPoints = 0;
+    }
+    $("#smoothPoints").val(config.smoothPoints);
+
 		/** Bit Sample */
 		if(typeof config.bitsample === 'undefined'){
 			firstTime = true;
@@ -128,8 +134,14 @@ $(()=>{
 	 * @param  {Object} item [the XBC reference to the source iten]
 	 */
 	updateConfig = (item = {})=>{
-		console.log(config);
-		item.requestSaveConfig(config);
+		item.requestSaveConfig(config)
+    .then(()=>{
+      setTimeout(()=>{
+        item.refresh();
+        //item.applyConfig(config);
+        
+      },100);
+    })
 	},
 	/**
 	 * [description]
@@ -254,10 +266,19 @@ $(()=>{
 			s = s[0]+s[1]+s[2]+s[3]+s[4];
 			s = parseFloat(s);
 			config.smoothing = s;
-			$("#smoothing::shadow #inputText").val(s)
-			console.log(config.smoothing);
+			$("#smoothing::shadow #inputText").val(s);
 			updateConfig(currentSource);
 		});
+
+    $("#smoothPoints").on('change', (e)=>{
+      let s = $(e.currentTarget).val();
+      s = s.toString().split('');
+      s = s[0]+s[1]+s[2]+s[3];
+      s = parseFloat(s);
+      config.smoothPoints = s;
+      $("#smoothPoints::shadow #inputText").val(s)
+      updateConfig(currentSource);
+    });
 
 		$("#bitsample").on('select-changed', (e)=>{
 			config.bitsample = parseInt(e.detail.value);
@@ -295,7 +316,7 @@ $(()=>{
 			updateConfig(currentSource);
 		})
 
-		$("#solidOption").on('change',(e)=>{
+		$("#solidOption").on('change click',(e)=>{
 			config.colorcode = $(e.currentTarget).val();
 			updateConfig(currentSource);
 		})
