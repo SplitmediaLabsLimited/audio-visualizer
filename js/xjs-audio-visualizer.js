@@ -258,12 +258,9 @@ var XBCAudioVisualizer = function(config = {}) {
           var mca = new XBCMC_adapter({
             context : new AudioContext(),
             smoothing : self._defaults.smoothing,
-            bitsample : self._defaults.bitsample,
+            maxFftSize : self._defaults.bitsample,
             barLength : self._defaults.barcount,
             spectrumSpacing : self._defaults.spacing,
-            resRatio : 1,
-            spectrumWidth : window.innerWidth,
-            spectrumHeight : window.innerHeight
           });
           mca.connectStream(stream);
           let resizeHandler = () => {

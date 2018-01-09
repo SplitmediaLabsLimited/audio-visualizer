@@ -10,33 +10,33 @@ class XBCMC_adapter {
     /* * Basic spectrum settings * */
     /* *************************** */
     // BASIC ATTRIBUTES
-    this.barLength                    = typeof obj.barLength             != "undefined" ? obj.barLength            : 63; // number of bars in the spectrum
-    this.spectrumRatioHeight          = typeof obj.spectrumRatioHeight   != "undefined" ? obj.spectrumRatioHeight  : 4.5; // the ratio of the spectrum width to its height
-    this.spectrumSpacing              = typeof obj.spectrumSpacing       != "undefined" ? obj.spectrumSpacing      : 7; // the separation of each spectrum bar in pixels at width=1920
-    this.maxFftSize                   = typeof obj.maxFftSize            != "undefined" ? obj.maxFftSize           : 16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
-    this.audioDelay                   = typeof obj.audioDelay            != "undefined" ? obj.audioDelay           : 0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
-    this.spectrumStart                = typeof obj.spectrumStart         != "undefined" ? obj.spectrumStart        : 4; // the first bin rendered in the spectrum
-    this.spectrumEnd                  = typeof obj.spectrumEnd           != "undefined" ? obj.spectrumEnd          : 1200; // the last bin rendered in the spectrum
-    this.spectrumScale                = typeof obj.spectrumScale         != "undefined" ? obj.spectrumScale        : 2.5; // the logarithmic scale to adjust spectrum values to
+    this.barLength                    = typeof obj.barLength             != "undefined" ? obj.barLength            : 50;//63; // number of bars in the spectrum
+    this.spectrumRatioHeight          = typeof obj.spectrumRatioHeight   != "undefined" ? obj.spectrumRatioHeight  : 4.5;//4.5; // the ratio of the spectrum width to its height
+    this.spectrumSpacing              = typeof obj.spectrumSpacing       != "undefined" ? obj.spectrumSpacing      : 7;//7; // the separation of each spectrum bar in pixels at width=1920
+    this.maxFftSize                   = typeof obj.maxFftSize            != "undefined" ? obj.maxFftSize           : 1024;//16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
+    this.audioDelay                   = typeof obj.audioDelay            != "undefined" ? obj.audioDelay           : 0.2;//0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
+    this.spectrumStart                = typeof obj.spectrumStart         != "undefined" ? obj.spectrumStart        : 4;//4; // the first bin rendered in the spectrum
+    this.spectrumEnd                  = typeof obj.spectrumEnd           != "undefined" ? obj.spectrumEnd          : 1024;//1200; // the last bin rendered in the spectrum
+    this.spectrumScale                = typeof obj.spectrumScale         != "undefined" ? obj.spectrumScale        : 2.5; //2.5; // the logarithmic scale to adjust spectrum values to
     // EXPONENTIAL TRANSFORMATION
-    this.spectrumMaxExponent          = typeof obj.spectrumMaxExponent   != "undefined" ? obj.spectrumMaxExponent  : 6; // the max exponent to raise spectrum values to
-    this.spectrumMinExponent          = typeof obj.spectrumMinExponent   != "undefined" ? obj.spectrumMinExponent  : 3; // the min exponent to raise spectrum values to
-    this.spectrumExponentScale        = typeof obj.spectrumExponentScale != "undefined" ? obj.spectrumExponentScale: 2; // the scale for spectrum exponents
+    this.spectrumMaxExponent          = typeof obj.spectrumMaxExponent   != "undefined" ? obj.spectrumMaxExponent  : 3;// 8; // the max exponent to raise spectrum values to
+    this.spectrumMinExponent          = typeof obj.spectrumMinExponent   != "undefined" ? obj.spectrumMinExponent  : 3;// 3; // the min exponent to raise spectrum values to
+    this.spectrumExponentScale        = typeof obj.spectrumExponentScale != "undefined" ? obj.spectrumExponentScale: 5;// 2; // the scale for spectrum exponents
     // DROP SHADOW
 
     /* ********************** */
     /* * Smoothing settings * */
     /* ********************** */
-    this.smoothSteps                  = typeof obj.smoothSteps           != "undefined" ? obj.smoothSteps          : 1; // number of smoothing passes to execute
-    this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.2; // passed directly to the JS analyser node
-    this.smootPoints                  = typeof obj.smootPoints           != "undefined" ? obj.smootPoints          : 3; // points to use for algorithmic smoothing. Must be an odd number.
+    this.smoothSteps                  = typeof obj.smoothSteps           != "undefined" ? obj.smoothSteps          : 3;//1; // number of smoothing passes to execute
+    this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.75;//0.2; // passed directly to the JS analyser node
+    this.smootPoints                  = typeof obj.smootPoints           != "undefined" ? obj.smootPoints          : 3;//3; // points to use for algorithmic smoothing. Must be an odd number.
     /* ************************************ */
     /* * Spectrum margin dropoff settings * */
     /* ************************************ */
-    this.headMargin                   = typeof obj.headMargin            != "undefined" ? obj.headMargin           : 7; // the size of the head margin dropoff zone
-    this.tailMargin                   = typeof obj.tailMargin            != "undefined" ? obj.tailMargin           : 0; // the size of the tail margin dropoff zone
-    this.minMarginWeight              = typeof obj.minMarginWeight       != "undefined" ? obj.minMarginWeight      : 1; // the minimum weight applied to bars in the dropoff zone
-    this.resRatio                     = typeof obj.resRatio              != "undefined" ? obj.resRatio             : 1;//window.innerWidth / 1920;
+    this.headMargin                   = typeof obj.headMargin            != "undefined" ? obj.headMargin           : 7; // 7; // the size of the head margin dropoff zone
+    this.tailMargin                   = typeof obj.tailMargin            != "undefined" ? obj.tailMargin           : 0; // 0; // the size of the tail margin dropoff zone
+    this.minMarginWeight              = typeof obj.minMarginWeight       != "undefined" ? obj.minMarginWeight      : 1; // 1; // the minimum weight applied to bars in the dropoff zone
+    this.resRatio                     = typeof obj.resRatio              != "undefined" ? obj.resRatio             : 1; // 1;//window.innerWidth / 1920;
     this.spectrumWidth                = typeof obj.spectrumWidth         != "undefined" ? obj.spectrumWidth        : window.innerWidth * this.resRatio
     this.spectrumHeight               = typeof obj.spectrumHeight        != "undefined" ? obj.spectrumHeight       : window.innerHeight;//this.spectrumWidth / this.spectrumRatioHeight;
     /* ***************** */
@@ -49,7 +49,7 @@ class XBCMC_adapter {
     this.dispContext                  = typeof obj.dispContext           ==! "undefined" ? obj.dispContext             : new AudioContext();
     this.spectrumWidth                = (this.barWidth + this.spectrumSpacing) * this.spectrumSize - this.spectrumSpacing;
     this.barWidth                     = (this.spectrumWidth + this.spectrumSpacing) / this.spectrumSize - this.spectrumSpacing;
-    this.minProcessPeriod             = 18; // ms between calls to the process function
+    this.minProcessPeriod             = 10; // ms between calls to the process function
     this.blockTopPadding              = 50 * this.resRatio;
     this.marginDecay                  = 1.6
     this.headMarginSlope              = (1 - this.minMarginWeight) / Math.pow(this.headMargin, this.marginDecay);
@@ -68,7 +68,7 @@ class XBCMC_adapter {
     this.timeDomain                   = null; //used mostly for oscilloscopes
     this.spectrumAnimation            = "phase_1";
     this.spectrumAnimationStart       = 0;
-    this.ctx
+    this.ctx;
 
   }
 
