@@ -30,7 +30,7 @@ class XBCMC_adapter {
     /* ********************** */
     this.smoothSteps                  = typeof obj.smoothSteps           != "undefined" ? obj.smoothSteps          : 2;//1; // number of smoothing passes to execute
     this.temporalSmoothing            = typeof obj.temporalSmoothing     != "undefined" ? obj.temporalSmoothing    : 0.7;//0.2; // passed directly to the JS analyser node
-    this.smoothPoints                 = typeof obj.smoothPoints          != "undefined" ? obj.smoothPoints         : 10;//3; // points to use for algorithmic smoothing. Must be an odd number.
+    this.smoothPoints                 = typeof obj.smoothPoints           != "undefined" ? obj.smoothPoints        : 1.5;//3; // points to use for algorithmic smoothing. Must be an odd number.
     /* ************************************ */
     /* * Spectrum margin dropoff settings * */
     /* ************************************ */

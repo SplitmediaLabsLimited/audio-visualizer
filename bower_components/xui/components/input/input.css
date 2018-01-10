@@ -35,5 +35,14 @@ input[type=number]::-webkit-outer-spin-button
 	margin-top: -3px;
 	margin-bottom: -3px;
 	margin-right: 0px;
-    cursor:pointer;
+	cursor:pointer;
+	background : #393939;
+	color: #666666;
+}
+
+
+input[type=number]::-webkit-inner-spin-button:hover,
+input[type=number]::-webkit-outer-spin-button:hover
+{
+	
 }
