@@ -31,18 +31,36 @@ input
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button
-{ 
-	margin-top: -3px;
-	margin-bottom: -3px;
-	margin-right: 0px;
-	cursor:pointer;
-	background : #393939;
-	color: #666666;
-}
-
-
-input[type=number]::-webkit-inner-spin-button:hover,
-input[type=number]::-webkit-outer-spin-button:hover
 {
-	
+    -webkit-appearance: none;
+    margin-top: -5px;
+    margin-bottom: -3px;
+    opacity: 1;
+    width: 22px;
+    background-image: url("../assets/images/arrowup.png"),
+        url("../assets/images/arrowdown.png");
+    background-position: 6px 5px,
+        6px 14px;
+    background-repeat: no-repeat;
+}
+input[type=number]:focus::-webkit-inner-spin-button,
+input[type=number]:focus::-webkit-outer-spin-button,
+input[type=number]:hover::-webkit-inner-spin-button,
+input[type=number]:hover::-webkit-outer-spin-button,
+input[type=number][active]::-webkit-inner-spin-button,
+input[type=number][active]::-webkit-outer-spin-button
+{
+    background-image: url("../assets/images/arrowup_hover.png"),
+        url("../assets/images/arrowdown_hover.png");
+}
+input[type=number][disabled]::-webkit-inner-spin-button,
+input[type=number][disabled]::-webkit-outer-spin-button
+{
+    background-image: url("../assets/images/arrowup_disabled.png"),
+        url("../assets/images/arrowdown_disabled.png");
+}
+input[type=number][disabled]
+{
+    background-color: #111;
+    color: #292929;
 }
