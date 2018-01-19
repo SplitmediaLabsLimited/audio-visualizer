@@ -169,7 +169,7 @@ $(()=>{
     temporalSmoothing.addEventListener('change',function(){
       let s = this.value;
       s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3]+s[4];
+      s = s[0]+s[1]+s[2]+s[3];
       s = parseFloat(s);
       config.temporalSmoothing = s;
       console.log('event-temporalSmoothing',{value:s});
@@ -178,7 +178,7 @@ $(()=>{
     smoothPoints.addEventListener('change',function(){
       let s = this.value;
       s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3]+s[4];
+      s = s[0]+s[1]+s[2]+s[3];
       s = parseFloat(s);
       config.smoothPoints = s;
       console.log('event-smoothPoints',{value:s});

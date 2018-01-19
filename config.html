@@ -39,7 +39,7 @@
                       </div>
                   </i>
                 </div>
-                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="sensitivity" value="1" min="0.01" max="100" step="0.01"></xui-slider></div>
+                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="sensitivity" value="1" min="0" max="100" step="0.05"></xui-slider></div>
               </div>
               <div class="row">
                 <div class="row__item"><label>Smooth Delay</label>
@@ -54,7 +54,7 @@
                       </div>
                   </i>
                 </div>
-                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="temporalSmoothing" min="0" max="0.999" step="0.001"></xui-slider></div>
+                <div class="row__item row__item--double"><xui-slider type="number" class="spinnerWidth" id="temporalSmoothing" min="0" max="0.99" step="0.05"></xui-slider></div>
               </div>
               <div class="row">
                 <div class="row__item"><label>Smooth Data</label>
@@ -69,7 +69,7 @@
                       </div>
                   </i>
                 </div>
-                <div class="row__item row__item--double"><xui-slider type="number" type="number" class="spinnerWidth" id="smoothPoints" min="0" max="10" step="0.001"></xui-slider></div>
+                <div class="row__item row__item--double"><xui-slider type="number" type="number" class="spinnerWidth" id="smoothPoints" min="0" max="10" step="1"></xui-slider></div>
               </div>
               <div class="row">
                     <div class="row__item" ><label for="">Bit Sample</label>
@@ -79,7 +79,7 @@
                           Bit Sample
                         </div>
                         <div class="text">
-                          A number value for the frequency resolution of the output data. Increasing this value will add more cpu load.
+                          A number value for the frequency resolution of the output data. Increasing this value will add more cpu load. You may have to reload the source to apply changes.
                         </div>
                       </div>
                   </i>
@@ -91,6 +91,8 @@
                         <xui-option value="1024">1024</xui-option>
                         <xui-option value="2048">2048</xui-option>
                         <xui-option value="4096">4096</xui-option>
+                        <xui-option value="8192">8192</xui-option>
+                        <xui-option value="16384">16384</xui-option>
                       </xui-select>
                     </div>
                   </div>

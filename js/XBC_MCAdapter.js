@@ -73,8 +73,8 @@ class XBCMC_adapter {
     this.bufferSource = this.context.createMediaStreamSource(stream);
     this.analyser.smoothingTimeConstant = this.temporalSmoothing; 
     this.analyser.minDecibels = -100;
-    this.analyser.maxDecibels = -33;
-    //this.bufferSource.connect(this.analyser);
+    this.analyser.maxDecibels = -66;
+    this.analyser.fftSize = this.maxFftSize;
     this.gainNode = this.context.createGain();
     this.gainNode.gain.value = this.sensitivity;
     this.bufferSource.connect(this.gainNode);
@@ -123,14 +123,9 @@ class XBCMC_adapter {
     this.analyser.smoothingTimeConstant = 0.85;
     this.analyser.minDecibels = -100;
     this.analyser.maxDecibels = -33;
-    try {
-        this.analyser.fftSize = this.maxFftSize; // ideal bin count
-        console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
-    } catch (ex) {
-        this.analyser.fftSize = 2048; // this will work for most if not all systems
-        console.log('Using fftSize of ' + this.analyser.fftSize);
-        alert('Could not set optimal fftSize! This may look a bit weird...');
-    }
+    this.analyser.fftSize = this.maxFftSize; // ideal bin count
+    console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
+    
     this.bufferSource.connect(this.analyser);
     this.initSpectrumHandler();
 
@@ -376,15 +371,11 @@ class XBCMC_adapter {
     analyser.connect(scriptProcessor);
     analyser.smoothingTimeConstant = this.temporalSmoothing;
     analyser.minDecibels = -100;
-    analyser.maxDecibels = -33;
-    try {
-        analyser.fftSize = this.maxFftSize; // ideal bin count
-        console.log('Using fftSize of ' + analyser.fftSize + ' (woot!)');
-    } catch (ex) {
-        analyser.fftSize = 2048; // this will work for most if not all systems
-        console.log('Using fftSize of ' + analyser.fftSize);
-        alert('Could not set optimal fftSize! This may look a bit weird...');
-    }
+    analyser.maxDecibels = -0.1;
+    
+    analyser.fftSize = this.maxFftSize; // ideal bin count
+    console.log('Using fftSize of ' + analyser.fftSize + ' (woot!)');
+    
     bufferSource.connect(analyser);
   }
 
@@ -403,7 +394,7 @@ class XBCMC_adapter {
 
     newArr = this.normalizeAmplitude(array);
     // console.log('normalizeAmplitude',newArr);
-//    newArr = this.averageTransform(newArr);
+    newArr = this.averageTransform(newArr);
     // console.log('averageTransform',newArr);
     newArr = this.tailTransform(newArr);
     // console.log('tailTransform',newArr);
@@ -411,11 +402,7 @@ class XBCMC_adapter {
     // console.log('smooth',newArr);
     newArr = this.exponentialTransform(newArr);
     // console.log('exponentialTransform',newArr);
-    let x = [];
-    for (let i = 0; i < this.barLength; i++){
-      x[i] = newArr[i];
-    }
-    return x;
+    return newArr;
   }
 
   amplify(array){

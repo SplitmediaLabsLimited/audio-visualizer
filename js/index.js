@@ -1,6 +1,7 @@
 (function(){
   'use strict';
   const xjs = require('xjs');
+  let counter = 0;
 
   xjs.ready()
   .then(xjs.Item.getItemList)
@@ -9,6 +10,7 @@
     const currentItem = item[0];
 
     const _setData = function(data){
+
       currentItem.saveConfig(data);
       _updateGraphic(data);
     }
@@ -20,30 +22,41 @@
     }
 
     const _updateGraphic = function(data){
+      if(!data.hasOwnProperty('initialized')){
+        var _left = 0.05,
+        _top = 0.4,
+        _right = 0.95,
+        _bottom = 0.6;
+        var rect = xjs.Rectangle.fromCoordinates(_left,_top,_right,_bottom);
+        currentItem.setPosition(rect);
+        data.initialized = true;
+      }
       console.log('data.sensitivity',data)
       try{
         window.mca.gainNode.gain.value = data.sensitivity;  
+        window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
+        window.mca.smoothPoints = data.smoothPoints;
+        window.mca.barLength = parseInt(data.barcount,10);
+        window.mca.analyser.fftSize = parseInt(data.bitsample,10);
+        window.xbca._defaults.barcount = parseInt(data.barcount,10);
+        window.xbca._defaults.spacing = parseInt(data.spacing,10);
+        window.xbca._defaults.visualizationSelect = data.visualizationSelect;
+        window.xbca._defaults.colorcode = data.colorcode;
       } catch (e) {
-        console.log(e);
+        setTimeout(function(){
+          if (!window.mca.hasOwnProperty('gainNode')){
+            _updateGraphic(data);
+            console.log('trying to get gainNode');
+          }  
+        },100)
       }
-      window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
-      window.mca.smoothPoints = data.smoothPoints;
-      window.mca.barLength = parseInt(data.barcount,10);
-      window.mca.analyser.fftSize = parseInt(data.bitsample,10);
-      window.xbca._defaults.barcount = parseInt(data.barcount,10);
-      window.xbca._defaults.spacing = parseInt(data.spacing,10);
-      window.xbca._defaults.visualizationSelect = data.visualizationSelect;
-      window.xbca._defaults.colorcode = data.colorcode;
-
+      
+      
     }
-    var _left = 0.05,
-    _top = 0.4,
-    _right = 0.95,
-    _bottom = 0.6;
-    var rect = xjs.Rectangle.fromCoordinates(_left,_top,_right,_bottom);
-    currentItem.setPosition(rect);
+    
+    
     currentItem.setEnhancedResizeEnabled(true);
-    currentItem.setKeepAspectRatio(false)
+    currentItem.setKeepAspectRatio(false);
     currentItem.loadConfig().then(_savedData);
 
     sourceWindow.on('save-config', _setData);

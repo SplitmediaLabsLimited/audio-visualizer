@@ -321,7 +321,8 @@ var XBCAudioVisualizer = function(config = {}) {
    * @return {[type]}       [description]
    */
   this.soundNotAllowed = (error) => {
-    console.error('there was an error fetching audio:'+error);
+    console.error('there was an error fetching audio, setting defaults:'+error);
+    this.setXBCAudioDeviceAsSource('');
   },
   /**
    * [preloadRemoteScript will include the required scripts defined by user on the header file]
@@ -454,6 +455,7 @@ var XBCAudioVisualizer = function(config = {}) {
     /** 
      * ready to go!
      */
+    console.log(self._defaults.audioDeviceId);
     self.setXBCAudioDeviceAsSource(self._defaults.audioDeviceId)
   }
 
