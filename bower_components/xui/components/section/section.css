@@ -4,7 +4,6 @@
 	display: block;
 	position: relative;
 	padding-top: 1.6em;
-	user-select: none;
 }
 
 :host label
@@ -13,7 +12,6 @@
 	font-size: 1.2em;
 	position: absolute;
 	top: 0;
-	user-select: none;
 }
 
 #content
@@ -21,5 +19,4 @@
 	border: 0.1em solid #555;
 	padding: 0.5em;
 	min-height: 1em;
-	user-select: none;
 }

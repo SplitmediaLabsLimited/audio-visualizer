@@ -1,12 +1,14 @@
-function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
+function remoteFn(canvas,visualizer,spectrum,waveform){
   /** The following is an attempt to emulate the behavior of the bars in monstercat */
   let dataset = spectrum;
+  var defaults = window.xbca._defaults
+  //console.log('dataset length',canvas.width);
   let maximumLength = dataset.length;
-  let sensitivity = defaults.sensitivity;
-  let barcount = defaults.barcount+1;
+  //let sensitivity = defaults.sensitivity;
+  let barcount = defaults.barcount;
   let spacing = defaults.spacing;
   
-  let usableSpace = canvas.width/(barcount+spacing);
+  let usableSpace = canvas.width/(barcount);
   let _barHeight = null;
   let counter = 0;
   let gradientObject = null;
@@ -14,14 +16,15 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
 
   let compare = 0;
   for (var i = 0; i < dataset.length; i++) {
+    usableSpace = canvas.width/(barcount);
     ///dataset[i] = dataset[i] * ((defaults.sensitivity / 100)*2);
     if(dataset[i] > window.innerHeight){
       dataset[i] = window.innerHeight;
     }
-    if(dataset[i] < 5){
-      dataset[i] = 5;
+    if(dataset[i] < 1){
+      dataset[i] = 1;
     }
-    if(defaults.visualizationSelect === 'flames'){
+    if(window.xbca._defaults.visualizationSelect === 'flames'){
       gradientObject = visualizer.createLinearGradient(0,canvas.height - dataset[i],0,canvas.height);
       gradientObject.addColorStop('0', '#ff0a0a')
       gradientObject.addColorStop('0.2', '#f1ff0a')
@@ -29,9 +32,9 @@ function remoteFn(canvas,visualizer,spectrum,waveform,defaults){
       gradientObject.addColorStop('1', '#050d61')
       visualizer.fillStyle = gradientObject;
     } else {
-      visualizer.fillStyle = defaults.colorcode;
+      visualizer.fillStyle = window.xbca._defaults.colorcode;
     }
-    visualizer.fillRect(counter*(usableSpace+spacing),canvas.height - dataset[i],usableSpace-spacing, dataset[i]);
+    visualizer.fillRect(counter*(usableSpace),canvas.height - dataset[i],usableSpace-spacing, dataset[i]);
     counter++;
   }
 }

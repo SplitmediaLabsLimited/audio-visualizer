@@ -30,7 +30,8 @@
 			placeholder: { value: '', reflect: true },
             min:         { value: "", reflect: true },
             step:         { value: "", reflect: true },
-            max:         { value: "", reflect: true }
+            max:         { value: "", reflect: true },
+            disabled: { value: false, reflect: true }
 		},
         
         valueChanged: function(oldValue, newValue)
@@ -67,8 +68,14 @@
             }
         },
 
-        onKeyDown : function(event)
+        disabledChanged: function()
         {
+            this.$.input.disabled = this.disabled;
+        },
+
+        onKeyDown : function(event)
+        {           
+
             if(this.type === "number")
             {
                 if (event.which === 38 || event.which === 40)
@@ -84,6 +91,7 @@
 
         onKeyPress : function(event)
         {
+            
             if(this.type === "number")
             {
                 var acceptKeyPress =
@@ -123,7 +131,8 @@
         },
 
         onMouseDown : function(event)
-        {
+        {            
+
             var input = event.target;
             // revert to old value if invalid number
             if(input.type === "number" && event.which == 1)
@@ -135,13 +144,14 @@
         },
 
         onInputBlur: function(event)
-        {
+        {           
+
             this.value = this.$.input.value;
             this.fire("inputblur");
         },
 
         setFocus: function()
-        {
+        {           
             this.$.input.focus();
         },
 
@@ -152,6 +162,7 @@
             this.$.input.addEventListener("keypress", this.onKeyPress.bind(this));
             this.$.input.addEventListener("keydown", this.onKeyDown.bind(this));
             this.$.input.addEventListener("blur", this.onInputBlur.bind(this));
+            this.$.input.addEventListener("dragstart", function(event){ event.preventDefault(); return false });
         }
 	});
 })();

@@ -19,6 +19,11 @@
 
 	    ready: function() {
 	    	this.textContent = this.textContent.trim();
+	    },
+
+	    onHover: function() {
+	    	this.fire('clearselected');
+	    	this.classList.add('selected');
 	    }
 	});
 })();

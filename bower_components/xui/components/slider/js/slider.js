@@ -114,18 +114,41 @@
             this.fire("change");
         },
 
+        disabledChanged: function()
+        {
+            this.$.inputText.disabled = this.disabled;
+            this.$.inputRange.disabled = this.disabled; 
+
+            if (this.disabled)
+            {
+                this.$.slider.setAttribute('disabled', '');                
+            }
+            else
+            {
+                this.$.slider.removeAttribute('disabled');                
+            }
+
+        },
+
         onInputChange: function(event)
         {
             event.stopPropagation();
+            this.fire("change");
         },
 
         onInputDragstart: function(event)
         {
             event.preventDefault();
+            this.fire("set");
         },
 
         startDecrement: function(event)
         {
+
+            if(this.disabled) {
+                return;
+            }
+
             if (event.which != 1)
             {
                 return;
@@ -166,6 +189,11 @@
 
         startIncrement: function(event)
         {
+
+            if(this.disabled) {
+                return;
+            }
+
             if (event.which != 1)
             {
                 return;

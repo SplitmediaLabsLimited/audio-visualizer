@@ -30,6 +30,7 @@
         this.id         = props.id || '';
         this.sceneID    = props.sceneID || 0;
         this.viewID     = props.viewID || 0;
+        this.trackTitle = props.scrcaptrackwindowtitle;
     }
 
     //------------------------------------------------------------------

@@ -11,7 +11,10 @@
             this.$.options.classList.add("disabled");  
         }
         
-        
+        this.$.options.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+            return false;
+        });
     }
     
     /**
@@ -67,6 +70,12 @@
         
         selectOptions: function(event)
         {
+            if (event.which != undefined && event.which == 1 && event.ctrlKey)
+            {
+                event.preventDefault();
+                return;
+            }
+
             var items = this.$.options.getElementsByTagName("a");
             for(var i = 0; i < items.length; i++) 
             {

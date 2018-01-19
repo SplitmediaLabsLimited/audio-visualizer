@@ -1,17 +1,16 @@
 :host
 {
 	display: block;
-	line-height: 14px;
+	line-height: 1.8em;
 	white-space: nowrap;
 	font-size: 11px;
 	padding: 0 0.5em;
 	text-overflow: ellipsis;
   	overflow: hidden;
-	  cursor: pointer;
-	  user-select: none;
+  	cursor: pointer;
 }
 
-:host(:hover)
+:host(.selected)
 {
 	background-color: #043151;
 	color: #EEE;

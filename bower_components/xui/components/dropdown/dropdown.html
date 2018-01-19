@@ -8,11 +8,12 @@
             <li>
                 <a id="select" 
                    href="#" 
+                   on-dragstart="{{ onAnchorDragStart }}"
                    on-click="{{ XUIDropdownClicked }}" 
                    >{{ selected }}</a>
 			    <div id="options">
                     <template repeat="{{ option in list }}">
-                        <a href="#" value="{{ option.id }}" on-click="{{ selectOptions }}" on-mouseover="{{ onMouseOver }}" tabindex="-1">{{ option.name }}</a>        
+                        <a href="#" value="{{ option.id }}" on-click="{{ selectOptions }}" on-dragstart="{{ onAnchorDragStart }}" on-mouseover="{{ onMouseOver }}" tabindex="-1">{{ option.name }}</a>        
                     </template>
 			     </div>
 			</li>

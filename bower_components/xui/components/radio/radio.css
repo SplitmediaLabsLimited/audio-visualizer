@@ -11,7 +11,7 @@ input:not(:disabled),
 input:not(:disabled) + label
 {
     cursor: pointer;
-    color: #EEE;
+    color: #CCCCCC;
 }
 
 input
@@ -22,17 +22,19 @@ input
     height: 17px;
     margin: 4px;
     background-image: url("./images/radio.png");
+    outline: none;
 }
 
 input:focus,
 input:hover
 {
-    background-position: 0 -17px;
+    background-position: 0 -18px;
+    outline: none;
 }
 
 input:disabled
 {
-    background-position: 0 -34px;
+    background-position: 0 -36px;
 }
 
 input:checked

@@ -31,6 +31,14 @@
     <script src="./js/XBC_MCAdapter.js"></script>
     <script src="./js/xjs-audio-visualizer.js"></script>
     <script src="./js/index.js"></script>
-    <script>require('xjs').ready();</script>
+    <script>
+        require('xjs').ready();
+        function checkMCA(){
+            console.log(window.mca);
+        }
+        function remoteData(data){
+            console.log([data,window.mca]);
+        }
+    </script>
 </body>
 </html>

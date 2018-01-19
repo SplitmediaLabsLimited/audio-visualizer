@@ -115,7 +115,7 @@
                     self.computeScrollTop(viewportOffset, newSelected.offsetHeight + parseFloat(getComputedStyle(newSelected).marginTop) + parseFloat(getComputedStyle(newSelected).marginBottom));
                 }
                 event.stopPropagation();
-                event.preventDefault();                
+                event.preventDefault();
             }
             else if (event.which == 36) // home
             {
@@ -132,7 +132,7 @@
                     self.computeScrollTop(viewportOffset, newSelected.offsetHeight + parseFloat(getComputedStyle(newSelected).marginTop) + parseFloat(getComputedStyle(newSelected).marginBottom));
                 }
                 event.stopPropagation();
-                event.preventDefault();                
+                event.preventDefault();
             }
             else if (event.which == 38) // up
             {
@@ -182,7 +182,7 @@
                     }
                 }
                 event.stopPropagation();
-                event.preventDefault();                
+                event.preventDefault();
             }
             else if (event.which == 13) // enter
             {
@@ -196,29 +196,29 @@
             else if (event.keyCode >= 65 && event.keyCode <= 90)
             //cycle between values starting with letter
             {
-                
+
             }
         };
-    
+
     function XUIDropdown()
     {
         this.$.options.hidden = true;
-        this.updateOptions();   
+        this.updateOptions();
     }
-    
+
     /**
     * Creates a dropdown
     *
     * @class  XUIDropdown
     * @constructor
-    * 
+    *
     * @example
     *     <xui-dropdown label="Dropdown Label"></xui-dropdown>
     */
     XUIDropdown.prototype =
     {
        ready: XUIDropdown,
-        
+
         publish:
         {
             /**
@@ -228,7 +228,7 @@
              * @type        String
              */
             label           : { value: "", reflect: true },
-       
+
             /**
              * Disables/enables the dropdown
              *
@@ -237,7 +237,16 @@
              * @default     false
              */
             disabled        : { value: false, reflect: true },
-            
+
+            /**
+             * Default value for the dropdown
+             *
+             * @attribute   default
+             * @type        string
+             * @default     ""
+             */
+            defaultString   : { value: "", reflect: true },
+
             /**
              * Sets selected Option
              *
@@ -245,7 +254,7 @@
              * @type        String
              */
             selected        : { value: "", reflect: true },
-            
+
             /**
              * Sets selected Value
              *
@@ -253,7 +262,7 @@
              * @type        String
              */
             value   : { value: "", reflect: true },
-            
+
             /**
              * Sets the available options
              *
@@ -263,16 +272,11 @@
             optionlist      : { value: [], reflect: true }
         },
 
-        valueChanged: function(oldValue, newValue)
+        computeSelected: function(value)
         {
-            if (oldValue == newValue)
-            {
-                return;
-            }
-
-            var selector = "#options a[value='" + newValue + "']";
+            var selector = "#options a[value='" + value + "']";
             var selected = this.$.dropdown.querySelector(selector);
-
+            this.selected = "";
             if (selected != null)
             {
                 this.selected = selected.textContent;
@@ -281,12 +285,32 @@
             else
             {
                 for (var i = this.optionlist.length - 1; i >= 0; i--) {
-                    if (this.optionlist[i].id == newValue)
+                    if (this.optionlist[i].id == value)
                     {
                         this.selected = this.optionlist[i].name;
                     }
-                };
+                }
             }
+            if (this.selected === "" && this.defaultString !== "")
+            {
+                try
+                {
+                    var defaultObj = JSON.parse(this.defaultString);
+                    this.value = defaultObj['id'];
+                    this.selected = defaultObj['name'];
+                } catch (e) {
+
+                }
+            }
+        },
+
+        valueChanged: function(oldValue, newValue)
+        {
+            if (oldValue == newValue)
+            {
+                return;
+            }
+            this.computeSelected(newValue)
             this.fire("change");
         },
 
@@ -298,19 +322,25 @@
 
             if (viewportOffset.top < minTop)
             {
-                var difference = minTop - viewportOffset.top; 
-                scrollDiv.scrollTop = scrollDiv.scrollTop - difference; 
+                var difference = minTop - viewportOffset.top;
+                scrollDiv.scrollTop = scrollDiv.scrollTop - difference;
             }
             else if (viewportOffset.top > maxTop)
             {
-                var difference = viewportOffset.top - maxTop; 
+                var difference = viewportOffset.top - maxTop;
                 scrollDiv.scrollTop = scrollDiv.scrollTop + difference;
-            }             
+            }
         },
 
         XUIDropdownClicked: function(event)
         {
-            var hidden = this.$.options.hidden; 
+            if (this.disabled)                
+            {
+                event.preventDefault();
+                return;
+            }
+
+            var hidden = this.$.options.hidden;
             this.$.options.hidden = !hidden;
 
             if (!hidden)
@@ -334,13 +364,13 @@
             {
                 //this.fire('change', event);
                 event.stopPropagation();
-                if (event.which == 2)
+                if (event.which == 2 || event.ctrlKey || event.shiftKey)
                 {
                     event.preventDefault();
                 }
             }
         },
-        
+
         showSelected: function()
         {
             var selector = "#options a[value='" + this.value + "']";
@@ -352,7 +382,7 @@
                 var viewportOffset = selected.getBoundingClientRect();
                 var outerHeight = selected.offsetHeight + parseFloat(getComputedStyle(selected).marginTop) + parseFloat(getComputedStyle(selected).marginBottom);
                 this.computeScrollTop(viewportOffset, outerHeight);
-            }            
+            }
             this.$.select.focus();
         },
 
@@ -371,9 +401,14 @@
             sender.classList.add("selected");
         },
 
+        onAnchorDragStart: function(event)
+        {
+            event.preventDefault();
+        },
+
         selectOptions: function(event, detail, sender)
         {
-            if (event.which != undefined && event.which != 1)
+            if (event.which != undefined && (event.which != 1 || event.ctrlKey || event.shiftKey) )
             {
                 event.preventDefault();
                 return;
@@ -413,9 +448,14 @@
 
             this.list = list;
             //this.$.options.getElementsByTagName('template')[0].iterator_.updateIteratedValue();
-            this.selected = selectedName;
+
+            if (selectedName === '' && this.value === '') {
+                this.computeSelected(0);
+            } else {
+                this.selected = selectedName;
+            }
         }
     };
-    
+
     Polymer.call({}, XUIDropdown.prototype);
 })();

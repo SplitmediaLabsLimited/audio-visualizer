@@ -1,0 +1,133 @@
+:host
+{
+  	display: inline-block;
+  	position: relative;
+}
+
+label
+{
+	color: #CCCCCC;
+	font-size: 11px;
+}
+
+input
+{
+	box-sizing: border-box;
+	background-color: #393939;
+	font-size: 11px;	
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	display: inline-block;
+	width: 45px;
+	height: 20px;
+	color: #999999;
+	outline: none;
+	border: 1px solid #000000;       	
+	cursor: text;			
+	padding-left: 5px;	
+	padding-top: 2px;
+	padding-bottom: 2px;
+	margin-bottom: 5px;
+}
+
+input
+{
+	text-align: {{textAlign}};
+}
+
+input:hover
+{
+	background: #555555;
+}
+
+input:focus
+{
+	color: #EEEEEE;
+	background: #555555;
+	outline: none;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button
+{ 
+	margin-top: 1px;
+	margin-right: 1px;
+    cursor:pointer;
+    display: none;
+}
+
+input[type=number]:disabled
+{
+	background: transparent;
+    color: #555555;
+    cursor: default;
+}
+
+.up-spinner,
+.down-spinner
+{
+	width: 10px;
+	height: 6px;
+	position: absolute;
+	right: 2px;
+	background-repeat: no-repeat;
+	cursor: pointer;	
+}
+
+.up-spinner
+{
+	top: 4px;
+	background-position: 1px 1px;
+	background-image: url("./images/arrow_up_normal.png");	
+}
+
+.up-spinner:hover,
+.up-spinner:active
+{
+	background-image: url("./images/arrow_up_hover.png");
+}
+
+.down-spinner
+{
+	top: 10px;
+	background-position: 1px 1px;
+}
+
+.down-spinner
+{
+	top: 10px;
+	background-image: url("./images/arrow_down_normal.png");
+	background-position: 1px 1px;
+}
+
+.down-spinner:hover,
+.down-spinner:active
+{
+	background-image: url("./images/arrow_down_hover.png");
+}
+
+#up[disabled]
+{
+	background-image: url("./images/arrow_up_disabled.png");
+}
+
+#down[disabled]
+{
+	background-image: url("./images/arrow_down_disabled.png");
+}
+
+#up[disabled], #down[disabled]
+{	
+	cursor: default;
+}
+
+#up:not([disabled]):hover ~ input[type=number] 
+{
+	background: #555555;
+}
+
+#down:not([disabled]):hover ~ input[type=number] 
+{
+	background: #555555;
+}

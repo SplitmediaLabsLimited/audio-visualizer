@@ -3,7 +3,7 @@ input, label
     cursor: default;
     color: #555;
     
-    font-size: 1.2em;
+    font-size: 11px;
     vertical-align: middle;
     display: inline-block;
 }
@@ -12,7 +12,17 @@ input:not(:disabled),
 input:not(:disabled) + label
 {
     cursor: pointer;
-    color: #EEE;
+    color: #CCCCCC;   
+}
+
+input:disabled + label
+{
+    color: #CCCCCC;
+}
+
+label
+{
+    white-space: nowrap;
 }
 
 input

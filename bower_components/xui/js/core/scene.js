@@ -3,14 +3,14 @@
 (function()
 {
     'use strict';
-    
+
     var Item  = xui.core.Item,
         iApp  = internal.core.App,
         iExec = internal.execCallback;
 
     /**
      * This class provides scene related methods
-     * 
+     *
      * @module xui.core
      * @class Scene
      * @constructor
@@ -21,7 +21,7 @@
         props = props || {};
 
         this.id     = props.id || 0;
-        this.name   = props.name || 'None';
+        this.name   = props.name;
         this.viewID = props.viewID || 0;
         this.items  = Array.isArray(props.children) ? props.children : [];
     }
@@ -50,17 +50,17 @@
                         item.viewID  = _this.viewID;
 
                         _this.items.push(item);
-                    }    
-                }                
+                    }
+                }
 
 	            iExec.call(_this, _callback, _this.items);
             });
         })(this, callback);
     };
-    
+
     /**
      * Check if specified scene is empty
-     * 
+     *
      * @method  isEmpty
      * @param   {Function}   callback (Boolean isEmpty)
      */
@@ -81,10 +81,10 @@
             });
         })(this, callback);
     };
-    
+
     /**
      * Get preset name of the specified scene ID
-     * 
+     *
      * @method  getName
      * @param  {Function}   callback (String scenename)
      */

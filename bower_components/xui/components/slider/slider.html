@@ -2,11 +2,11 @@
 
     <template>
         <link rel="stylesheet" href="css/slider.css" />
-        <div id="slider" style="transform: translateZ(0);">
-            <div id="decrement" on-mousedown=" {{ startDecrement }}" on-mouseout="{{ endDecrement }}"  style="transform: translateZ(0);"></div>
-            <input type="range" value="{{ value }}" min="{{ min }}" max="{{ max }}" step="{{ step }}" id="inputRange" tabindex="-1" on-input="{{ onRangeInput }}" on-change="{{ onRangeChange }}" on-keydown="{{ onSliderKeydown }}" style="transform: translateZ(0);">
-            <div id="increment" on-mousedown=" {{ startIncrement }}" on-mouseout="{{ endIncrement }}" style="transform: translateZ(0);"></div>
-            <input type="text" id="inputText" on-keydown="{{ onInputKeydown }}" on-blur="{{ onInputBlur }}" style="transform: translateZ(0);">
+        <div id="slider">
+            <div id="decrement" on-mousedown=" {{ startDecrement }}" on-mouseout="{{ endDecrement }}" ></div>
+            <input type="range" value="{{ value }}" min="{{ min }}" max="{{ max }}" step="{{ step }}" id="inputRange" tabindex="-1" on-input="{{ onRangeInput }}" on-change="{{ onRangeChange }}" on-keydown="{{ onSliderKeydown }}">
+            <div id="increment" on-mousedown=" {{ startIncrement }}" on-mouseout="{{ endIncrement }}"></div>
+            <input type="text" id="inputText" on-keydown="{{ onInputKeydown }}" on-blur="{{ onInputBlur }}">
         </div>
     </template>
 

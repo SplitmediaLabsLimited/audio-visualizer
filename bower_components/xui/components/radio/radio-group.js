@@ -8,7 +8,8 @@
 	{
 		publish:
 		{
-			value: { value: null, reflect: true }
+			value: { value: null, reflect: true },
+			disabled: {value: false, reflect: true}
 		},
 
 		eventDelegates:
@@ -34,6 +35,19 @@
 
 				radio.selected = (this.value === radio.value);
 			}
+		},
+
+		disabledChanged: function()
+		{
+			var radios = this.querySelectorAll('xui-radio');
+
+			for (var i = 0; i < radios.length; i++)
+			{
+				var radio = radios[i];
+
+				radio.disabled = this.disabled;
+			}
 		}
+
 	});
 })();

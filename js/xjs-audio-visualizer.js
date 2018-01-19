@@ -247,25 +247,27 @@ var XBCAudioVisualizer = function(config = {}) {
       // .then((datas)=>{
         let strData = data;
         var animation = null;
-        var mca = null;
+        window.mca = null;
+        debugger;
         try{
           window.maxVal = 0
+
           let remoteFn = self.testRemoteFn(strData);
           self._defaults.barcount = parseInt(self._defaults.barcount,10);
           self._defaults.spacing = parseInt(self._defaults.spacing,10);
           self._defaults.sensitivity = parseInt(self._defaults.sensitivity,10);
-          self._defaults.smoothing = parseFloat(self._defaults.smoothing);
+          self._defaults.temporalSmoothing = parseFloat(self._defaults.temporalSmoothing);
           
-          var mca = new XBCMC_adapter({
-            context : window._audioContext,
-            temporalSmoothing : self._defaults.smoothing,
-            maxFftSize : self._defaults.bitsample,
+          window.mca = new XBCMC_adapter({
             barLength : self._defaults.barcount,
-            spectrumSpacing : self._defaults.spacing,
+            context : window._audioContext,
+            maxFftSize : self._defaults.bitsample,
+            smoothPoints : self._defaults.smoothPoints,
             sensitivity : self._defaults.sensitivity / 100,
-            smoothPoints : self._defaults.smoothPoints
+            spectrumSpacing : self._defaults.spacing,
+            temporalSmoothing : self._defaults.temporalSmoothing
           });
-          mca.connectStream(stream);
+          window.mca.connectStream(stream);
           let resizeHandler = () => {
             let w = window.innerWidth;
             let h = window.innerHeight;
@@ -279,8 +281,8 @@ var XBCAudioVisualizer = function(config = {}) {
               width:w+"px",
               height:h+"px"
             })
-            mca.spectrumWidth =  w;
-            mca.spectrumHeight = h;
+            window.mca.spectrumWidth =  w;
+            window.mca.spectrumHeight = h;
           };
           /**
            * [we prepare the stream by connecting the audio stream to the needed analyzer]
@@ -292,13 +294,13 @@ var XBCAudioVisualizer = function(config = {}) {
             self._defaults.barcount = parseInt(self._defaults.barcount,10);
             self._defaults.spacing = parseInt(self._defaults.spacing,10);
             self._defaults.sensitivity = parseInt(self._defaults.sensitivity,10);
-            self._defaults.smoothing = parseFloat(self._defaults.smoothing);
+            self._defaults.temporalSmoothing = parseFloat(self._defaults.temporalSmoothing);
             self.visualizer.clearRect(0, 0, self.canvas.width, self.canvas.height);
             self._defaults.maxVal = 0;
             animation = window.requestAnimationFrame(draw);
-            var spectrum = mca.fetchSpectrum();
+            var spectrum = window.mca.fetchSpectrum();
             //console.log(spectrum);
-            var waveform = [] ;//mca.fetchWaveform();
+            var waveform = [] ;//window.mca.fetchWaveform();
             remoteFn(
               self.canvas,
               self.visualizer,
@@ -389,7 +391,7 @@ var XBCAudioVisualizer = function(config = {}) {
       enableLog: false,
       animationElement: 'bars',
       fps: 60,
-      bitsample: 512,
+      bitsample: 4096,
       displayfps: true,
       strokeW: 4,
       strokeS1: 4,
@@ -399,7 +401,9 @@ var XBCAudioVisualizer = function(config = {}) {
       colorcode: "#ffffff",
       sensitivity:50,
       barcount:70,
-      spacing:1
+      spacing:5,
+      smoothPoints:1,
+      temporalSmoothing:0.7
     }
     $('canvas').remove();
     $('<canvas id="visualizer"></canvas>').appendTo('body');

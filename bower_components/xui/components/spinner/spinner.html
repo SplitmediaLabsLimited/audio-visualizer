@@ -1,0 +1,20 @@
+<polymer-element name="xui-spinner" attributes="textAlign value max min step">
+
+    <template>
+    	<link rel="import" href="../globals/globals.html" />
+        <link rel="stylesheet" href="./spinner.css" />
+
+        <div class="up-spinner" on-mousedown="{{ onIncrement }}" id="up"></div>
+        <div class="down-spinner" on-mousedown="{{ onDecrement }}" id="down"></div>
+        <label for="input" id="label">{{ label }}</label>
+        <input type="number" placeholder="{{ placeholder }}" id="input"
+        	   text-align="{{ textAlign }}" max="{{ max }}" min="{{ min }}"
+               step="{{ step }}" on-keydown="{{ onKeyDown }}" on-keyup="{{ onKeyUp }}"
+               on-keypress="{{ onKeyPress }}" on-blur="{{ onInputBlur }}" />     
+		
+    </template>
+
+    <script src="./spinner.js"></script>
+    
+</polymer-element>
+

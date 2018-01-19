@@ -21,311 +21,355 @@
     };
 })(jQuery);
 $(()=>{
-	/**
-	 * [config stores the configuration previous to be sent to the plugin]
-	 * @type {Object}
-	 */
-	let config = {};
-	/**
-	 * [XBCMixerId will store the HW ID of XSplitBoradcaster (DirectShow) Input]
-	 * @type {String}
-	 */
-	let XBCMixerId = '';
-	/**
-	 * [XBCCodeMirror loads a codemirror instance on this variable]
-	 * @type {null}
-	 */
-	let XBCCodeMirror = null;
-
-	/**
-	 * [updateElements prepares the initial events of the plugin in order to setup default values to be used by the plugin]
-	 * @param  {Object} config [the configuration object]
-	 */
-	let updateElements = (config = {})=>{	
-		var firstTime = false;
-
-		/**audio device */
-		if(typeof config.audioDeviceId === 'undefined'){
-			firstTime = true;
-			config.audioDeviceId = XBCMixerId;
-		}
-		$('#selectAudioSource').val(config.audioDeviceId);
-		$('#selectAudioSource').disableSelection();
-
-		/** sensitivity */
-		if(typeof config.sensitivity === 'undefined'){
-			firstTime = true;
-			config.sensitivity = 50;
-		}
-		$("#sensitivity").val(config.sensitivity);
-
-		/** fps */
-		if(typeof config.smoothing === 'undefined'){
-			firstTime = true;
-			config.smoothing = 0.8;
-		}
-		$("#smoothing").val(config.smoothing);
-
-    if(typeof config.smoothPoints === 'undefined'){
-      firstTime = true;
-      config.smoothPoints = 0;
+  document.onselectstart = function(event){
+    let nodeName = event.target.nodeName;
+    if (nodeName === "INPUT" || nodeName === "TEXTAREA" || nodeName === "XUI-INPUT" || nodeName === "XUI-SLIDER")
+    {
+      return true;
     }
-    $("#smoothPoints").val(config.smoothPoints);
+    else
+    {
+      return false;
+    }
+  };
+  document.onkeydown = function(event){
+    if ((event.target || event.srcElement).nodeName !== 'INPUT' &&
+      (event.target || event.srcElement).nodeName !== 'TEXTAREA' &&
+      (event.target || event.srcElement).nodeName !== 'XUI-SLIDER' &&
+      (event.target || event.srcElement).nodeName !== 'XUI-INPUT' &&
+      (event.target || event.srcElement).nodeName !== 'XUI-COLORPICKER' &&
+      (event.target || event.srcElement).contentEditable !== true)
+    {
+      if (event.keyCode == 8)
+      return false;
+    }
+  };
 
-		/** Bit Sample */
-		if(typeof config.bitsample === 'undefined'){
-			firstTime = true;
-			config.bitsample = "1024";
-		}
-		$("#bitsample").val(config.bitsample);
+  /**
+   * [config stores the configuration previous to be sent to the plugin]
+   * @type {Object}
+   */
+  let config = {};
+  /**
+   * [XBCMixerId will store the HW ID of XSplitBoradcaster (DirectShow) Input]
+   * @type {String}
+   */
+  let XBCMixerId = '';
+  /**
+   * [XBCCodeMirror loads a codemirror instance on this variable]
+   * @type {null}
+   */
+  let XBCCodeMirror = null,
+  audioDeviceId       = document.getElementById('selectAudioSource'),
+  sensitivity         = document.getElementById('sensitivity'),
+  temporalSmoothing   = document.getElementById('temporalSmoothing'),
+  smoothpoints        = document.getElementById('smoothPoints'),
+  bitsample           = document.getElementById('bitsample'),
+  spacing             = document.getElementById('spacing'),
+  animationElement    = document.getElementById('animationElement'),
+  barcount            = document.getElementById('barCount'),
+  visualizationSelect = document.getElementById('visualizationSelect'),
+  colorcode           = document.getElementById('colorcode'),
+  /**
+   * [currentSource is the source to be used by the application to load the configurations]
+   * @type {Object}
+   */
+  currentSource       = {},
+  audioDevices        = [],
+  configWindow,
+  myItem;
 
-		if(typeof config.spacing === 'undefined'){
-			firstTime = true;
-			config.spacing = "1";
-		}
-		$("#spacing").val(config.spacing);
+  const _DEFAULT_SENSITIVITY   = 50,
+  _DEFAULT_TEMPORALSMOOTHING   = 0.7,
+  _DEFAULT_SMOOTHPOINTS        = 1,
+  _DEFAULT_BITSAMPLE           = 4096,
+  _DEFAULT_SPACING             = 5,
+  _DEFAULT_ANIMATIONELEMENT    = 'bars',
+  _DEFAULT_BARCOUNT            = 70,
+  _DEFAULT_VISUALIZATIONSELECT = 'flames',
+  _DEFAULT_COLORCODE           = "#FFFFFF",
+  _DEFAULT_TABNAME             = "XBC Audio Visualizer";
+  
+  /**
+   * [xjs is the XJS Framework]
+   * @type {object}
+   */
+  var xjs = require('xjs'),
+  /**
+   * [Item holds the current source]
+   * @type {Object}
+   */
+  Item = xjs.Source,
+  /**
+   * [SourcePropsWindow Contains the properties of the source window]
+   * @type {Object}
+   */
+  SourcePropsWindow = xjs.SourcePropsWindow,
+  /**
+   * [propsWindow is a short reference for xjs.SourcePropsWindow.getInstance()]
+   * @type {Function}
+   */
+  propsWindow = xjs.SourcePropsWindow.getInstance(),
+  /**
+   * [util handles the io utilities from xjs]
+   * @type {Object}
+   */
+  IO = xjs.IO;
+  const setConfig = function (config){
+    myItem.requestSaveConfig(config);
+    /*.then(function(data){
+      myItem.loadConfig()
+      .then( data => {
+        console.log('after saving',data);
+        myItem.refresh();
+      });  
+    });*/
+  };
 
-		/** default visualization */
-		console.log('config.animationElement',config.animationElement)
-		if (typeof config.animationElement === 'undefined'){
-			firstTime = true;
-			config.animationElement = 'bars';
-		}
-		$("#animationElement").val(config.animationElement);
-		console.log('$("#animationElement").val()',$("#animationElement").val())
-
-		if(typeof config.barcount === 'undefined'){
-			firstTime = true;
-			config.barcount = 70;
-		}
-		$("#barCount").val(config.barcount);
-
-		if (typeof config.visualizationSelect === 'undefined'){
-			firstTime = true;
-			config.visualizationSelect = 'flames';
-		}
-		$("#visualizationSelect").val(config.visualizationSelect);
-
-		if(typeof config.colorcode === 'undefined'){
-			firstTime = true;
-			config.colorcode = "#ffffff";
-		}
-		$("#solidOption").val(config.colorcode);
-
-		
-		
-		if(firstTime){
-			updateConfig(currentSource)
-		}
-	},
-	/**
-	 * [renderListVisuals displays the list of visualizations into the panel, in order to be selected by the user]
-	 * @param  {Object} item [item is composed of: visualname which is the visualization name, and visualurl that is the url of the remote script]
-	 * @return {[type]}      [description]
-	 */
-	renderListVisuals = (item = {visualname:'',visualurl:''})=>{
-		let skinBox = $('#skin');
-		let tpl = '<option value="{0}">{1}</option>';
-		skinBox.append(tpl.format(item.visualurl,item.visualname));
-		addUrlToConfig(item.visualname,item.visualurl);
-	},
-	/**
-	 * updateConfig saves the configuration passed by the argument.
-	 * @param  {Object} item [the XBC reference to the source iten]
-	 */
-	updateConfig = (item = {})=>{
-		item.requestSaveConfig(config)
-    .then(()=>{
-      setTimeout(()=>{
-        item.refresh();
-        //item.applyConfig(config);
-        
-      },100);
-    })
-	},
-	/**
-	 * [description]
-	 * @param  {String} urlstr [description]
-	 * @return {[type]}        [description]
-	 */
-	addUrlToConfig = (urlstr='',labelstr='') =>{
-		var tpl = '<li><i class="fa fa-bars handler"></i> <input class="targetScript" type="text" value="{1}" data-url="{0}" readOnly><i class="removeThis fa fa-times"></i></li>';
-		$(tpl.format(labelstr,urlstr)).appendTo('#list');
-	}
-
-	/**
-	 * [setGUILogic provide the GUI elements with actions to update the configuration of the view]
-	 * @return {[type]} [description]
-	 */
-	setGUILogic = () => {
-		$("#saveSettings").on('click', (e) => {
-			updateConfig(currentSource);
-		})
-	},
-	removeAt = (array, index) => {
-	    var len = array.length;
-	    var ret = array[index];
-	    for (var i = index + 1; i < len; ++i) {
-	        array[i - 1] = array[i];
-	    }
-	    array.length = len - 1;
-	    return ret;
-	},
-	/**
-	 * [xjs is the XJS Framework]
-	 * @type {object}
-	 */
-	xjs = require('xjs'),
-	/**
-	 * [Item holds the current source]
-	 * @type {Object}
-	 */
-	Item = xjs.Source
-	/**
-	 * [SourcePropsWindow Contains the properties of the source window]
-	 * @type {Object}
-	 */
-	SourcePropsWindow = xjs.SourcePropsWindow,
-	/**
-	 * [propsWindow is a short reference for xjs.SourcePropsWindow.getInstance()]
-	 * @type {Function}
-	 */
-	propsWindow = xjs.SourcePropsWindow.getInstance(),
-	/**
-	 * [currentSource is the source to be used by the application to load the configurations]
-	 * @type {Object}
-	 */
-	currentSource = {},
-	/**
-	 * [util handles the io utilities from xjs]
-	 * @type {Object}
-	 */
-	IO = xjs.IO;
-	/**
-	 * [then we run the concatenated sets of promises to get and apply the config.]
-	 */
-	xjs.ready().then(() =>{
-		/**
-		 * Let's first map the audio devices into the audioDeviceId 
-		 */
-		navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
-			/**
-			 * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
-			 */
-			
-			/**
-			 * [tmpstr is a cleaned up version of the audio input]
-			 * @type {String}
-			 */
-			let tmpstr = '';
-			for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
-				if (uuidAudioSourceId[i].kind === 'audioinput') {
-					if($.trim(uuidAudioSourceId[i].label) !== ''){
-						tmpstr = uuidAudioSourceId[i].label.replace(' (DirectShow)','');
-						$("#selectAudioSource").append(`<xui-option value="${uuidAudioSourceId[i].deviceId}">${tmpstr}</xui-option>`);
-						if(tmpstr.indexOf('XSplitBroadcaster') === 0){
-							XBCMixerId = uuidAudioSourceId[i].deviceId;
-						}	
-					}
-				}
-			}
-		});
-
-		var configWindow =  SourcePropsWindow.getInstance();
-		return Item.getCurrentSource();
-	})
-	/** 
-	 * then load the config from the visualization
-	 */
-	.then((myItem)=>{
-		currentSource = myItem;
-		return currentSource.loadConfig();
-	})
-	/**
-	 * Finally apply the GUI logic and preload the data from the config
-	 */
-	.then((cfg)=>{
-		config = cfg;
-		updateElements(cfg);
-		setGUILogic();
-	})
-	.then(data =>{
-		$("#selectAudioSource").on('select-changed', (e)=>{
-			config.audioDeviceId = e.detail.value;
-			updateConfig(currentSource);
-		});
-
-		$("#sensitivity").on('change', (e)=>{
-			config.sensitivity = $(e.currentTarget).val()
-			updateConfig(currentSource);
-		});
-
-		$("#smoothing").on('change', (e)=>{
-			let s = $(e.currentTarget).val();
-			s = s.toString().split('');
-			s = s[0]+s[1]+s[2]+s[3]+s[4];
-			s = parseFloat(s);
-			config.smoothing = s;
-			$("#smoothing::shadow #inputText").val(s);
-			updateConfig(currentSource);
-		});
-
-    $("#smoothPoints").on('change', (e)=>{
-      let s = $(e.currentTarget).val();
-      s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3];
-      s = parseFloat(s);
-      config.smoothPoints = s;
-      $("#smoothPoints::shadow #inputText").val(s)
-      updateConfig(currentSource);
+  const addComponentEventListeners = () => {
+    /** dropdown elements */
+    audioDeviceId.addEventListener('select-changed', function(){
+      config.audioDeviceId = this.value;
+      console.log('event-audioDeviceId',{value:this.value});
+      setConfig(config);
     });
 
-		$("#bitsample").on('select-changed', (e)=>{
-			config.bitsample = parseInt(e.detail.value);
-			let barcount = parseInt($("#barCount").val());
-			if (barcount > (config.bitsample/2)){
-				$("#barCount").attr("max",(config.bitsample/2));
-				$("#barCount").val(config.bitsample/2);
-				config.barcount = config.bitsample/2;
-			}
-			updateConfig(currentSource);
-		});
+    bitsample.addEventListener('select-changed', function(){
+      config.bitsample = parseInt(this.value,10);
+      console.log('event-bitsample',{value:this.value});
+      setConfig(config);
+    });
 
-		$("#animationElement").on('select-changed',(e)=>{
-			config.animationElement = e.detail.value;
-			updateConfig(currentSource);
-		})
+    visualizationSelect.addEventListener('select-changed', function(){
+      config.visualizationSelect = this.value;
+      console.log('event-visualizationSelect',{value:this.value});
+      setConfig(config);
+    });
 
-		$("#barCount").on('change', (e)=>{
-			config.barcount = parseInt($(e.currentTarget).val());
-			let bitsample = parseInt($("#bitsample").val());
-			if (config.barcount > (bitsample/2)){
-				$("#barCount").val(bitsample/2);
-				config.barcount = bitsample/2;
-			}
-			updateConfig(currentSource);
-		});
+    animationElement.addEventListener('select-changed', function(){
+      config.animationElement = this.value;
+      console.log('event-animationElement',{value:this.value});
+      setConfig(config);
+    });
 
-		$("#visualizationSelect").on('select-changed',(e)=>{
-			config.visualizationSelect = e.detail.value;
-			if(config.visualizationSelect !== 'solid'){
-				$("#solidOption").hide();
-			} else {
-				$("#solidOption").show();
-			}
-			updateConfig(currentSource);
-		})
+    /* sliders */
+    // sensitivity.addEventListener('change',function(){});
+    // temporalSmoothing.addEventListener('change',function(){});
+    // smoothPoints.addEventListener('change',function(){});
 
-		$("#solidOption").on('change click',(e)=>{
-			config.colorcode = $(e.currentTarget).val();
-			updateConfig(currentSource);
-		})
+    sensitivity.addEventListener('change',function(){
+      config.sensitivity = parseInt(this.value);
+      console.log('event-sensitivity',{value:this.value});
+      setConfig(config);
+    });
+    temporalSmoothing.addEventListener('change',function(){
+      let s = this.value;
+      s = s.toString().split('');
+      s = s[0]+s[1]+s[2]+s[3]+s[4];
+      s = parseFloat(s);
+      config.temporalSmoothing = s;
+      console.log('event-temporalSmoothing',{value:s});
+      setConfig(config);
+    });
+    smoothPoints.addEventListener('change',function(){
+      let s = this.value;
+      s = s.toString().split('');
+      s = s[0]+s[1]+s[2]+s[3]+s[4];
+      s = parseFloat(s);
+      config.smoothPoints = s;
+      console.log('event-smoothPoints',{value:s});
+      setConfig(config);
+    });
 
-		$("#spacing").on('change',(e)=>{
-			config.spacing = parseInt($(e.currentTarget).val());
-			updateConfig(currentSource);
-		})
-	});
+    /** color picker */
+    colorcode.addEventListener('change', function(){});
+    colorcode.addEventListener('reset', function(){});
+    colorcode.addEventListener('set', function(){
+      config.colorcode = this.value;
+      console.log('event-colorcode',{value:this.value});
+      setConfig(config);
+    });
+
+    /** text input number */
+    spacing.addEventListener('change', function(){
+      config.spacing = parseInt(this.value,10);
+      console.log('event-spacing',{value:this.value});
+      setConfig(config);
+    });
+    barcount.addEventListener('change', function(){
+      config.barcount = parseInt(this.value);
+      console.log('event-barcount',{value:this.value});
+      setConfig(config);
+    });
+  }
+  const getSettings = (config) => {
+    return new Promise((resolve,reject) => {
+      if(!window.audioDevices){
+        window.audioDevices = [];
+      }
+      let xuioption = null;
+      audioDeviceId.innerHTML = ''
+      for(var opt = 0; opt < window.audioDevices.length; opt++){
+        xuioption = document.createElement('xui-option');
+        xuioption.value = window.audioDevices[opt].id;
+        xuioption.textContent = window.audioDevices[opt].name;
+        audioDeviceId.appendChild(xuioption);
+      }
+      if(!config.hasOwnProperty('audioDeviceId')){
+        var sel = 0;
+        for (let i = 0; i < window.audioDevices.length; i++) {
+          if(window.audioDevices[i].name.toLowerCase() == 'xsplitbroadcaster'){
+            sel = i;
+            break;
+          }
+        }
+        config.audioDeviceId       = window.audioDevices[sel].id;
+        audioDeviceId.value = config.audioDeviceId;
+      } else {
+        audioDeviceId.value = config.audioDeviceId;
+      }
+
+
+      if(!config.hasOwnProperty('sensitivity')){
+        config.sensitivity         = _DEFAULT_SENSITIVITY;
+        sensitivity.value = config.sensitivity;
+      } else {
+        sensitivity.value = config.sensitivity;
+      }
+      
+
+      if(!config.hasOwnProperty('temporalSmoothing')){
+        config.temporalSmoothing           = _DEFAULT_TEMPORALSMOOTHING;
+        temporalSmoothing.value = config.temporalSmoothing;
+      } else {
+        temporalSmoothing.value = config.temporalSmoothing;
+      }
+      
+
+      if(!config.hasOwnProperty('smoothPoints')){
+        config.smoothPoints        = _DEFAULT_SMOOTHPOINTS;
+        smoothPoints.value = config.smoothPoints;
+      } else {
+        smoothPoints.value = config.smoothPoints;
+      }
+      
+
+      if(!config.hasOwnProperty('bitsample')){
+        config.bitsample           = _DEFAULT_BITSAMPLE;
+        bitsample.value = config.bitsample;
+      } else {
+        bitsample.value = config.bitsample;
+      }
+      
+
+      if(!config.hasOwnProperty('spacing')){
+        config.spacing             = _DEFAULT_SPACING;
+        spacing.value = config.spacing
+      } else {
+        spacing.value = config.spacing;
+      }
+      
+
+      if (!config.hasOwnProperty('animationElement')){
+        config.animationElement    = _DEFAULT_ANIMATIONELEMENT;
+        animationElement.value = config.animationElement;
+      } else {
+        animationElement.value = config.animationElement;
+      }
+      
+
+      if(!config.hasOwnProperty('barcount')){
+        config.barcount            = _DEFAULT_BARCOUNT;
+        barcount.value = config.barcount;
+      } else {
+        barcount.value = config.barcount;
+      }
+      
+
+      if (!config.hasOwnProperty('visualizationSelect')){
+        config.visualizationSelect = _DEFAULT_VISUALIZATIONSELECT;
+        visualizationSelect.value = config.visualizationSelect;
+      } else {
+        visualizationSelect.value = config.visualizationSelect;
+      }
+      
+      
+      if(!config.hasOwnProperty('colorcode')){
+        config.colorcode           = _DEFAULT_COLORCODE;
+        colorcode.value = config.colorcode;
+      } else {
+        colorcode.value = config.colorcode;
+      }
+
+
+      console.log('getSettings',config);
+      return resolve();
+    })
+  };
+  /**
+   * [then we run the concatenated sets of promises to get and apply the config.]
+   */
+  xjs.ready().then(() =>{
+    /**
+     * Let's first map the audio devices into the audioDeviceId 
+     */
+    configWindow = SourcePropsWindow.getInstance();
+      // configure tabs in source properties dialog
+      configWindow.useTabbedWindow({
+        customTabs: [_DEFAULT_TABNAME],
+        tabOrder: [_DEFAULT_TABNAME, 'Layout', 'Color', 'Transition']
+      });
+  })
+  /** 
+   * then load the config from the visualization
+   */
+  .then(Item.getItemList)
+  .then(function(item){
+    myItem = item[0];
+    return myItem.loadConfig()
+  })
+  .then((cfg)=>{
+    config = cfg;
+    console.log('then cfg',config);
+    window.audioDevices = [];
+    navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
+      /**
+       * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
+       */
+      
+      /**
+       * [tmpstr is a cleaned up version of the audio input]
+       * @type {String}
+       */
+      let tmpstr = '';
+      let tmpArr = [];
+      for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
+        if (uuidAudioSourceId[i].kind === 'audioinput') {
+          if($.trim(uuidAudioSourceId[i].label) !== ''){
+            tmpstr = uuidAudioSourceId[i].label.replace(' (DirectShow)','');
+            tmpArr.push({
+              name: tmpstr, 
+              id: uuidAudioSourceId[i].deviceId
+            })
+          }
+        }
+      }
+      if(!window.audioDevices.length){
+        window.audioDevices = tmpArr;  
+      }
+      if(window.audioDevices.length != tmpArr.length){
+        window.audioDevices = tmpArr
+      }
+    })
+    .then(function(){
+      getSettings(config)
+      .then(function(){
+        setTimeout(function(){
+          addComponentEventListeners();
+        },0)
+      })
+    })
+  });
 });
 
 /*
@@ -334,10 +378,16 @@ $(()=>{
  * output : ASP is dead, but ASP.NET is alive! ASP
  */
 if (!String.prototype.format) {
-	String.prototype.format = function() {
-		var args = arguments;
-		return this.replace(/{(\d+)}/g, function(match, number) {
-			return typeof args[number] != 'undefined' ? args[number] : match;
-		});
-	};
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) {
+      return typeof args[number] != 'undefined' ? args[number] : match;
+    });
+  };
+}
+if(!Number.prototype.round){
+  Number.prototype.round = function(p) {
+    p = p || 10;
+    return parseFloat( this.toFixed(p) );
+  };
 }

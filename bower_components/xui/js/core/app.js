@@ -170,7 +170,7 @@
                 if(screen)
                 {
                     var config = XML.toJSON(screen)[0];
-                    _callback(new Window({ hwnd : config.hwnd }));
+                    _callback(Window.parse({ hwnd : config.hwnd }));
                 }
                 
             });

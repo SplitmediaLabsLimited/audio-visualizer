@@ -1,0 +1,25 @@
+{
+  "name": "xui_app",
+  "version": "0.0.0",
+  "description": "Xsplit Web components and Packager",
+  "dependencies": {
+    "cheerio": "~0.18.0",
+    "deasync": "^0.1.6",
+    "htmlencode": "0.0.4",
+    "vulcanize": "~0.7.10",
+    "webcomponents.js": "^0.7.23",
+    "wolfy87-eventemitter": "^5.1.0",
+    "webpack": "^1.12.2"
+  },  
+  "repository" : { 
+    "type" : "git",
+    "url" : "https://gitlab.xsplit.com/xsplit-plugins/xui.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack",
+    "postinstall": "webpack"
+  },
+  "author": "",
+  "license": "ISC"
+}

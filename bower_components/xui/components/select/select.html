@@ -9,12 +9,12 @@
         
         <div id="wrap">
 		    <input id="input" type="text" 
-		    	   value="{{ selected.label }}" placeholder="{{ placeholder }}" readonly style="-webkit-user-select: none; transform: translateZ(0);"/>
+		    	   value="{{ selected.label }}" placeholder="{{ placeholder }}" readonly />
 		    <button id="toggle"></button>
         </div>
 
-        <ul id="list" style="transform: translateZ(0);">
-        	<content select="xui-option,xui-option-group" style="transform: translateZ(0);"></content>
+        <ul id="list" on-clearselected=" {{ clearSelected }} ">
+        	<content select="xui-option,xui-option-group"></content>
         </ul>
     </template>
 

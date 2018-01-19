@@ -7,7 +7,7 @@
 label
 {
     color: #CCC;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 
@@ -36,14 +36,14 @@ label
 #dropdown li a
 {	
 	display: block;
-	min-width: 100px;
+	min-width: 80px;
     width: inherit;
 	text-decoration: none;
-	height: 18px;
-	color: #eee;
+	height: 14px;
+	color: #888888;
 	resize: none;
 	overflow-x: hidden;
-	font-size: 12px;
+	font-size: 11px;
 	cursor: pointer;
     padding: 3px 5px;
     overflow: hidden;
@@ -51,29 +51,43 @@ label
     white-space: nowrap;
 }
 
+#dropdown[disabled=true] li a
+{   
+    cursor: default;
+    color: #999999;
+}
+
 #dropdown li > a
 {
-    background: #393939 url("../images/arrowdown.png") no-repeat 97%;
+    background: #393939 url("../images/arrowdown.png") no-repeat calc(100% - 5px);
     border: 1px solid #000;
     max-width: 95%;
+    color: #eee; 
+}
+
+#dropdown[disabled=true] li > a:hover,
+#dropdown[disabled=true] li > a:focus
+{
+    background: #393939 url("../images/arrowdown.png") no-repeat calc(100% - 5px);
+	color: #999999;
 }
 
 #dropdown li > a:hover,
 #dropdown li > a:focus
 {
-    background: #555 url("../images/arrowdown_hover.png") no-repeat 97%;
-	color: #eee;
+    background: #555 url("../images/arrowdown_hover.png") no-repeat calc(100% - 5px);
+    color: #eee;
 }
 
 #dropdown li > a.show
 {
-    background: #555;
+    background: #555;    
 }
 
 #options 
 {
     width: inherit;
-    min-width: 100px;
+    min-width: 80px;
     padding-right: 10px;
     max-height: 102px;
     min-height: 24px;
