@@ -14,7 +14,7 @@ class XBCMC_adapter {
     this.spectrumRatioHeight          = obj.hasOwnProperty('spectrumRatioHeight')   ? obj.spectrumRatioHeight  : 4.5;//4.5; // the ratio of the spectrum width to its height
     this.spectrumSpacing              = obj.hasOwnProperty('spectrumSpacing')       ? obj.spectrumSpacing      : 7;//7; // the separation of each spectrum bar in pixels at width=1920
     this.maxFftSize                   = obj.hasOwnProperty('maxFftSize')            ? obj.maxFftSize           : 1024;//16384; // the preferred fftSize to use for the audio node (actual fftSize may be lower)
-    this.audioDelay                   = obj.hasOwnProperty('audioDelay')            ? obj.audioDelay           : 0.4;//0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
+    this.audioDelay                   = obj.hasOwnProperty('audioDelay')            ? obj.audioDelay           : 0;//0.4; // audio will lag behind the rendered spectrum by this amount of time (in seconds)
     this.spectrumStart                = obj.hasOwnProperty('spectrumStart')         ? obj.spectrumStart        : 4;//4; // the first bin rendered in the spectrum
     this.spectrumEnd                  = obj.hasOwnProperty('spectrumEnd')           ? obj.spectrumEnd          : 1200;//1200; // the last bin rendered in the spectrum
     this.spectrumScale                = obj.hasOwnProperty('spectrumScale')         ? obj.spectrumScale        : 2.5; //2.5; // the logarithmic scale to adjust spectrum values to
