@@ -79,7 +79,7 @@ $(()=>{
   configWindow,
   myItem;
 
-  const _DEFAULT_SENSITIVITY   = 50,
+  const _DEFAULT_SENSITIVITY   = 1,
   _DEFAULT_TEMPORALSMOOTHING   = 0.7,
   _DEFAULT_SMOOTHPOINTS        = 1,
   _DEFAULT_BITSAMPLE           = 4096,
@@ -158,8 +158,12 @@ $(()=>{
     // smoothPoints.addEventListener('change',function(){});
 
     sensitivity.addEventListener('change',function(){
-      config.sensitivity = parseInt(this.value);
-      console.log('event-sensitivity',{value:this.value});
+      let s = this.value;
+      s = s.toString().split('');
+      s = s[0]+s[1]+s[2]+s[3];
+      s = parseFloat(s);
+      config.sensitivity = s;
+      console.log('event-sensitivity',{value:s});
       setConfig(config);
     });
     temporalSmoothing.addEventListener('change',function(){

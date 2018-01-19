@@ -248,7 +248,6 @@ var XBCAudioVisualizer = function(config = {}) {
         let strData = data;
         var animation = null;
         window.mca = null;
-        debugger;
         try{
           window.maxVal = 0
 
@@ -263,7 +262,7 @@ var XBCAudioVisualizer = function(config = {}) {
             context : window._audioContext,
             maxFftSize : self._defaults.bitsample,
             smoothPoints : self._defaults.smoothPoints,
-            sensitivity : self._defaults.sensitivity / 100,
+            sensitivity : self._defaults.sensitivity,
             spectrumSpacing : self._defaults.spacing,
             temporalSmoothing : self._defaults.temporalSmoothing
           });
@@ -399,7 +398,7 @@ var XBCAudioVisualizer = function(config = {}) {
       externalJSURL: [],
       visualizationSelect : 'flames',
       colorcode: "#ffffff",
-      sensitivity:50,
+      sensitivity:1,
       barcount:70,
       spacing:5,
       smoothPoints:1,

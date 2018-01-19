@@ -21,7 +21,11 @@
 
     const _updateGraphic = function(data){
       console.log('data.sensitivity',data)
-      window.mca.sensitivity = data.sensitivity / 100;
+      try{
+        window.mca.gainNode.gain.value = data.sensitivity;  
+      } catch (e) {
+        console.log(e);
+      }
       window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
       window.mca.smoothPoints = data.smoothPoints;
       window.mca.barLength = parseInt(data.barcount,10);
@@ -30,6 +34,7 @@
       window.xbca._defaults.spacing = parseInt(data.spacing,10);
       window.xbca._defaults.visualizationSelect = data.visualizationSelect;
       window.xbca._defaults.colorcode = data.colorcode;
+
     }
     var _left = 0.05,
     _top = 0.4,

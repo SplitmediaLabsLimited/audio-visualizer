@@ -9,7 +9,7 @@ class XBCMC_adapter {
     /* * Basic spectrum settings * */
     /* *************************** */
     // BASIC ATTRIBUTES
-    this.sensitivity                  = obj.hasOwnProperty('sensitivity')           ? obj.sensitivity          : 0.5; //amplifies the signal making low frequencies to be more visible
+    this.sensitivity                  = obj.hasOwnProperty('sensitivity')           ? obj.sensitivity          : 1; //amplifies the signal making low frequencies to be more visible
     this.barLength                    = obj.hasOwnProperty('barLength')             ? obj.barLength            : 50;//63; // number of bars in the spectrum
     this.spectrumRatioHeight          = obj.hasOwnProperty('spectrumRatioHeight')   ? obj.spectrumRatioHeight  : 4.5;//4.5; // the ratio of the spectrum width to its height
     this.spectrumSpacing              = obj.hasOwnProperty('spectrumSpacing')       ? obj.spectrumSpacing      : 7;//7; // the separation of each spectrum bar in pixels at width=1920
@@ -74,16 +74,11 @@ class XBCMC_adapter {
     this.analyser.smoothingTimeConstant = this.temporalSmoothing; 
     this.analyser.minDecibels = -100;
     this.analyser.maxDecibels = -33;
-    this.bufferSource.connect(this.analyser);
+    //this.bufferSource.connect(this.analyser);
     this.gainNode = this.context.createGain();
-    this.gainNode.gain.value = 0;
-    this.bufferSource.connect(this.analyser);
-    this.delayNode = this.context.createDelay(1);
-    this.delayNode.delayTime.value = this.audioDelay;
+    this.gainNode.gain.value = this.sensitivity;
     this.bufferSource.connect(this.gainNode);
-    this.gainNode.connect(this.delayNode);
-    this.bufferSource.connect(this.delayNode);
-    this.delayNode.connect(this.analyser);
+    this.gainNode.connect(this.analyser);
     //this.muteGainNode = this.context.createGain();
     //this.muteGainNode.gain.value = -1;
     // this.scriptProcessor = this.context.createScriptProcessor(stream);
@@ -101,7 +96,7 @@ class XBCMC_adapter {
     //     console.log('Using fftSize of ' + this.analyser.fftSize);
     //     alert('Could not set optimal fftSize! This may look a bit weird...');
     // }
-    this.bufferSource.connect(this.analyser);
+    //this.bufferSource.connect(this.analyser);
   }
   connect(buffer) {
     this.bufferSource = this.context.createMediaStreamSource(buffer);
@@ -404,11 +399,11 @@ class XBCMC_adapter {
   /**getTransformedSpectrum**/
   getSpectrum(array) {
     var newArr = array;
-    newArr = this.amplify(newArr);
+
 
     newArr = this.normalizeAmplitude(array);
     // console.log('normalizeAmplitude',newArr);
-    newArr = this.averageTransform(newArr);
+//    newArr = this.averageTransform(newArr);
     // console.log('averageTransform',newArr);
     newArr = this.tailTransform(newArr);
     // console.log('tailTransform',newArr);
