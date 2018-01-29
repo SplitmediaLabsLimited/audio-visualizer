@@ -123,7 +123,7 @@ var XBCAudioVisualizer = function(config = {}) {
    * @param  {String} XBCAudioDeviceId [the audio device ID]
    * @return {[type]}                  [description]
    */
-  this.setXBCAudioDeviceAsSource = (XBCAudioDeviceId = '') => {
+  this.setXBCAudioDeviceAsSource = (XBCAudioDeviceId = null) => {
     var self = this;
     /**
      * In case there is a previous request animation, we cancel it, so we avoid glitchy animations   
@@ -136,24 +136,28 @@ var XBCAudioVisualizer = function(config = {}) {
     /**
      * [if no device id is given, then we will use the default 'XSplitBroadcaster (DirectShow)' source]
      */
-    if (XBCAudioDeviceId === '') {
-      let defaultDeviceId = null;
+    debugger;
+    if (XBCAudioDeviceId === null) {
       navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId) => {
-        for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {
+        let i = 0;
+        for (i = 0; i < uuidAudioSourceId.length ; i++) {
           if (uuidAudioSourceId[i].kind === 'audioinput') {
             if (uuidAudioSourceId[i].label.indexOf('XSplitBroadcaster (DirectShow)') === 0) {
-              defaultDeviceId = uuidAudioSourceId[i].deviceId;
-              self.defaultDeviceId = defaultDeviceId;
+              self.defaultDeviceId = uuidAudioSourceId[i].deviceId;
+              XBCAudioDeviceId = uuidAudioSourceId[i].deviceId;
               self.defaultDeviceIdx = i;
               break;
             }
+
           }
+          
         }
+        console.log(`xav - kind : ${uuidAudioSourceId[i].kind}, label: ${uuidAudioSourceId[i].label}, id: ${uuidAudioSourceId[i].deviceId}`)
         navigator.getUserMedia({
           video: false,
           audio: {
             deviceId: {
-              exact: defaultDeviceId
+              exact: self.defaultDeviceId
             }
           }
         }, self.soundAllowed, self.soundNotAllowed);
@@ -185,6 +189,7 @@ var XBCAudioVisualizer = function(config = {}) {
    */
   this.soundAllowed = (stream) => {
     'use strict';
+    debugger;
     var self = this;
     
 
@@ -283,6 +288,7 @@ var XBCAudioVisualizer = function(config = {}) {
             window.mca.spectrumWidth =  w;
             window.mca.spectrumHeight = h;
           };
+          resizeHandler();
           /**
            * [we prepare the stream by connecting the audio stream to the needed analyzer]
            */
@@ -322,7 +328,7 @@ var XBCAudioVisualizer = function(config = {}) {
    */
   this.soundNotAllowed = (error) => {
     console.error('there was an error fetching audio, setting defaults:'+error);
-    this.setXBCAudioDeviceAsSource('');
+    this.setXBCAudioDeviceAsSource(null);
   },
   /**
    * [preloadRemoteScript will include the required scripts defined by user on the header file]
@@ -383,7 +389,7 @@ var XBCAudioVisualizer = function(config = {}) {
       haveMask: true,
       isMaskMarkup: false,
       mask: 'mask',
-      audioDeviceId: '',
+      audioDeviceId: null,
       hasCustomSoundAllowed: false,
       customSoundAllowed: function() {},
       customSoundNotAllowed: function() {},
@@ -416,6 +422,7 @@ var XBCAudioVisualizer = function(config = {}) {
     /**
      * then we pass the arguments to the _default attribute to be shared on the class...
      */
+    debugger;
     self._defaults = $.extend({}, defaults, self.config);
 
     var self = this;
@@ -450,7 +457,7 @@ var XBCAudioVisualizer = function(config = {}) {
     /**
      * This could change... I need an fps counter on the panel of properties
      */
-    window.external.SetLocalProperty("prop:Browser"+self._defaults.fps+"fps","1");  
+    window.external.SetLocalProperty("prop:Browser60fps","1");  
 
     /** 
      * ready to go!

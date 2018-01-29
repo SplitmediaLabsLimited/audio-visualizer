@@ -79,9 +79,9 @@ $(()=>{
   configWindow,
   myItem;
 
-  const _DEFAULT_SENSITIVITY   = 1,
+  const _DEFAULT_SENSITIVITY   = 50,
   _DEFAULT_TEMPORALSMOOTHING   = 0.7,
-  _DEFAULT_SMOOTHPOINTS        = 1,
+  _DEFAULT_SMOOTHPOINTS        = 2,
   _DEFAULT_BITSAMPLE           = 4096,
   _DEFAULT_SPACING             = 5,
   _DEFAULT_ANIMATIONELEMENT    = 'bars',
@@ -128,6 +128,7 @@ $(()=>{
 
   const addComponentEventListeners = () => {
     /** dropdown elements */
+    config.initialized = true;
     audioDeviceId.addEventListener('select-changed', function(){
       config.audioDeviceId = this.value;
       console.log('event-audioDeviceId',{value:this.value});
@@ -158,10 +159,7 @@ $(()=>{
     // smoothPoints.addEventListener('change',function(){});
 
     sensitivity.addEventListener('change',function(){
-      let s = this.value;
-      s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3];
-      s = parseFloat(s);
+      let s = parseInt(this.value,10);
       config.sensitivity = s;
       console.log('event-sensitivity',{value:s});
       setConfig(config);

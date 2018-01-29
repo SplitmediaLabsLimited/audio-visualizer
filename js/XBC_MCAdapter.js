@@ -66,38 +66,17 @@ class XBCMC_adapter {
   }
 
   connectStream(stream){
-    /* 
-    this.mediaStreamSource = this.context.createMediaStreamSource(stream);
-    this.mediaStreamSource.connect(this.context.destination);
-    */
     this.bufferSource = this.context.createMediaStreamSource(stream);
     this.analyser.smoothingTimeConstant = this.temporalSmoothing; 
     this.analyser.minDecibels = -100;
     this.analyser.maxDecibels = -66;
     this.analyser.fftSize = this.maxFftSize;
     this.gainNode = this.context.createGain();
-    this.gainNode.gain.value = this.sensitivity;
+    this.gainNode.gain.value = 0.005 + (0.005 * this.sensitivity);
     this.bufferSource.connect(this.gainNode);
     this.gainNode.connect(this.analyser);
-    //this.muteGainNode = this.context.createGain();
-    //this.muteGainNode.gain.value = -1;
-    // this.scriptProcessor = this.context.createScriptProcessor(stream);
-    // this.scriptProcessor.connect(this.context.destination);
-    // this.analyser = this.context.createAnalyser();
-    // this.analyser.connect(this.scriptProcessor);
-    // this.analyser.smoothingTimeConstant = 0.85;
-    // this.analyser.minDecibels = -100;
-    // this.analyser.maxDecibels = -33;
-    // try {
-    //     this.analyser.fftSize = this.maxFftSize; // ideal bin count
-    //     console.log('Using fftSize of ' + this.analyser.fftSize + ' (woot!)');
-    // } catch (ex) {
-    //     this.analyser.fftSize = 2048; // this will work for most if not all systems
-    //     console.log('Using fftSize of ' + this.analyser.fftSize);
-    //     alert('Could not set optimal fftSize! This may look a bit weird...');
-    // }
-    //this.bufferSource.connect(this.analyser);
   }
+  
   connect(buffer) {
     this.bufferSource = this.context.createMediaStreamSource(buffer);
     this.bufferSource.connect(this.context.destination);

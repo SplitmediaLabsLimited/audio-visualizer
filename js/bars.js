@@ -13,11 +13,10 @@ function remoteFn(canvas,visualizer,spectrum,waveform){
   let counter = 0;
   let gradientObject = null;
   let max = 0;
-  console.log(spectrum.length);
+  
   let compare = 0;
   for (var i = 0; i < dataset.length; i++) {
     usableSpace = canvas.width/(barcount);
-    ///dataset[i] = dataset[i] * ((defaults.sensitivity / 100)*2);
     if(dataset[i] > window.innerHeight){
       dataset[i] = window.innerHeight;
     }
