@@ -22,6 +22,11 @@
     const _setData = function(data){
       console.log('saving this data',data)
       currentItem.saveConfig(data);
+      //if the selected audiodevice id is different than the current visualization audiodevice
+      //I have to refresh the screen to force a new updated device
+      if(window.xbca.defaultDeviceId !== data.audioDeviceId){
+        window.location.reload();
+      }
       _updateGraphic(data);
     }
     const _savedData = function(data){
@@ -114,6 +119,7 @@
       }
       console.log('current Data',data)
       try{
+        debuger;
         window.mca.gainNode.gain.value =  0.005 + (0.005 * data.sensitivity);  
         window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
         window.mca.smoothPoints = data.smoothPoints;
