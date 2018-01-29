@@ -117,13 +117,6 @@ $(()=>{
   IO = xjs.IO;
   const setConfig = function (config){
     myItem.requestSaveConfig(config);
-    /*.then(function(data){
-      myItem.loadConfig()
-      .then( data => {
-        console.log('after saving',data);
-        myItem.refresh();
-      });  
-    });*/
   };
 
   const addComponentEventListeners = () => {
@@ -152,11 +145,6 @@ $(()=>{
       console.log('event-animationElement',{value:this.value});
       setConfig(config);
     });
-
-    /* sliders */
-    // sensitivity.addEventListener('change',function(){});
-    // temporalSmoothing.addEventListener('change',function(){});
-    // smoothPoints.addEventListener('change',function(){});
 
     sensitivity.addEventListener('change',function(){
       let s = parseInt(this.value,10);
@@ -335,14 +323,6 @@ $(()=>{
     console.log('then cfg',config);
     window.audioDevices = [];
     navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId)=>{
-      /**
-       * We make sure to clean up the list of devices... leaving it open will just duplicate elements...
-       */
-      
-      /**
-       * [tmpstr is a cleaned up version of the audio input]
-       * @type {String}
-       */
       let tmpstr = '';
       let tmpArr = [];
       for (let i = uuidAudioSourceId.length - 1; i >= 0; i--) {

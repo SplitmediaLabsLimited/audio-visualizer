@@ -136,7 +136,6 @@ var XBCAudioVisualizer = function(config = {}) {
     /**
      * [if no device id is given, then we will use the default 'XSplitBroadcaster (DirectShow)' source]
      */
-    debugger;
     if (XBCAudioDeviceId === null) {
       navigator.mediaDevices.enumerateDevices().then((uuidAudioSourceId) => {
         let i = 0;
@@ -189,7 +188,6 @@ var XBCAudioVisualizer = function(config = {}) {
    */
   this.soundAllowed = (stream) => {
     'use strict';
-    debugger;
     var self = this;
     
 
@@ -422,7 +420,6 @@ var XBCAudioVisualizer = function(config = {}) {
     /**
      * then we pass the arguments to the _default attribute to be shared on the class...
      */
-    debugger;
     self._defaults = $.extend({}, defaults, self.config);
 
     var self = this;

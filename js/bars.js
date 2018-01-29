@@ -1,19 +1,28 @@
+/**
+ * Copyright (c) 2017 Split Media Labs, All rights reserved.
+ * <licenseinfo@splitmedialabs.com>
+ * 
+ * You may only use this file subject to direct and explicit grant of rights by Split Media Labs,
+ * either by written license agreement or written permission.
+ * 
+ * You may use this file in its original or modified form solely for the purpose, and subject to the terms,
+ * stipulated by the license agreement or permission.
+ * 
+ * If you have not received this file in source code format directly from Split Media Labs,
+ * then you have no right to use this file or any part hereof.
+ * Please delete all traces of the file from your system and notify Split Media Labs immediately.
+ */
 function remoteFn(canvas,visualizer,spectrum,waveform){
-  /** The following is an attempt to emulate the behavior of the bars in monstercat */
   let dataset = spectrum;
   var defaults = window.xbca._defaults
-  //console.log('dataset length',canvas.width);
   let maximumLength = dataset.length;
-  //let sensitivity = defaults.sensitivity;
   let barcount = defaults.barcount;
   let spacing = defaults.spacing;
-  
   let usableSpace = canvas.width/(barcount);
   let _barHeight = null;
   let counter = 0;
   let gradientObject = null;
   let max = 0;
-  
   let compare = 0;
   for (var i = 0; i < dataset.length; i++) {
     usableSpace = canvas.width/(barcount);
