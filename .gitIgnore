@@ -11,3 +11,4 @@ jshint.config
 *.sublime-*
 yarn.lock
 bower_components/~xui/
+working-visualizations/
