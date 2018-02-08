@@ -1,6 +1,8 @@
 body, html {
     font-family: Arial, Verdana, sans-serif !important;
     font-size: 10px;
+    margin:0;
+    padding: 0;
 }
 label, xui-checkbox label{
     font-family: Arial, Verdana, sans-serif !important;
