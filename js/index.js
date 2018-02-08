@@ -23,14 +23,15 @@
     const sourceWindow = xjs.SourcePluginWindow.getInstance();
     const currentItem = item[0];
     const _DEFAULT_SENSITIVITY   = 50,
-    _DEFAULT_TEMPORALSMOOTHING   = 0.7,
+    _DEFAULT_TEMPORALSMOOTHING   = 70,
     _DEFAULT_SMOOTHPOINTS        = 2,
     _DEFAULT_BITSAMPLE           = 4096,
     _DEFAULT_SPACING             = 5,
     _DEFAULT_ANIMATIONELEMENT    = 'bars',
     _DEFAULT_BARCOUNT            = 70,
     _DEFAULT_VISUALIZATIONSELECT = 'flames',
-    _DEFAULT_COLORCODE           = "#FFFFFF";
+    _DEFAULT_COLORCODE           = "#FFFFFF",
+    _DEFAULT_TITLE               = "Visualizer";
 
     const _setData = function(data){
       currentItem.saveConfig(data);
@@ -40,7 +41,7 @@
       _updateGraphic(data);
     }
     const _savedData = function(data){
-      currentItem.setName('XBC Audio Visualizer');
+      currentItem.setName(_DEFAULT_TITLE);
       if(Object.keys(data).length < 2){
         data.audioDeviceId = null;
         data.bitsample = _DEFAULT_BITSAMPLE;
@@ -71,7 +72,9 @@
         data.initialized = true;
       }
       try{
-        window.mca.gainNode.gain.value =  0.005 + (0.005 * data.sensitivity);  
+        window.mca.gainNode.gain.value =  0.005 + (0.005 * data.sensitivity);
+        data.temporalSmoothing = data.temporalSmoothing * 0.01;
+        if(data.temporalSmoothing === 1) data.temporalSmoothing = 0.99; 
         window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
         window.mca.smoothPoints = data.smoothPoints;
         window.mca.barLength = parseInt(data.barcount,10);

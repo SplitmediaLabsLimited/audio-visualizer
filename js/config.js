@@ -80,7 +80,7 @@ $(()=>{
   myItem;
 
   const _DEFAULT_SENSITIVITY   = 50,
-  _DEFAULT_TEMPORALSMOOTHING   = 0.7,
+  _DEFAULT_TEMPORALSMOOTHING   = 70,
   _DEFAULT_SMOOTHPOINTS        = 2,
   _DEFAULT_BITSAMPLE           = 4096,
   _DEFAULT_SPACING             = 5,
@@ -88,7 +88,7 @@ $(()=>{
   _DEFAULT_BARCOUNT            = 70,
   _DEFAULT_VISUALIZATIONSELECT = 'flames',
   _DEFAULT_COLORCODE           = "#FFFFFF",
-  _DEFAULT_TABNAME             = "XBC Audio Visualizer";
+  _DEFAULT_TABNAME             = "Visualizer";
   
   /**
    * [xjs is the XJS Framework]
@@ -137,6 +137,11 @@ $(()=>{
     visualizationSelect.addEventListener('select-changed', function(){
       config.visualizationSelect = this.value;
       console.log('event-visualizationSelect',{value:this.value});
+      if(config.visualizationSelect === "solid"){
+        $(".scv").css('display','flex');
+      } else {
+        $(".scv").css('display','none');
+      }
       setConfig(config);
     });
 
@@ -282,6 +287,13 @@ $(()=>{
       } else {
         visualizationSelect.value = config.visualizationSelect;
       }
+
+      if(config.visualizationSelect === "solid"){
+        $(".scv").css('display','flex');
+      } else {
+        $(".scv").css('display','none');
+      }
+
       
       
       if(!config.hasOwnProperty('colorcode')){

@@ -41,8 +41,9 @@
 	position: absolute;
 	z-index: 10;
 	text-align: center;	
-	margin-left: 24px;
-	margin-top: -99px;
+	margin-left: 100px;
+	margin-top: 0px;
+	left:100px;
 }
 
 #colorPicker .picker-arrow

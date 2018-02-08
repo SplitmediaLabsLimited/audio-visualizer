@@ -407,7 +407,7 @@ var XBCAudioVisualizer = function(config = {}) {
       barcount:70,
       spacing:5,
       smoothPoints:1,
-      temporalSmoothing:0.7
+      temporalSmoothing:70
     }
     $('canvas').remove();
     $('<canvas id="visualizer"></canvas>').appendTo('body');
