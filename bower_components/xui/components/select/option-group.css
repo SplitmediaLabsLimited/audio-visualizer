@@ -8,7 +8,6 @@
 	text-overflow: ellipsis;
   	overflow: hidden;
   	font-weight: bold;
-  	transform: translateZ(0);
   	user-select: none;
 }
 
@@ -17,6 +16,5 @@
 	padding-left: 2em;
 	position: relative;
 	background-color: transparent;
-	transform: translateZ(0);
 	user-select: none;
 }

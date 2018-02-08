@@ -8,7 +8,6 @@
 	text-overflow: ellipsis;
   	overflow: hidden;
   	cursor: pointer;
-  	transform: translateZ(0);
 	user-select: none;
 }
 
@@ -16,6 +15,5 @@
 {
 	background-color: #043151;
 	color: #EEE;
-	transform: translateZ(0);
 	user-select: none;
 }
