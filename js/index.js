@@ -73,9 +73,7 @@
       }
       try{
         window.mca.gainNode.gain.value =  0.005 + (0.005 * data.sensitivity);
-        data.temporalSmoothing = data.temporalSmoothing * 0.01;
-        if(data.temporalSmoothing === 1) data.temporalSmoothing = 0.99; 
-        window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing;
+        window.mca.analyser.smoothingTimeConstant = data.temporalSmoothing * 0.01;
         window.mca.smoothPoints = data.smoothPoints;
         window.mca.barLength = parseInt(data.barcount,10);
         window.mca.analyser.fftSize = parseInt(data.bitsample,10);

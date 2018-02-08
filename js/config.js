@@ -158,19 +158,13 @@ $(()=>{
       setConfig(config);
     });
     temporalSmoothing.addEventListener('change',function(){
-      let s = this.value;
-      s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3];
-      s = parseFloat(s);
+      let s = parseInt(this.value,10);
       config.temporalSmoothing = s;
       console.log('event-temporalSmoothing',{value:s});
       setConfig(config);
     });
     smoothPoints.addEventListener('change',function(){
-      let s = this.value;
-      s = s.toString().split('');
-      s = s[0]+s[1]+s[2]+s[3];
-      s = parseFloat(s);
+      let s = parseInt(this.value,10);
       config.smoothPoints = s;
       console.log('event-smoothPoints',{value:s});
       setConfig(config);

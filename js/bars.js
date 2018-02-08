@@ -30,7 +30,7 @@ function remoteFn(canvas,visualizer,spectrum,waveform){
       dataset[i] = window.innerHeight;
     }
     if(dataset[i] < 1){
-      dataset[i] = 1;
+      dataset[i] = 5;
     }
     if(window.xbca._defaults.visualizationSelect === 'flames'){
       gradientObject = visualizer.createLinearGradient(0,canvas.height - dataset[i],0,canvas.height);
