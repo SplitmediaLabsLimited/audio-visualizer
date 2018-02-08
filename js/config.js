@@ -77,7 +77,8 @@ $(()=>{
   currentSource       = {},
   audioDevices        = [],
   configWindow,
-  myItem;
+  myItem,
+  refreshBitrate = false;
 
   const _DEFAULT_SENSITIVITY   = 50,
   _DEFAULT_TEMPORALSMOOTHING   = 70,
@@ -117,10 +118,16 @@ $(()=>{
   IO = xjs.IO;
   const setConfig = function (config){
     myItem.requestSaveConfig(config);
+    if(refreshBitrate){
+      console.log('refresh');
+      myItem.refresh();
+      refreshBitrate = false;
+    }
   };
 
   const addComponentEventListeners = () => {
     /** dropdown elements */
+
     config.initialized = true;
     audioDeviceId.addEventListener('select-changed', function(){
       config.audioDeviceId = this.value;
@@ -131,7 +138,9 @@ $(()=>{
     bitsample.addEventListener('select-changed', function(){
       config.bitsample = parseInt(this.value,10);
       console.log('event-bitsample',{value:this.value});
+      refreshBitrate = true;
       setConfig(config);
+
     });
 
     visualizationSelect.addEventListener('select-changed', function(){

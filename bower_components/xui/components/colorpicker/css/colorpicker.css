@@ -41,9 +41,10 @@
 	position: absolute;
 	z-index: 10;
 	text-align: center;	
-	margin-left: 100px;
-	margin-top: 0px;
-	left:100px;
+	margin-left: 22px;
+	margin-top: -64px;
+	width:152px;
+	height:100px;
 }
 
 #colorPicker .picker-arrow
@@ -62,15 +63,14 @@
 #palette
 {
 	overflow: hidden;
-	width: 115px;
 	margin: 5px;
 	border: 1px solid #555555;
 }
 
 #colorPicker div#paletteContainer
 {
-	margin-left: -130px !important;
-	margin-top: -120px !important;
+	/*margin-left: -130px !important;
+	margin-top: -120px !important;*/
 }
 
 #colorPicker #paletteContainer input

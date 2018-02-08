@@ -188,18 +188,30 @@ class XBCMC_adapter {
   }
 
   transformToVisualBins(array) {
-    var newArray = new Uint8Array(this.barLength);
-    for (var i = 0; i < this.barLength; i++) {
-      var bin = Math.pow(i / this.barLength, this.spectrumScale) * (this.spectrumEnd - this.spectrumStart) + this.spectrumStart;
-      newArray[i] = array[Math.floor(bin) + this.spectrumStart] * (bin % 1) +
-        array[Math.floor(bin + 1) + this.spectrumStart] * (1 - (bin % 1))
-    }
+    var newArray = new Uint8Array(array.length);
+    //console.log(`this.barLength : ${this.barLength}, array.length: ${array.length}`);
+    //if(this.barLength >= array.length){
+      for (var i = 0; i < array.length; i++) {
+        var bin = Math.pow(i / array.length, this.spectrumScale) * (this.spectrumEnd - this.spectrumStart) + this.spectrumStart;
+        //newArray[i] = array[Math.floor(bin) + this.spectrumStart] * (bin % 1) + array[Math.floor(bin + 1) + this.spectrumStart] * (1 - (bin % 1))
+        //newArray[i] = array[i] * (bin % 1) + array[i+1] * (1 - (bin % 1));
+        newArray[i] = array[i];
+      }  
+    // } else {
+    //   for (var i = 0; i < array.length; i++) {
+    //     var bin = Math.pow(i / array.length, this.spectrumScale) * (this.spectrumEnd - this.spectrumStart) + this.spectrumStart;
+    //     newArray[i] = array[Math.floor(bin) + this.spectrumStart] * (bin % 1) + array[Math.floor(bin + 1) + this.spectrumStart] * (1 - (bin % 1))
+    //     //newArray[i] = array[i] * (bin % 1) + array[i+1] * (1 - (bin % 1));
+    //     //newArray[i] = array[i];
+    //   }  
+    // }
+    
     return newArray;
   }
 
   normalizeAmplitude(array) {
     var values = [];
-    for (var i = 0; i < this.barLength; i++) {
+    for (var i = 0; i < array.length; i++) {
       //if (begun) {
         values[i] = array[i] / 255 * this.spectrumHeight;
       //} else {
@@ -256,12 +268,12 @@ class XBCMC_adapter {
 
   tailTransform(array) {
     var values = [];
-    for (var i = 0; i < this.barLength; i++) {
+    for (var i = 0; i < array.length; i++) {
       var value = array[i];
       if (i < this.headMargin) {
         value *= this.headMarginSlope * Math.pow(i + 1, this.marginDecay) + this.minMarginWeight;
-      } else if (this.barLength - i <= this.tailMargin) {
-        value *= this.tailMarginSlope * Math.pow(this.barLength - i, this.marginDecay) + this.minMarginWeight;
+      } else if (array.length - i <= this.tailMargin) {
+        value *= this.tailMarginSlope * Math.pow(array.length - i, this.marginDecay) + this.minMarginWeight;
       }
       values[i] = value;
     }
@@ -271,7 +283,7 @@ class XBCMC_adapter {
   exponentialTransform(array) {
     var newArr = [];
     for (var i = 0; i < array.length; i++) {
-      var exp = (this.spectrumMaxExponent - this.spectrumMinExponent) * (1 - Math.pow(i / this.barLength, this.spectrumExponentScale)) + this.spectrumMinExponent;
+      var exp = (this.spectrumMaxExponent - this.spectrumMinExponent) * (1 - Math.pow(i / array.length, this.spectrumExponentScale)) + this.spectrumMinExponent;
       newArr[i] = Math.max(Math.pow(array[i] / this.spectrumHeight, exp) * this.spectrumHeight, 1);
     }
     return newArr;
@@ -385,12 +397,7 @@ class XBCMC_adapter {
     return newArr;
   }
 
-  amplify(array){
-    for(let i = 0; i < array.length; i++){
-      array[i] = array[i] * (this.sensitivity * 2);
-    }
-    return array;
-  }
+  
 
   initSpectrumHandler() {
     this.scriptProcessor.onaudioprocess = this.fetchSpectrum;
@@ -405,6 +412,7 @@ class XBCMC_adapter {
       this.analyser.getByteFrequencyData(this.freqDomain);
       var array = this.transformToVisualBins(this.freqDomain);
       this.freqDomain = array;
+      //console.log('this.analyser.frequencyBinCount',this.analyser.frequencyBinCount);
       return this.drawSpectrum(this.freqDomain)
   }
 
